@@ -9,8 +9,12 @@ import org.eclipse.jetty.webapp.WebAppContext;
 
 import cb_server.DB.CBServerDB;
 
+import CB_Core.CoreSettingsForward;
+import CB_Core.FilterProperties;
+import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
+import CB_Core.Types.Categories;
 import CB_Core.Util.FileIO;
 
 
@@ -23,12 +27,11 @@ public class CacheboxServer
     {
     	System.out.println("Hallo Jetty Vaadin Server");
     	System.out.println("Initialize Config");
-/*    	InitialConfig();
+    	InitialConfig();
     	Config.settings.ReadFromDB();
-		System.out.println("Port: " + Config.settings.Port.getValue());
-        Config.settings.Port.setValue(8876);
-        Config.settings.WriteToDB();
-  */  	
+    	Config.settings.WriteToDB();
+    	InitialCacheDB();
+  	
     	
     	
         Server server = new Server(8085); 
@@ -45,6 +48,22 @@ public class CacheboxServer
         server.join();
     }
     
+	private static void InitialCacheDB() {
+		Database.Data.StartUp("./cachebox/cachebox.db3");
+		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+
+		String sqlWhere = lastFilter.getSqlWhere(Config.settings.GcLogin.getValue());
+		CoreSettingsForward.Categories = new Categories();
+		Database.Data.GPXFilenameUpdateCacheCount();
+
+		synchronized (Database.Data.Query)
+		{
+			CacheListDAO cacheListDAO = new CacheListDAO();
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere);
+		}
+
+	}
+
 	public static void InitialConfig()
 	{
 

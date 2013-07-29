@@ -2,6 +2,7 @@ package cb_server;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 import org.vaadin.addon.leaflet.LMap;
 import org.vaadin.addon.leaflet.LPolyline;
@@ -9,13 +10,21 @@ import org.vaadin.addon.leaflet.shared.BaseLayer;
 import org.vaadin.addon.leaflet.shared.Control;
 import org.vaadin.addon.leaflet.shared.Point;
 
+import CB_Core.DB.Database;
+
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+
+import de.steinwedel.messagebox.ButtonId;
+import de.steinwedel.messagebox.Icon;
+import de.steinwedel.messagebox.MessageBox;
 
 @SuppressWarnings("serial")
 @Theme("cb_server")
@@ -24,17 +33,31 @@ public class CB_ServerUI extends UI {
 
 	@Override
 	protected void init(VaadinRequest request) {
-		final VerticalLayout layout = new VerticalLayout();
+        // Force locale "English"
+        MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
+        // You can use MessageBox.RESOURCES_FACTORY.setResourceBundle(basename); to localize to your language
+
+        final HorizontalLayout layout = new HorizontalLayout();
 		layout.setMargin(true);
 		setContent(layout);
 
-		Button button = new Button("Click Me");
+		VerticalLayout vertical = new VerticalLayout();
+		
+		final com.vaadin.ui.TextField gcLogin = new TextField("GCLogin");
+		gcLogin.setValue(Config.settings.GcLogin.getValue());
+		vertical.addComponent(gcLogin);
+
+		Button button = new Button("Caches: " + Database.Data.Query.size());
 		button.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
-				layout.addComponent(new Label("Thank you for clicking"));
+				Config.settings.GcLogin.setValue(gcLogin.getValue());
+				Config.settings.WriteToDB();
+				MessageBox.showPlain(Icon.INFO, "Settings", "Gespeichert", ButtonId.OK);
 			}
 		});
-//		layout.addComponent(button);
+		vertical.addComponent(button);
+
+		layout.addComponent(vertical);
 				
 		
         leafletMap = new LMap();
