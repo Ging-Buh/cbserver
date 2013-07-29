@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
+	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=CB_Server&amp;ivyXmlPath=ivy.xml&amp;confs=default&amp;ivySettingsPath=%24%7Bworkspace_loc%3ACB_Server%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=CB_Server&amp;ivyXmlPath=ivy.xml&amp;confs=widgetset-compile&amp;ivySettingsPath=%24%7Bworkspace_loc%3ACB_Server%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=CB_Server&amp;ivyXmlPath=ivy.xml&amp;confs=nodeploy&amp;ivySettingsPath=%24%7Bworkspace_loc%3ACB_Server%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles="/>
+	<classpathentry kind="lib" path="lib/com.sun.el-1.0.0.v201105211818.jar"/>
+	<classpathentry kind="lib" path="lib/javax.el-2.1.0.v201105211819.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp.jstl-1.2.0.v201105211821.jar"/>
+	<classpathentry kind="lib" path="lib/javax.servlet.jsp-2.1.0.v201105211820.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-ajp-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-annotations-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-client-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-continuation-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-deploy-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-http-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-io-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-jmx-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-jndi-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-overlay-deployer-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-plus-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-policy-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-rewrite-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-security-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-server-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlet-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-servlets-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-util-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-webapp-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-websocket-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/jetty-xml-7.6.11.v20130520.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.jasper.glassfish-2.1.0.v201110031002.jar"/>
+	<classpathentry kind="lib" path="lib/org.apache.taglibs.standard.glassfish-1.2.0.v201112081803.jar"/>
+	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core-3.7.1.jar"/>
+	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.8-20111025.014814-1.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Core"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Rpc"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Utils"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
