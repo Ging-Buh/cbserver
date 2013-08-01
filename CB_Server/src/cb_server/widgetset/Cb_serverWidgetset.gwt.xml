@@ -26,5 +26,5 @@
 
     <inherits name="org.vaadin.addon.leaflet.Widgetset" />
 
-    <inherits name="org.vaadin.hene.popupbutton.widgetset.PopupbuttonWidgetset" />
+    
 </module>
