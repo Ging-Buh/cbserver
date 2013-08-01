@@ -7,6 +7,7 @@ import java.net.URL;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 
+import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
 
 import CB_Core.CoreSettingsForward;
@@ -32,7 +33,8 @@ public class CacheboxServer
     	Config.settings.WriteToDB();
     	InitialCacheDB();
   	
-    	
+    	Rpc_Server rpcServer = new Rpc_Server();
+   
     	
         Server server = new Server(8085); 
         

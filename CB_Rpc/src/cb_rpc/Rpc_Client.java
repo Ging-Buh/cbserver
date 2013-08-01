@@ -23,7 +23,7 @@ public class Rpc_Client {
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 		
 		try {
-			URL url = new URL("http://192.168.1.55:9911/xmlrpc");
+			URL url = new URL("http://192.168.100.115:9911/xmlrpc");
 			config.setServerURL(url);
 		} catch (MalformedURLException e) {
 			System.out.println("SendRpcToPChargeServer - Error: " + e.getMessage());
