@@ -31,8 +31,9 @@ public class Rpc_Server {
 			webServer.setParanoid(false);
 			XmlRpcServerConfigImpl serverConfig = (XmlRpcServerConfigImpl) xmlRpcServer.getConfig();
 			serverConfig.setEnabledForExtensions(true);
-			serverConfig.setContentLengthOptional(false);
-
+			serverConfig.setContentLengthOptional(true);
+			serverConfig.setEnabledForExceptions(true);
+			xmlRpcServer.setConfig(serverConfig);
 			webServer.start();
 			System.out.println("RpcWebServer started");
 		} catch (Exception ex) {

@@ -23,14 +23,20 @@ public class Rpc_Client {
 		XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 		
 		try {
-			URL url = new URL("http://192.168.100.115:9911/xmlrpc");
+//			URL url = new URL("http://192.168.100.115:9911/xmlrpc");
+			URL url = new URL("http://192.168.1.69:9911/xmlrpc");
 			config.setServerURL(url);
+		//	config.setEncoding("UTF-8");
+			config.setGzipCompressing(true);
+			config.setGzipRequesting(true);
+			config.setEnabledForExceptions(true);
 		} catch (MalformedURLException e) {
 			System.out.println("SendRpcToPChargeServer - Error: " + e.getMessage());
 			return;
 		}
 		config.setEnabledForExtensions(true);
-
+		config.setEncoding("UTF-8");
+		
 		client = new XmlRpcClient();
 		client.setConfig(config);		
 	}
