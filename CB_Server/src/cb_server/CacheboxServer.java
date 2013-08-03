@@ -26,7 +26,9 @@ public class CacheboxServer
 {
     public static void main(String[] args) throws Exception
     {
-    	System.out.println("Hallo Jetty Vaadin Server");
+    	System.out.println(System.getProperty("sun.net.http.allowRestrictedHeaders"));
+		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+		System.out.println("Hallo Jetty Vaadin Server");
     	System.out.println("Initialize Config");
     	InitialConfig();
     	Config.settings.ReadFromDB();

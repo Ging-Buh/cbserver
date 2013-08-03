@@ -18,6 +18,7 @@
  */
 package org.apache.xmlrpc.server;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -160,6 +161,7 @@ public abstract class XmlRpcStreamServer extends XmlRpcServer
 		} else {
 			return pStream;
 		}
+		
 	}
 
 	/** Called to prepare the output stream, if content length is

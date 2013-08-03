@@ -291,7 +291,7 @@ public class Connection implements ThreadPool.InterruptableTask, ServerStreamCon
      */
     public void writeResponseHeader(RequestData pData, int pContentLength)
             throws IOException {
-    	System.out.println("writeResponseHeader: pContentLength");
+    	System.out.println("writeResponseHeader: " + pContentLength);
         output.write(toHTTPBytes(pData.getHttpVersion()));
         output.write(ok);
         output.write(serverName);
