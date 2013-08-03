@@ -40,6 +40,7 @@ import org.apache.xmlrpc.serializer.DefaultXMLWriterFactory;
 import org.apache.xmlrpc.serializer.XmlRpcWriter;
 import org.apache.xmlrpc.serializer.XmlWriterFactory;
 import org.apache.xmlrpc.util.SAXParsers;
+import org.apache.xmlrpc.webserver.RequestData;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -222,6 +223,14 @@ public abstract class XmlRpcStreamServer extends XmlRpcServer
 				baos = null;
 				ostream = pConnection.newOutputStream();
 			}
+			// Hier schon den HTTP Header schreiben, dan bei getOutputStream der GZIP-Header geschrieben wird.
+			RequestData data = (RequestData) pConfig;
+			if (pConfig.isEnabledForExtensions()  &&  pConfig.isGzipRequesting()) {
+//				setResponseHeader(pConnection, "Content-Encoding", "gzip");
+				data.getConnection().setResponseHeader("Content-Encoding", "gzip");
+			}
+			data.getConnection().writeResponseHeader(data, -1);
+			// hier im getOutputStream wird der GZIPOutputStream erzeugt und dabei wird in den Stream auch der GZIP-Header geschrieben
 			ostream = getOutputStream(pConnection, pConfig, ostream);
 			try {
 				if (error == null) {
