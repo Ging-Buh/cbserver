@@ -3,6 +3,7 @@ package cb_rpc;
 import org.apache.xmlrpc.server.PropertyHandlerMapping;
 import org.apache.xmlrpc.server.XmlRpcServer;
 import org.apache.xmlrpc.server.XmlRpcServerConfigImpl;
+import org.apache.xmlrpc.server.XmlRpcStreamServer;
 import org.apache.xmlrpc.webserver.WebServer;
 
 public class Rpc_Server {
@@ -20,7 +21,7 @@ public class Rpc_Server {
 		try {
 			webServer = new WebServer(9911);
 
-			XmlRpcServer xmlRpcServer = webServer.getXmlRpcServer();
+			XmlRpcStreamServer xmlRpcServer = webServer.getXmlRpcServer();
 
 			PropertyHandlerMapping phm = new PropertyHandlerMapping();
 
