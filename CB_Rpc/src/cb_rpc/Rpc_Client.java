@@ -6,6 +6,9 @@ import java.net.URL;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
+import cb_rpc.Functions.RpcAnswer;
+import cb_rpc.Functions.RpcMessage;
+
 public class Rpc_Client {
 	// XmlRpc Objecte für den Zugriff auf den RPC-Server
 	private XmlRpcClient client = null;
@@ -49,28 +52,26 @@ public class Rpc_Client {
 	 * @param message
 	 * @return
 	 */
-	public Integer sendRpcToPChargeServer() {
+	public RpcAnswer sendRpcToServer(RpcMessage message) {
 		if (client == null)
 			createRpcConfig();
 		if (client == null) {
 			System.out.println("SendRpcToServer - Cannot create Client!");
-			return new Integer(-1);
+			return null;
 		}
 		try {
 			System.out.println("SendRpcToServer");
-			Object obj = client.execute("Rpc_Functions.Add", new Object[] { new Integer(1), new Integer(2) });
-			if ((obj == null) || (!(obj instanceof Integer))) {
+			Object obj = client.execute("Rpc_Functions.Msg", new Object[] { new Integer(2) });
+			if ((obj == null) || (!(obj instanceof RpcAnswer))) {
 				System.out.println("SendRpcToServer - Result == null");
-				return new Integer(-1);
+				return null;
 			} else {
 				System.out.println("SendRpcToServer - Result = " + obj.toString());
-			//	return (int) obj;
-				Integer i = (Integer) obj;
-				return i;
+				return (RpcAnswer) obj;
 			}
 		} catch (Exception ex) {
 			System.out.println(ex.toString() + " - " + ex.getMessage());
-			return new Integer(-1);
+			return null;
 		}
 
 	}

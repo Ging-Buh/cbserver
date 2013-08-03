@@ -17,6 +17,7 @@ import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
 import CB_Core.Types.Categories;
 import CB_Core.Util.FileIO;
+import Rpc.RpcFunctionsServer;
 
 
 
@@ -35,7 +36,7 @@ public class CacheboxServer
     	Config.settings.WriteToDB();
     	InitialCacheDB();
   	
-    	Rpc_Server rpcServer = new Rpc_Server();
+    	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
    
     	
         Server server = new Server(8085); 

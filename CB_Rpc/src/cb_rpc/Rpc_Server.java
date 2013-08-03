@@ -10,14 +10,14 @@ public class Rpc_Server {
 	// WebServer für die RPC-Communication
 	private WebServer webServer = null;
 
-	public Rpc_Server() {
-		startWebserver();
+	public Rpc_Server(Class rpcFunctions) {
+		startWebserver(rpcFunctions);
 	}
 
 	/**
 	 * Startet den Webserver, der die XmlRpc-Meldungen empfängt
 	 */
-	private void startWebserver() {
+	private void startWebserver(Class rpcFunctions) {
 		try {
 			webServer = new WebServer(9911);
 
@@ -25,7 +25,7 @@ public class Rpc_Server {
 
 			PropertyHandlerMapping phm = new PropertyHandlerMapping();
 
-			phm.addHandler("Rpc_Functions", cb_rpc.Rpc_Functions.class);
+			phm.addHandler("Rpc_Functions", rpcFunctions);
 
 			xmlRpcServer.setHandlerMapping(phm);
 
