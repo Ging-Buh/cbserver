@@ -1,5 +1,8 @@
-com.vaadin.integration.eclipse.previousCompileAction=widgetset
+=\=\=\=\=\=\=
+<<<<<<<=df982a88aaa4c27a77450196ccfbfa0f98705deb
+>>>>>>>=local
+com.vaadin.integration.eclipse.previousCompileAction=theme
 com.vaadin.integration.eclipse.useLatestNightly=false
-com.vaadin.integration.eclipse.widgetsetCompilationEta=151773
-com.vaadin.integration.eclipse.widgetsetDirty=false
+com.vaadin.integration.eclipse.widgetsetCompilationEta=160017
+com.vaadin.integration.eclipse.widgetsetDirty=true
 eclipse.preferences.version=1

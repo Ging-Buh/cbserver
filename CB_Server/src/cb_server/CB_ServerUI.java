@@ -48,6 +48,7 @@ public class CB_ServerUI extends UI {
 		vertical.addComponent(gcLogin);
 
 		Button button = new Button("Caches: " + Database.Data.Query.size());
+		button.setStyleName("test");
 		button.addClickListener(new Button.ClickListener() {
 			public void buttonClick(ClickEvent event) {
 				Config.settings.GcLogin.setValue(gcLogin.getValue());
