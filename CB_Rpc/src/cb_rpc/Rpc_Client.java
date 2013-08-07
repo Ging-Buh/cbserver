@@ -61,7 +61,7 @@ public class Rpc_Client {
 		}
 		try {
 			System.out.println("SendRpcToServer");
-			Object obj = client.execute("Rpc_Functions.Msg", new Object[] { new Integer(2) });
+			Object obj = client.execute("Rpc_Functions.Msg", new Object[] { message });
 			if ((obj == null) || (!(obj instanceof RpcAnswer))) {
 				System.out.println("SendRpcToServer - Result == null");
 				return null;
