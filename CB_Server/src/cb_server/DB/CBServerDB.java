@@ -83,11 +83,11 @@ public class CBServerDB extends Database
 	{
 		if (myDB == null) return null;
 		ResultSet rs = null;
-
+		PreparedStatement statement = null;
 		try
 		{
 
-			PreparedStatement statement = myDB.prepareStatement(sql);
+			statement = myDB.prepareStatement(sql);
 
 			if (args != null)
 			{
@@ -125,14 +125,14 @@ public class CBServerDB extends Database
 			rs2.next();
 
 			rowcount = Integer.parseInt(rs2.getString(1));
-
+			statement2.close();
 		}
 		catch (SQLException e)
 		{
 			e.printStackTrace();
 		}
 
-		return new CBServerDBCursor(rs, rowcount);
+		return new CBServerDBCursor(rs, rowcount, statement);
 	}
 
 	@Override

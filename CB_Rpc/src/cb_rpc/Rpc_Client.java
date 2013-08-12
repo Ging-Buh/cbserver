@@ -29,9 +29,11 @@ public class Rpc_Client {
 			System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 //			URL url = new URL("http://192.168.100.115:9911/xmlrpc");
 			URL url = new URL("http://192.168.1.69:9911/xmlrpc");
+//			URL url = new URL("http://192.168.1.30:9911/xmlrpc");
+			config.setServerURL(url);
 			config.setServerURL(url);
 		//	config.setEncoding("UTF-8");
-			config.setGzipCompressing(true);
+			config.setGzipCompressing(false);
 			config.setGzipRequesting(true);
 			config.setEnabledForExceptions(true);
 		} catch (MalformedURLException e) {

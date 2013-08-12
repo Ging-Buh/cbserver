@@ -1,5 +1,6 @@
 package cb_server.DB;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -8,18 +9,20 @@ import CB_Core.DB.CoreCursor;
 public class CBServerDBCursor extends CoreCursor
 {
 	private ResultSet rs;
+	private PreparedStatement ps;
 	private int rowcount;
 
-	public CBServerDBCursor(ResultSet rs)
+	public CBServerDBCursor(ResultSet rs, PreparedStatement ps)
 	{
 		this.rs = rs;
+		this.ps = ps;
 	}
 
-	public CBServerDBCursor(ResultSet rs, int rowcount)
+	public CBServerDBCursor(ResultSet rs, int rowcount, PreparedStatement ps)
 	{
 		this.rs = rs;
 		this.rowcount = rowcount;
-
+		this.ps = ps;
 	}
 
 	@Override
@@ -70,6 +73,7 @@ public class CBServerDBCursor extends CoreCursor
 		try
 		{
 			if (rs != null) rs.close();
+			if (ps != null) ps.close();
 		}
 		catch (SQLException e)
 		{
