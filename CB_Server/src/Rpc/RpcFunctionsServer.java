@@ -68,7 +68,6 @@ public class RpcFunctionsServer {
 				RpcAnswer_GetCacheList answer = new RpcAnswer_GetCacheList(0);
 				
 				for (Cache cache : cacheList){
-//					cache.longDescription = Database.GetDescription(cache);
 					ArrayList<LogEntry> logs = Database.Logs(cache);
 					int maxLogCount = 10;
 					int actLogCount = 0;
@@ -78,6 +77,7 @@ public class RpcFunctionsServer {
 							break;
 						answer.addLog(log);
 					}
+					cache.ReloadSpoilerRessources();
 				}
 				answer.setCacheList(cacheList);
 				answer.setDataAvailable(dataAvailable);

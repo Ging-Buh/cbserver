@@ -4,19 +4,23 @@ package cb_server;
 import java.net.URI;
 import java.net.URL;
 
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
-
+import CB_Core.Config_Core;
 import CB_Core.CoreSettingsForward;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
+import CB_Core.Settings.SettingsClass_Core;
 import CB_Core.Types.Categories;
 import CB_Core.Util.FileIO;
+import CB_Core.Util.iChanged;
 import Rpc.RpcFunctionsServer;
 
 
@@ -32,8 +36,8 @@ public class CacheboxServer
 		System.out.println("Hallo Jetty Vaadin Server");
     	System.out.println("Initialize Config");
     	InitialConfig();
-    	Config.settings.ReadFromDB();
-    	Config.settings.WriteToDB();
+    	SettingsClass_Core.settings.ReadFromDB();
+    	SettingsClass_Core.settings.WriteToDB();
     	InitialCacheDB();
   	
     	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
@@ -41,14 +45,32 @@ public class CacheboxServer
     	
         Server server = new Server(8085); 
         
+//        VAADIN Part
         WebAppContext webapp = new WebAppContext();
-        
         webapp.setDescriptor("");
         webapp.setResourceBase("./WebContent");
         webapp.setContextPath("/cbserver");
-        
         webapp.setParentLoaderPriority(true);
-        server.setHandler(webapp);
+        
+ // Images
+        WebAppContext webappImages = new WebAppContext();
+        webappImages.setDescriptor("");
+        webappImages.setResourceBase("./cachebox/repository/images");
+        webappImages.setContextPath("/images");
+        webappImages.setParentLoaderPriority(true);
+
+ // Spoiler
+        WebAppContext webappSpoiler = new WebAppContext();
+        webappSpoiler.setDescriptor("");
+        webappSpoiler.setResourceBase("./cachebox/repository/spoiler");
+        webappSpoiler.setContextPath("/spoiler");
+        webappSpoiler.setParentLoaderPriority(true);
+
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler });
+ 
+        server.setHandler(contexts);
+       
         server.start();
         server.join();
     }
@@ -69,10 +91,11 @@ public class CacheboxServer
 
 	}
 
+	
 	public static void InitialConfig()
 	{
 
-		if (Config.settings != null && Config.settings.isLoaded()) return;
+		if (Config.settings != null && SettingsClass_Core.settings.isLoaded()) return;
 
 		// Read Config
 		String workPath = "./cachebox";
