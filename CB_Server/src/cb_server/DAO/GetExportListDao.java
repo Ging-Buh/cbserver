@@ -3,9 +3,9 @@ package cb_server.DAO;
 import cb_rpc.Functions.RpcAnswer;
 import cb_rpc.Functions.RpcAnswer_Error;
 import CB_Core.FilterProperties;
-import CB_Core.DB.CoreCursor;
 import CB_Core.DB.Database;
 import CB_RpcCore.Functions.RpcAnswer_GetExportList;
+import CB_Utils.DB.CoreCursor;
 
 public class GetExportListDao {
 

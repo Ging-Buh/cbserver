@@ -1,14 +1,13 @@
 package cb_server;
 
 import CB_Core.DB.Database;
-import CB_Core.DB.Database_Core;
-import CB_Core.Settings.SettingCategory;
-import CB_Core.Settings.SettingInt;
-import CB_Core.Settings.SettingModus;
-import CB_Core.Settings.SettingStoreType;
-import CB_Core.Settings.SettingString;
 import CB_Core.Settings.SettingsClass_Core;
-import CB_Core.Settings.SettingsList;
+import CB_Utils.DB.Database_Core;
+import CB_Utils.Settings.SettingCategory;
+import CB_Utils.Settings.SettingInt;
+import CB_Utils.Settings.SettingModus;
+import CB_Utils.Settings.SettingStoreType;
+
 
 public class SettingsClass extends SettingsClass_Core {
 

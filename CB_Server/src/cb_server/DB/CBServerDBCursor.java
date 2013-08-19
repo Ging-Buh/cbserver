@@ -4,7 +4,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import CB_Core.DB.CoreCursor;
+import CB_Utils.DB.CoreCursor;
+
 
 public class CBServerDBCursor extends CoreCursor
 {
