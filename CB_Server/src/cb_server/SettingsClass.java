@@ -1,15 +1,16 @@
 package cb_server;
 
 import CB_Core.DB.Database;
-import CB_Core.Settings.SettingsClass_Core;
+import CB_Core.Settings.CB_Core_Settings;
 import CB_Utils.DB.Database_Core;
 import CB_Utils.Settings.SettingCategory;
 import CB_Utils.Settings.SettingInt;
 import CB_Utils.Settings.SettingModus;
 import CB_Utils.Settings.SettingStoreType;
+import CB_Utils.Settings.SettingsList;
 
 
-public class SettingsClass extends SettingsClass_Core {
+public class SettingsClass extends SettingsList implements CB_Core_Settings {
 
 	private static final long serialVersionUID = 3368580647613308244L;
 

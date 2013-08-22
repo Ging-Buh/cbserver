@@ -23,9 +23,9 @@ public class TestRpc {
     	if (answer instanceof RpcAnswer_GetCacheList) {
     		RpcAnswer_GetCacheList gclAnswer = (RpcAnswer_GetCacheList) answer;
     		System.out.println("************* CacheList ***************");
-    		for (Cache cache : gclAnswer.getCacheList()) {
-    			System.out.println(cache.Name);
-    		}
+//    		for (Cache cache : gclAnswer.getCacheList()) {
+//    			System.out.println(cache.Name);
+//    		}
      	}
     }
 

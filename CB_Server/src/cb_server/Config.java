@@ -13,6 +13,12 @@ public class Config extends Config_Core {
 		settings = new SettingsClass();
 	}
 
+	@Override
+	protected void acceptChanges() {
+		// TODO Auto-generated method stub
+		
+	}
+
 	
 
 }

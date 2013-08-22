@@ -16,7 +16,6 @@ import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
-import CB_Core.Settings.SettingsClass_Core;
 import CB_Core.Types.Categories;
 import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
@@ -34,8 +33,6 @@ public class CacheboxServer
 		System.out.println("Hallo Jetty Vaadin Server");
     	System.out.println("Initialize Config");
     	InitialConfig();
-    	SettingsClass_Core.settings.ReadFromDB();
-    	SettingsClass_Core.settings.WriteToDB();
     	InitialCacheDB();
   	
     	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
@@ -93,7 +90,7 @@ public class CacheboxServer
 	public static void InitialConfig()
 	{
 
-		if (Config.settings != null && SettingsClass_Core.settings.isLoaded()) return;
+		if (Config.settings != null && Config.settings.isLoaded()) return;
 
 		// Read Config
 		String workPath = "./cachebox";
