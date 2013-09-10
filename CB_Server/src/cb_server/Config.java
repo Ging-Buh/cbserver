@@ -5,10 +5,10 @@ import CB_Utils.Config_Core;
 
 
 public class Config extends Config_Core {
+	
 	public Config(String workPath) {
 		super(workPath);
-		// TODO Auto-generated constructor stub
-	}
+			}
 
 	public static SettingsClass settings;
 
