@@ -39,6 +39,6 @@
 			rev="&vaadin.version;" conf="widgetset-compile->default" />
 
 		<dependency org="org.vaadin.addon" name="v-leaflet" rev="0.0.8" />
-
+		<dependency org="org.vaadin.addons" name="icepush" rev="0.5.5" />
 	</dependencies>
 </ivy-module>
