@@ -6,8 +6,10 @@ import java.util.HashMap;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.LogDAO;
 import CB_Core.DB.Database;
+import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheList;
+import CB_Core.Types.ImageEntry;
 import CB_Core.Types.LogEntry;
 import CB_RpcCore.Functions.RpcAnswer_GetCacheList;
 import CB_RpcCore.Functions.RpcAnswer_GetExportList;
@@ -78,6 +80,22 @@ public class RpcFunctionsServer {
 						answer.addLog(log);
 					}
 					cache.ReloadSpoilerRessources();
+					// URL für den Download der Spoiler setzen
+					for (ImageEntry image : cache.spoilerRessources) {
+						String path = "";
+						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
+						if (pos < 0) {
+							pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());
+							if (pos < 0) {
+								continue;
+							}
+							path = ":8085/spoilers/";
+						} else {
+							path = ":8085/images/";
+						}
+
+						image.ImageUrl = path;
+					}
 				}
 				answer.setCacheList(cacheList);
 				answer.setDataAvailable(dataAvailable);

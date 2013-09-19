@@ -57,8 +57,8 @@ public class CacheboxServer
  // Spoiler
         WebAppContext webappSpoiler = new WebAppContext();
         webappSpoiler.setDescriptor("");
-        webappSpoiler.setResourceBase("./cachebox/repository/spoiler");
-        webappSpoiler.setContextPath("/spoiler");
+        webappSpoiler.setResourceBase("./cachebox/repository/spoilers");
+        webappSpoiler.setContextPath("/spoilers");
         webappSpoiler.setParentLoaderPriority(true);
 
         ContextHandlerCollection contexts = new ContextHandlerCollection();
