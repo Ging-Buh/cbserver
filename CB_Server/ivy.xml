@@ -17,6 +17,11 @@
 		<conf name="nodeploy" />
 	</configurations>
 	<dependencies defaultconf="default" defaultconfmapping="default->default">
+		
+		<dependency org="org.vaadin.addons" name="qrcode" rev="2.0.1" />
+
+       
+		
 		<!-- The core server part of Vaadin -->
 		<dependency org="com.vaadin" name="vaadin-server" rev="&vaadin.version;" />
 

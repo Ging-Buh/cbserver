@@ -38,7 +38,8 @@ public class CacheboxServer
     	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
    
     	
-        Server server = new Server(8085); 
+//        Server server = new Server(8085); 
+        Server server = new Server(80);
         
 //        VAADIN Part
         WebAppContext webapp = new WebAppContext();
