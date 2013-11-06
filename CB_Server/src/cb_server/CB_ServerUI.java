@@ -25,6 +25,7 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
+import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TextField;
@@ -140,6 +141,26 @@ public class CB_ServerUI extends UI {
 		caretaker.schedule(action, 1000, 5000);
 
 		button.setCaption("c1");
+		
+		
+		
+		
+		final Button open = new Button("Open Settings-Window");
+		open.addClickListener(new ClickListener() {
+		    public void buttonClick(ClickEvent event) {
+		    	SettingsWindow sub = SettingsWindow.getInstanz();
+		        
+		    	if(!UI.getCurrent().getWindows().contains(sub))
+		    		
+		        // Add it to the root component
+		        UI.getCurrent().addWindow(sub);
+		    }
+		});
+		
+		vertical.addComponent(open);
+		
+		
+		
 
 	}
 
