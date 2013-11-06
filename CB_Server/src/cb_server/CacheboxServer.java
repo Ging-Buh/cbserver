@@ -37,15 +37,20 @@ public class CacheboxServer
   	
     	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
    
-    	
+    	int port = 80;
+    	try {
+    		port = Integer.valueOf(args[0]);
+    	} catch (Exception ex) {
+    		// Default Port 80 einstellen
+    	}
 //        Server server = new Server(8085); 
-        Server server = new Server(80);
+        Server server = new Server(port);
         
 //        VAADIN Part
         WebAppContext webapp = new WebAppContext();
         webapp.setDescriptor("");
         webapp.setResourceBase("./WebContent");
-        webapp.setContextPath("/cbserver");
+        webapp.setContextPath("/");
         webapp.setParentLoaderPriority(true);
         
  // Images
@@ -68,6 +73,7 @@ public class CacheboxServer
         server.setHandler(contexts);
        
         server.start();
+        System.out.println("Vaadin Server started on port " + port);
         server.join();
     }
     
