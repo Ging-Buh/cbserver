@@ -1,9 +1,13 @@
 package cb_server;
 
-
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.net.URI;
 import java.net.URL;
 
+import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -20,84 +24,100 @@ import CB_Core.Types.Categories;
 import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
 
-
-
-
-
-public class CacheboxServer
-{
-    public static void main(String[] args) throws Exception
-    {
-    	System.out.println(System.getProperty("sun.net.http.allowRestrictedHeaders"));
+public class CacheboxServer {
+	public static void main(String[] args) throws Exception {
+		writeLockFile("cbserver.lock");
+		System.out.println(System
+				.getProperty("sun.net.http.allowRestrictedHeaders"));
 		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 		System.out.println("Hallo Jetty Vaadin Server");
-    	System.out.println("Initialize Config");
-    	InitialConfig();
-    	InitialCacheDB();
-  	
-    	Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
-   
-    	int port = 80;
-    	try {
-    		port = Integer.valueOf(args[0]);
-    	} catch (Exception ex) {
-    		// Default Port 80 einstellen
-    	}
-//        Server server = new Server(8085); 
-        Server server = new Server(port);
-        
-//        VAADIN Part
-        WebAppContext webapp = new WebAppContext();
-        webapp.setDescriptor("");
-        webapp.setResourceBase("./WebContent");
-        webapp.setContextPath("/");
-        webapp.setParentLoaderPriority(true);
-        
- // Images
-        WebAppContext webappImages = new WebAppContext();
-        webappImages.setDescriptor("");
-        webappImages.setResourceBase("./cachebox/repository/images");
-        webappImages.setContextPath("/images");
-        webappImages.setParentLoaderPriority(true);
+		System.out.println("Initialize Config");
+		InitialConfig();
+		InitialCacheDB();
 
- // Spoiler
-        WebAppContext webappSpoiler = new WebAppContext();
-        webappSpoiler.setDescriptor("");
-        webappSpoiler.setResourceBase("./cachebox/repository/spoilers");
-        webappSpoiler.setContextPath("/spoilers");
-        webappSpoiler.setParentLoaderPriority(true);
+		Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
 
-        ContextHandlerCollection contexts = new ContextHandlerCollection();
-        contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler });
- 
-        server.setHandler(contexts);
-       
-        server.start();
-        System.out.println("Vaadin Server started on port " + port);
-        server.join();
-    }
-    
+		int port = 80;
+		try {
+			port = Integer.valueOf(args[0]);
+		} catch (Exception ex) {
+			// Default Port 80 einstellen
+		}
+		// Server server = new Server(8085);
+		Server server = new Server(port);
+
+		// VAADIN Part
+		WebAppContext webapp = new WebAppContext();
+		webapp.setDescriptor("");
+		webapp.setResourceBase("./WebContent");
+		webapp.setContextPath("/");
+		webapp.setParentLoaderPriority(true);
+
+		// Images
+		WebAppContext webappImages = new WebAppContext();
+		webappImages.setDescriptor("");
+		webappImages.setResourceBase("./cachebox/repository/images");
+		webappImages.setContextPath("/images");
+		webappImages.setParentLoaderPriority(true);
+
+		// Spoiler
+		WebAppContext webappSpoiler = new WebAppContext();
+		webappSpoiler.setDescriptor("");
+		webappSpoiler.setResourceBase("./cachebox/repository/spoilers");
+		webappSpoiler.setContextPath("/spoilers");
+		webappSpoiler.setParentLoaderPriority(true);
+
+		ContextHandlerCollection contexts = new ContextHandlerCollection();
+		contexts.setHandlers(new Handler[] { webapp, webappImages,
+				webappSpoiler });
+
+		server.setHandler(contexts);
+
+		server.start();
+		System.out.println("Vaadin Server started on port " + port);
+		server.join();
+	}
+
+	public static void writeLockFile(String filename) {
+		String prePid = ManagementFactory.getRuntimeMXBean().getName();
+		String pid = null;
+		for (int i = 0; i < prePid.length(); i++)
+			if (prePid.charAt(i) == '@')
+				pid = prePid.substring(0, i);
+		writeTextToFile(filename, pid);
+	}
+
+	public static void writeTextToFile(String filename, String text) {
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+			out.write(text);
+			out.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	private static void InitialCacheDB() {
 		Database.Data.StartUp("./cachebox/cachebox.db3");
-		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		FilterProperties lastFilter = new FilterProperties(
+				FilterProperties.presets[0].toString());
 
-		String sqlWhere = lastFilter.getSqlWhere(Config.settings.GcLogin.getValue());
+		String sqlWhere = lastFilter.getSqlWhere(Config.settings.GcLogin
+				.getValue());
 		CoreSettingsForward.Categories = new Categories();
 		Database.Data.GPXFilenameUpdateCacheCount();
 
-		synchronized (Database.Data.Query)
-		{
+		synchronized (Database.Data.Query) {
 			CacheListDAO cacheListDAO = new CacheListDAO();
 			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere);
 		}
 
 	}
 
-	
-	public static void InitialConfig()
-	{
+	public static void InitialConfig() {
 
-		if (Config.settings != null && Config.settings.isLoaded()) return;
+		if (Config.settings != null && Config.settings.isLoaded())
+			return;
 
 		// Read Config
 		String workPath = "./cachebox";
@@ -105,35 +125,27 @@ public class CacheboxServer
 		Config.Initialize(workPath);
 
 		// hier muss die Config Db initialisiert werden
-		try
-		{
+		try {
 			Database.Settings = new CBServerDB(DatabaseType.Settings);
-		}
-		catch (ClassNotFoundException e)
-		{
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
 		Database.Settings.StartUp(Config.WorkPath + "/User/Config.db3");
 
-		try
-		{
+		try {
 			Database.Data = new CBServerDB(DatabaseType.CacheBox);
-		}
-		catch (ClassNotFoundException e)
-		{
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 
-		try
-		{
+		try {
 			Database.FieldNotes = new CBServerDB(DatabaseType.FieldNotes);
-		}
-		catch (ClassNotFoundException e)
-		{
+		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		if (!FileIO.createDirectory(Config.WorkPath + "/User")) return;
+		if (!FileIO.createDirectory(Config.WorkPath + "/User"))
+			return;
 		Database.FieldNotes.StartUp(Config.WorkPath + "/User/FieldNotes.db3");
 	}
 
