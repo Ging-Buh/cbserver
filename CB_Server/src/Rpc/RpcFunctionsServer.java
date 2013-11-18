@@ -26,6 +26,7 @@ import cb_server.DAO.GetExportListDao;
 public class RpcFunctionsServer {
 	// speichert geladene CacheLists anhand der Categoriy
 	private static HashMap<Long, CacheList> loadedCacheLists = new HashMap<Long, CacheList>();
+	public static int jettyPort = 80;
 	
 	public RpcAnswer Msg(RpcMessage message) {
 		if (message instanceof RpcMessage_GetExportList) {
@@ -34,6 +35,11 @@ public class RpcFunctionsServer {
 			RpcAnswer answer = dao.getList();
 			return answer;
 		} else if (message instanceof RpcMessage_GetCacheList) {
+			// Debug-Meldungen
+			System.out.println("DescriptionImageFolder: " + CB_Core_Settings.DescriptionImageFolder.getValue());
+			System.out.println("SpoilerFolder: " + CB_Core_Settings.SpoilerFolder.getValue());
+			
+			
 			RpcMessage_GetCacheList msg = (RpcMessage_GetCacheList) message;
 			
 			CacheList loadedCacheList = null;
@@ -87,15 +93,16 @@ public class RpcFunctionsServer {
 					// URL für den Download der Spoiler setzen
 					for (ImageEntry image : cache.spoilerRessources) {
 						String path = "";
+						System.out.println("Image: " + image.LocalPath);
 						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
 						if (pos < 0) {
 							pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());
 							if (pos < 0) {
 								continue;
 							}
-							path = ":8085/spoilers/";
+							path = ":" + jettyPort + "/spoilers/";
 						} else {
-							path = ":8085/images/";
+							path = ":" + jettyPort + "/images/";
 						}
 
 						image.ImageUrl = path;

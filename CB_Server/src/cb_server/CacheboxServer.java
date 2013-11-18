@@ -1,13 +1,10 @@
 package cb_server;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.net.URI;
-import java.net.URL;
-
-import org.apache.mina.core.write.WriteToClosedSessionException;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -35,14 +32,15 @@ public class CacheboxServer {
 		InitialConfig();
 		InitialCacheDB();
 
-		Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
-
 		int port = 80;
 		try {
 			port = Integer.valueOf(args[0]);
 		} catch (Exception ex) {
 			// Default Port 80 einstellen
 		}
+		RpcFunctionsServer.jettyPort = port;
+		Rpc_Server rpcServer = new Rpc_Server(RpcFunctionsServer.class);
+
 		// Server server = new Server(8085);
 		Server server = new Server(port);
 
@@ -56,14 +54,14 @@ public class CacheboxServer {
 		// Images
 		WebAppContext webappImages = new WebAppContext();
 		webappImages.setDescriptor("");
-		webappImages.setResourceBase("./cachebox/repository/images");
+		webappImages.setResourceBase(Config.WorkPath + "/repository/images");
 		webappImages.setContextPath("/images");
 		webappImages.setParentLoaderPriority(true);
 
 		// Spoiler
 		WebAppContext webappSpoiler = new WebAppContext();
 		webappSpoiler.setDescriptor("");
-		webappSpoiler.setResourceBase("./cachebox/repository/spoilers");
+		webappSpoiler.setResourceBase(Config.WorkPath + "/repository/spoilers");
 		webappSpoiler.setContextPath("/spoilers");
 		webappSpoiler.setParentLoaderPriority(true);
 
@@ -98,7 +96,7 @@ public class CacheboxServer {
 	}
 
 	private static void InitialCacheDB() {
-		Database.Data.StartUp("./cachebox/cachebox.db3");
+		Database.Data.StartUp(Config.WorkPath + "/cachebox.db3");
 		FilterProperties lastFilter = new FilterProperties(
 				FilterProperties.presets[0].toString());
 
@@ -121,7 +119,13 @@ public class CacheboxServer {
 
 		// Read Config
 		String workPath = "./cachebox";
-
+		// nachschauen ob im aktuellen Ordner eine cachebox.db3 vorhanden ist und in diesem Fall den aktuellen Ordner als WorkPath verwenden
+		File file = new File("./cachebox.db3");
+		if (file.exists()) {
+			workPath = "./";			
+		}
+		System.out.println("WorkPath: " + workPath);
+		
 		Config.Initialize(workPath);
 
 		// hier muss die Config Db initialisiert werden
