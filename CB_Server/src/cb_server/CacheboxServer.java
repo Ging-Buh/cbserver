@@ -5,10 +5,13 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
@@ -22,16 +25,17 @@ import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
 
 public class CacheboxServer {
+	public static Logger log;
 	public static void main(String[] args) throws Exception {
+		log = LoggerFactory.getLogger(CacheboxServer.class);
 		writeLockFile("cbserver.lock");
-		System.out.println(System
-				.getProperty("sun.net.http.allowRestrictedHeaders"));
+		log.debug(System.getProperty("sun.net.http.allowRestrictedHeaders"));
 		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-		System.out.println("Hallo Jetty Vaadin Server");
-		System.out.println("Initialize Config");
+		log.info("Hallo Jetty Vaadin Server");
+		log.debug("Initialize Config");
 		InitialConfig();
 		InitialCacheDB();
-
+		
 		int port = 80;
 		try {
 			port = Integer.valueOf(args[0]);
@@ -72,7 +76,7 @@ public class CacheboxServer {
 		server.setHandler(contexts);
 
 		server.start();
-		System.out.println("Vaadin Server started on port " + port);
+		log.info("Vaadin Server started on port " + port);
 		server.join();
 	}
 
@@ -118,13 +122,15 @@ public class CacheboxServer {
 			return;
 
 		// Read Config
-		String workPath = "./cachebox";
+		String workPath = "cachebox";
 		// nachschauen ob im aktuellen Ordner eine cachebox.db3 vorhanden ist und in diesem Fall den aktuellen Ordner als WorkPath verwenden
-		File file = new File("./cachebox.db3");
+		File file = new File("cachebox.db3");
 		if (file.exists()) {
-			workPath = "./";			
+			workPath = "";			
 		}
-		System.out.println("WorkPath: " + workPath);
+		File file2 = new File(workPath);
+		workPath = file2.getAbsolutePath();
+		log.info("WorkPath: " + workPath);
 		
 		Config.Initialize(workPath);
 

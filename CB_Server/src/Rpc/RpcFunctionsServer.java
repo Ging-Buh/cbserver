@@ -22,13 +22,20 @@ import CB_RpcCore.Functions.RpcMessage_GetExportList;
 import cb_rpc.Functions.RpcAnswer;
 import cb_rpc.Functions.RpcMessage;
 import cb_server.DAO.GetExportListDao;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RpcFunctionsServer {
 	// speichert geladene CacheLists anhand der Categoriy
 	private static HashMap<Long, CacheList> loadedCacheLists = new HashMap<Long, CacheList>();
 	public static int jettyPort = 80;
+	public static Logger log = null;
 	
 	public RpcAnswer Msg(RpcMessage message) {
+		if (log == null) {
+			log = LoggerFactory.getLogger(RpcFunctionsServer.class);
+		}
+		
 		if (message instanceof RpcMessage_GetExportList) {
 			GetExportListDao dao = new GetExportListDao();
 			
@@ -36,8 +43,8 @@ public class RpcFunctionsServer {
 			return answer;
 		} else if (message instanceof RpcMessage_GetCacheList) {
 			// Debug-Meldungen
-			System.out.println("DescriptionImageFolder: " + CB_Core_Settings.DescriptionImageFolder.getValue());
-			System.out.println("SpoilerFolder: " + CB_Core_Settings.SpoilerFolder.getValue());
+			log.debug("DescriptionImageFolder: " + CB_Core_Settings.DescriptionImageFolder.getValue());
+			log.debug("SpoilerFolder: " + CB_Core_Settings.SpoilerFolder.getValue());
 			
 			
 			RpcMessage_GetCacheList msg = (RpcMessage_GetCacheList) message;
@@ -93,7 +100,7 @@ public class RpcFunctionsServer {
 					// URL für den Download der Spoiler setzen
 					for (ImageEntry image : cache.spoilerRessources) {
 						String path = "";
-						System.out.println("Image: " + image.LocalPath);
+						log.debug("Image: " + image.LocalPath);
 						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
 						if (pos < 0) {
 							pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());
@@ -118,7 +125,7 @@ public class RpcFunctionsServer {
 			}
 		} else if (message instanceof RpcMessage_ExportChangesToServer) {
 			RpcMessage_ExportChangesToServer msg = (RpcMessage_ExportChangesToServer) message;
-			System.out.println("Export vom ACB!!!");
+			log.info("Export vom ACB!!!");
 			
 			for (ExportEntry entry : msg.getExportList()) {
 				switch (entry.changeType) {
@@ -141,14 +148,14 @@ public class RpcFunctionsServer {
 				case NotFound:
 					break;
 				case NotesText:
-					System.out.println("New Notes Text: " + entry.note);
+					log.debug("New Notes Text: " + entry.note);
 					Database.SetNote(entry.cacheId, entry.note);
 					break;
 				case NumTravelbugs:
 					break;
 				case SolverText:
 					// Change Solver Text
-					System.out.println("New Solver Text: " + entry.solver);
+					log.debug("New Solver Text: " + entry.solver);
 					Database.SetSolver(entry.cacheId, entry.solver);
 					break;
 				case Undefined:

@@ -31,4 +31,6 @@
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
 
     <inherits name="fi.jasoft.qrcode.QrcodeWidgetset" />
+
+    <inherits name="org.vaadin.addon.leaflet.draw.DrawWidgetset" />
 </module>

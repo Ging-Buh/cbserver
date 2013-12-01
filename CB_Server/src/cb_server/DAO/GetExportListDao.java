@@ -2,6 +2,7 @@ package cb_server.DAO;
 
 import cb_rpc.Functions.RpcAnswer;
 import cb_rpc.Functions.RpcAnswer_Error;
+import cb_server.CacheboxServer;
 import CB_Core.FilterProperties;
 import CB_Core.DB.Database;
 import CB_RpcCore.Functions.RpcAnswer_GetExportList;
@@ -31,6 +32,7 @@ public class GetExportListDao {
 			return result;
 		} catch (Exception ex) {
 			RpcAnswer result = new RpcAnswer_Error(-1, ex.getMessage());
+			CacheboxServer.log.error("GetExportListDao.getList(): " + ex.getMessage());
 			return result;
 		}
 
