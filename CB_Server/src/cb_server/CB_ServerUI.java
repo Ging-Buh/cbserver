@@ -14,6 +14,7 @@ import CB_Core.DB.Database;
 import cb_server.Views.CacheListView;
 import cb_server.Views.DescriptionView;
 import cb_server.Views.MapView;
+import cb_server.Views.WaypointView;
 
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Theme;
@@ -30,6 +31,7 @@ import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.VerticalSplitPanel;
 
 import de.steinwedel.messagebox.ButtonId;
 import de.steinwedel.messagebox.Icon;
@@ -110,12 +112,16 @@ public class CB_ServerUI extends UI {
 		MapView mv = new MapView();
 		DescriptionView dv = new DescriptionView();
 		CacheListView clv = new CacheListView();
+		WaypointView wpv = new WaypointView();
 		
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
 		this.setContent(vl);
 		Panel header = new Panel();	// Header
 		HorizontalSplitPanel content = new HorizontalSplitPanel();	// Inhalt
+		VerticalSplitPanel contentSplit = new VerticalSplitPanel();
+		
+		content.setFirstComponent(contentSplit);
 		Panel footer = new Panel();	// Footer
 		
 		vl.addComponent(header);
@@ -134,7 +140,8 @@ public class CB_ServerUI extends UI {
 		
 
 		TabSheet tabLinks = new TabSheet();
-		content.setFirstComponent(tabLinks);
+		contentSplit.setFirstComponent(tabLinks);
+		contentSplit.setSplitPosition(75, Sizeable.UNITS_PERCENTAGE);
 		tabLinks.setSizeFull();
 	
 		TabSheet tabRechts = new TabSheet();
@@ -143,6 +150,11 @@ public class CB_ServerUI extends UI {
 		tabRechts.addTab(dv, "DescriptionView");
 		tabLinks.addTab(clv, "CacheList");
 		tabRechts.addTab(mv, "MapView");
+		
+		TabSheet tabLinksUnten = new TabSheet();
+		contentSplit.setSecondComponent(tabLinksUnten);
+		tabLinksUnten.setSizeFull();
+		tabLinksUnten.addTab(wpv, "Waypoints");
 		
 		// Inhalt vom Footer
 		Button bu = new Button("Unten");

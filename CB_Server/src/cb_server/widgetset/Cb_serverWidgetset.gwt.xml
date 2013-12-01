@@ -33,4 +33,6 @@
     <inherits name="fi.jasoft.qrcode.QrcodeWidgetset" />
 
     <inherits name="org.vaadin.addon.leaflet.draw.DrawWidgetset" />
+
+    <inherits name="org.vaadin.peter.contextmenu.ContextmenuWidgetset" />
 </module>

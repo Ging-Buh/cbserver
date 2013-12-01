@@ -58,7 +58,6 @@ public class CacheListView extends Panel {
 				if (o instanceof CacheBean) {
 					SelectedCacheChangedEventList.Call(((CacheBean)o).cache, null);
 				}
-				System.out.println(o.toString());
 			}
 		});
 		

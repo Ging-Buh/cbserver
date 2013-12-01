@@ -45,7 +45,6 @@
 
 		<dependency org="org.vaadin.addon" name="v-leaflet" rev="0.0.8" />
 		<dependency org="org.vaadin.addons" name="icepush" rev="0.5.5" />
-		<dependency org="org.vaadin.addons" name="borderlayout" rev="0.5" />
-		
+		<dependency org="org.vaadin.addons" name="contextmenu" rev="4.2.1" />
 	</dependencies>
 </ivy-module>

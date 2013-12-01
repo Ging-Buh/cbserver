@@ -83,7 +83,11 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 		if (cache == null) {
 			return;
 		}
-		leafletMap.setCenter(cache.Latitude(), cache.Longitude());		
+		if (waypoint == null) {
+			leafletMap.setCenter(cache.Latitude(), cache.Longitude());
+		} else {
+			leafletMap.setCenter(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
+		}
 	}
 
 }
