@@ -18,6 +18,7 @@ import org.vaadin.addon.leaflet.shared.Control;
 import org.vaadin.addon.leaflet.shared.Point;
 
 import CB_Core.DB.Database;
+import CB_Core.Enums.CacheTypes;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
@@ -38,6 +39,9 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 
 	private static final long serialVersionUID = 5665480835651086183L;
 	public LMap leafletMap;
+	String[] MapIconsSmall = { "small1yes", "small2yes", "small3yes", "small4yes", "small5yes", "small5solved",
+			"small6yes", "small7yes", "small1no", "small2no", "small3no", "small4no", "small5no", "small5solved-no", 
+			"small6no", "small7no", "20", "22" };
 
 	public MapView() {
 	
@@ -88,7 +92,7 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 			@Override
 			public void onMoveEnd(LeafletMoveEndEvent event) {
 				System.out.println("Move");
-				updateIcons(event.getBounds());
+				updateIcons(event.getZoomLevel(), event.getBounds());
 				
 			}
 		});
@@ -102,8 +106,12 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 	HashMap<Long, LMarker> markers = null;
 	LLayerGroup llg = null;
 	
-	private void updateIcons(Bounds bounds) {
+	private void updateIcons(int zoom, Bounds bounds) {
 		long start = System.currentTimeMillis();
+		int iconSize = 0; // 8x8
+		if ((zoom >= 13) && (zoom <= 14)) iconSize = 1; // 13x13
+		else if (zoom > 14) iconSize = 2; // default Images
+		
 		if (markers == null) {
 			llg = new LLayerGroup();
 			markers = new HashMap<Long, LMarker>();
@@ -111,10 +119,8 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 				LMarker marker = new LMarker(cache.Latitude(), cache.Longitude());
 				marker.setTitle(cache.Name);
 				marker.setPopup(cache.shortDescription);
-				int type = cache.Type.ordinal();
 				
-				
-				marker.setIcon(new ThemeResource("icons/" + type + ".png"));
+				marker.setIcon(new ThemeResource(getCacheIcon(cache, iconSize)));
 				marker.setVisible(false);
 				markers.put(cache.Id, marker);
 				llg.addComponent(marker);
@@ -132,6 +138,7 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 			}
 			
 			marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+			marker.setIcon(new ThemeResource(getCacheIcon(cache, iconSize)));
 		}
 		long end = System.currentTimeMillis();
 		System.out.println("UpdateIcons Duration: " + String.valueOf(end - start));
@@ -160,5 +167,97 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 			leafletMap.setCenter(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
 		}
 	}
+
+	private String getCacheIcon(Cache cache, int iconSize)
+	{
+		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.Cache))
+		{
+			return getSmallMapIcon(cache);
+		}
+		else
+		{
+			// der SelectedCache wird immer mit den großen Symbolen dargestellt!
+			return getMapIcon(cache);
+		}
+	}
+
+	private String getMapIcon(Cache cache)
+	{
+		int IconId;
+		if (cache.ImTheOwner()) IconId = 26;
+		else if (cache.Found) IconId = 19;
+		else if ((cache.Type == CacheTypes.Mystery) && cache.CorrectedCoordiantesOrMysterySolved()) IconId = 21;
+		else if ((cache.Type == CacheTypes.Multi) && cache.HasStartWaypoint()) IconId = 23; // Multi mit Startpunkt
+		else if ((cache.Type == CacheTypes.Mystery) && cache.HasStartWaypoint()) IconId = 25; // Mystery ohne Final aber mit Startpunkt
+		else if ((cache.Type == CacheTypes.Munzee)) IconId = 22;
+		else
+			IconId = cache.Type.ordinal();
+		
+		if (IconId == 26)
+			return "icons/start.png";
+		else
+			return "icons/" + IconId + ".png";
+	}
+
+	private String getSmallMapIcon(Cache cache)
+	{
+		int iconId = 0;
+
+		switch (cache.Type)
+		{
+		case Traditional:
+			iconId = 0;
+			break;
+		case Letterbox:
+			iconId = 0;
+			break;
+		case Multi:
+			if (cache.HasStartWaypoint()) iconId = 1;
+			else
+				iconId = 1;
+			break;
+		case Event:
+			iconId = 2;
+			break;
+		case MegaEvent:
+			iconId = 2;
+			break;
+		case Virtual:
+			iconId = 3;
+			break;
+		case Camera:
+			iconId = 3;
+			break;
+		case Earth:
+			iconId = 3;
+			break;
+		case Mystery:
+		{
+			if (cache.HasFinalWaypoint()) iconId = 5;
+			else if (cache.HasStartWaypoint()) iconId = 5;
+			else
+				iconId = 4;
+			break;
+		}
+		case Wherigo:
+			iconId = 4;
+			break;
+
+		default:
+			iconId = 0;
+		}
+
+		if (cache.Found) iconId = 6;
+		if (cache.ImTheOwner()) iconId = 7;
+
+		if (cache.Archived || !cache.Available) iconId += 8;
+
+		if (cache.Type == CacheTypes.MyParking) iconId = 16;
+		if (cache.Type == CacheTypes.Munzee) iconId = 17;
+
+		return "icons/" + MapIconsSmall[iconId] + ".png";
+
+	}
+
 
 }
