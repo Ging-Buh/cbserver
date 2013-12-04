@@ -52,7 +52,7 @@ public class CacheboxServer {
 		WebAppContext webapp = new WebAppContext();
 		webapp.setDescriptor("");
 		webapp.setResourceBase("./WebContent");
-		webapp.setContextPath("/");
+		webapp.setContextPath("/cbserver");
 		webapp.setParentLoaderPriority(true);
 
 		// Images

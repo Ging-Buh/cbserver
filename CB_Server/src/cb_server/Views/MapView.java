@@ -3,19 +3,29 @@ package cb_server.Views;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import org.apache.commons.logging.Log;
+import org.vaadin.addon.leaflet.LLayerGroup;
 import org.vaadin.addon.leaflet.LMap;
+import org.vaadin.addon.leaflet.LMarker;
 import org.vaadin.addon.leaflet.LPolyline;
 import org.vaadin.addon.leaflet.LTileLayer;
 import org.vaadin.addon.leaflet.LeafletLayer;
+import org.vaadin.addon.leaflet.LeafletMoveEndEvent;
+import org.vaadin.addon.leaflet.LeafletMoveEndListener;
 import org.vaadin.addon.leaflet.shared.BaseLayer;
+import org.vaadin.addon.leaflet.shared.Bounds;
 import org.vaadin.addon.leaflet.shared.Control;
 import org.vaadin.addon.leaflet.shared.Point;
 
+import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
+import com.google.gwt.dev.util.collect.HashMap;
+import com.vaadin.server.ClassResource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.CustomComponent;
@@ -69,15 +79,76 @@ public class MapView extends CustomComponent implements SelectedCacheChangedEven
 		pk.setMaxZoom(18);
 		pk.setSubDomains("tile2");
 		pk.setDetectRetina(true);
-
+		
 		leafletMap.addBaseLayer(pk, "");
 		leafletMap.addBaseLayer(baselayer, "");
 
+		leafletMap.addMoveEndListener(new LeafletMoveEndListener() {
+			
+			@Override
+			public void onMoveEnd(LeafletMoveEndEvent event) {
+				System.out.println("Move");
+				updateIcons(event.getBounds());
+				
+			}
+		});
 		
 		// add to SelectedCacheChangedListener
 		SelectedCacheChangedEventList.Add(this);
+		
+//		updateIcons(leafletMap.);
 	}
 
+	HashMap<Long, LMarker> markers = null;
+	LLayerGroup llg = null;
+	
+	private void updateIcons(Bounds bounds) {
+		long start = System.currentTimeMillis();
+		if (markers == null) {
+			llg = new LLayerGroup();
+			markers = new HashMap<Long, LMarker>();
+			for (Cache cache : Database.Data.Query) {
+				LMarker marker = new LMarker(cache.Latitude(), cache.Longitude());
+				marker.setTitle(cache.Name);
+				marker.setPopup(cache.shortDescription);
+				int type = cache.Type.ordinal();
+				
+				
+				marker.setIcon(new ThemeResource("icons/" + type + ".png"));
+				marker.setVisible(false);
+				markers.put(cache.Id, marker);
+				llg.addComponent(marker);
+			}
+			leafletMap.addLayer(llg);
+		}
+		
+		
+		for (Cache cache : Database.Data.Query) {
+			LMarker marker = null;
+			try {
+				marker = markers.get(cache.Id);
+			} catch (Exception ex) {
+				continue;	// TODO
+			}
+			
+			marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+		}
+		long end = System.currentTimeMillis();
+		System.out.println("UpdateIcons Duration: " + String.valueOf(end - start));
+	}
+
+	private boolean isInBounds(double latitude, double longitude, Bounds bounds) {
+		if (latitude > bounds.getNorthEastLat())
+			return false;
+		if (latitude < bounds.getSouthWestLat())
+			return false;
+		if (longitude < bounds.getSouthWestLon())
+			return false;
+		if (longitude > bounds.getNorthEastLon())
+			return false;
+		return true;
+	}
+	
 	@Override
 	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
 		if (cache == null) {

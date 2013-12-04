@@ -50,6 +50,7 @@ public class CB_ServerUI extends UI {
 	protected void init(VaadinRequest request) {
 		that = this;
 		pusher.extend(this);
+		
 		// Force locale "English"
 		MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
 		// You can use MessageBox.RESOURCES_FACTORY.setResourceBundle(basename);
