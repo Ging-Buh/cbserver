@@ -3,6 +3,7 @@ package Rpc;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import CB_Core.DAO.CacheDAO;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.LogDAO;
 import CB_Core.DAO.WaypointDAO;
@@ -19,9 +20,11 @@ import CB_RpcCore.Functions.RpcAnswer_GetExportList;
 import CB_RpcCore.Functions.RpcMessage_ExportChangesToServer;
 import CB_RpcCore.Functions.RpcMessage_GetCacheList;
 import CB_RpcCore.Functions.RpcMessage_GetExportList;
+import CB_Utils.Lists.CB_List;
 import cb_rpc.Functions.RpcAnswer;
 import cb_rpc.Functions.RpcMessage;
 import cb_server.DAO.GetExportListDao;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,7 +90,7 @@ public class RpcFunctionsServer {
 				RpcAnswer_GetCacheList answer = new RpcAnswer_GetCacheList(0);
 				
 				for (Cache cache : cacheList){
-					ArrayList<LogEntry> logs = Database.Logs(cache);
+					CB_List<LogEntry> logs = Database.Logs(cache);
 					int maxLogCount = 10;
 					int actLogCount = 0;
 					for (LogEntry log : logs) {
@@ -136,6 +139,8 @@ public class RpcFunctionsServer {
 				case DeleteWaypoint:
 					break;
 				case Found:
+					log.debug("New Found Status: " + entry.cacheId);
+					Database.SetFound(entry.cacheId, true);
 					break;
 				case NewWaypoint:
 					WaypointDAO wpdao = new WaypointDAO();
@@ -146,6 +151,8 @@ public class RpcFunctionsServer {
 				case NotAvailable:
 					break;
 				case NotFound:
+					log.debug("New not Found Status: " + entry.cacheId);
+					Database.SetFound(entry.cacheId, false);
 					break;
 				case NotesText:
 					log.debug("New Notes Text: " + entry.note);

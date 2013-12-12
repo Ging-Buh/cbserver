@@ -24,15 +24,17 @@
     <!-- <set-configuration-property name="devModeRedirectEnabled" value="true" /> -->
 
 
-    <inherits name="org.vaadin.addon.leaflet.Widgetset" />
+    
 
     
 
     <inherits name="org.vaadin.artur.icepush.IcepushaddonWidgetset" />
 
-    <inherits name="fi.jasoft.qrcode.QrcodeWidgetset" />
+    
 
     <inherits name="org.vaadin.addon.leaflet.draw.DrawWidgetset" />
 
     <inherits name="org.vaadin.peter.contextmenu.ContextmenuWidgetset" />
+
+    <inherits name="com.vaadin.addon.touchkit.gwt.TouchKitWidgetSet" />
 </module>

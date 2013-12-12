@@ -6,7 +6,7 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
-import fi.jasoft.qrcode.QRCode;
+//import fi.jasoft.qrcode.QRCode;
 
 
 public class SettingsWindow  extends Window {
@@ -63,12 +63,12 @@ public class SettingsWindow  extends Window {
         
         
         
-        QRCode code = new QRCode();
-        code.setWidth(150, Unit.PIXELS);
-        code.setHeight(150, Unit.PIXELS);
-        code.setValue("Hallo Hubert ;-)");
-        
-        content.addComponent(code);
+//        QRCode code = new QRCode();
+//        code.setWidth(150, Unit.PIXELS);
+//        code.setHeight(150, Unit.PIXELS);
+//        code.setValue("Hallo Hubert ;-)");
+//        
+//        content.addComponent(code);
         
     }
 	
