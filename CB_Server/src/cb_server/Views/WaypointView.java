@@ -10,6 +10,7 @@ import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableFooterEv
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableHeaderEvent;
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableRowEvent;
 
+import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
@@ -89,8 +90,8 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		if (doNotUpdate) return;
 		beans.removeAllItems();
 		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, null));
-		for (Waypoint wp : cache.waypoints) {
-			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, wp));
+		for (int i=0,n=cache.waypoints.size(); i<n; i++){
+			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, cache.waypoints.get(i)));
 		}
 		table.setData(beans);
 	}
