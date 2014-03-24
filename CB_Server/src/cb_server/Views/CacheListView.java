@@ -29,9 +29,9 @@ public class CacheListView extends Panel {
 		
 	    BeanItemContainer<CacheBean> beans = new BeanItemContainer<CacheBean>(CacheBean.class);
 	   // beans.setBeanIdProperty("GCCode");
-	    
-	    for (Cache cache : Database.Data.Query) {
-	    	beans.addBean(new CacheBean(cache));
+	     
+	    for (int i=0,n=Database.Data.Query.size(); i<n; i++){
+	    	beans.addBean(new CacheBean(Database.Data.Query.get(i)));
 	    }
 
 	    

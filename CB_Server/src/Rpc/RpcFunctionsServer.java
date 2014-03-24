@@ -89,19 +89,22 @@ public class RpcFunctionsServer {
 				
 				RpcAnswer_GetCacheList answer = new RpcAnswer_GetCacheList(0);
 				
-				for (Cache cache : cacheList){
+				for (int i=0, n=cacheList.size();i<n;i++){
+					
+					Cache cache= cacheList.get(i);
 					CB_List<LogEntry> logs = Database.Logs(cache);
 					int maxLogCount = 10;
 					int actLogCount = 0;
-					for (LogEntry log : logs) {
+					for (int j=0, m=logs.size();j<m;j++){	
 						actLogCount++;
 						if (actLogCount > maxLogCount)
 							break;
-						answer.addLog(log);
+						answer.addLog(logs.get(j));
 					}
 					cache.ReloadSpoilerRessources();
 					// URL für den Download der Spoiler setzen
-					for (ImageEntry image : cache.spoilerRessources) {
+					for (int j=0, m=cache.spoilerRessources.size();j<m;j++){
+						ImageEntry image=cache.spoilerRessources.get(j);
 						String path = "";
 						log.debug("Image: " + image.LocalPath);
 						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());

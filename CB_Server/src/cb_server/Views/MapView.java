@@ -113,8 +113,9 @@ public class MapView extends CustomComponent implements
 			llg = new LLayerGroup();
 			llgu = new LLayerGroup();
 			markers = new HashMap<Long, LMarker>();
-			underlays = new HashMap<Long, LMarker>();
-			for (Cache cache : Database.Data.Query) {
+			underlays = new HashMap<Long, LMarker>(); 
+				for (int i=0,n=Database.Data.Query.size(); i<n; i++){
+					Cache cache=Database.Data.Query.get(i);	
 				LMarker marker = new LMarker(cache.Latitude(),
 						cache.Longitude());
 				marker.setIconSize(new Point(15, 15));
@@ -146,7 +147,8 @@ public class MapView extends CustomComponent implements
 //			leafletMap.addLayer(llgu);
 		}
 
-		for (Cache cache : Database.Data.Query) {
+		for (int i=0,n=Database.Data.Query.size(); i<n; i++){
+			Cache cache=Database.Data.Query.get(i);
 			LMarker marker = null;
 			try {
 				marker = markers.get(cache.Id);
