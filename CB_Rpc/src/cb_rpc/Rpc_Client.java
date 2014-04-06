@@ -8,6 +8,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 
 import cb_rpc.Functions.RpcAnswer;
 import cb_rpc.Functions.RpcMessage;
+import cb_rpc.Settings.CB_Rpc_Settings;
 
 public class Rpc_Client {
 	// XmlRpc Objecte für den Zugriff auf den RPC-Server
@@ -27,11 +28,7 @@ public class Rpc_Client {
 		
 		try {
 			System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
-//			URL url = new URL("http://192.168.100.115:9911/xmlrpc");
-//			URL url = new URL("http://192.168.1.69:9911/xmlrpc");
-//			URL url = new URL("http://192.168.1.30:9911/xmlrpc");
-			URL url = new URL("http://localhost:9911/xmlrpc");
-			config.setServerURL(url);
+			URL url = new URL("http://"+CB_Rpc_Settings.CBS_IP.getValue()+"/xmlrpc");	
 			config.setServerURL(url);
 		//	config.setEncoding("UTF-8");
 			config.setGzipCompressing(false);
