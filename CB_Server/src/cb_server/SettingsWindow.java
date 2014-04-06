@@ -1,6 +1,16 @@
 package cb_server;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Iterator;
+
+
+
+
+
+
+
+
 
 
 import CB_Utils.Settings.SettingBase;
@@ -22,11 +32,16 @@ import CB_Utils.Settings.SettingStringArray;
 import CB_Utils.Settings.SettingTime;
 import CB_Utils.Settings.SettingsAudio;
 
+import com.vaadin.event.FieldEvents.TextChangeEvent;
+import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
+import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -50,6 +65,9 @@ public class SettingsWindow  extends Window {
 	private ArrayList<SettingCategory> Categorys;
 	
 	
+	private  VerticalLayout content;
+	private  VerticalLayout Settingscontent;
+	
 	private SettingsWindow() {
 		
 		
@@ -59,33 +77,103 @@ public class SettingsWindow  extends Window {
         super("Server Settings"); // Set window caption
        
               
-        this.setWidth(80, Unit.PERCENTAGE);
+        this.setWidth(30, Unit.PERCENTAGE);
         this.setHeight(80, Unit.PERCENTAGE);
         
         
         center();
         
+        
+        //save act settings for cancel restore
+        Config.settings.SaveToLastValue();
+        
         // Some basic content for the window
-        VerticalLayout content = new VerticalLayout();
-        content.addComponent(new Label("Just say it's OK!"));
+        content = new VerticalLayout();
         content.setMargin(true);
         setContent(content);
         
-        QRCode code = new QRCode();
-        code.setWidth(150, Unit.PIXELS);
-        code.setHeight(150, Unit.PIXELS);
-        code.setValue("Hallo Hubert ;-)");
-        
-        content.addComponent(code);
-        
+        addSaveCancelButtons();
         
         fillContent();
         
     }
 	
+	private void addSaveCancelButtons()
+	{
+		HorizontalLayout hl=new HorizontalLayout();
+		com.vaadin.ui.Button btnSave = new Button("save");
+		com.vaadin.ui.Button btnCancel = new Button("cancel");
+		
+		hl.addComponent(btnSave);
+		hl.addComponent(btnCancel);
+		
+		btnCancel.addClickListener(new ClickListener() {
+		
+			private static final long serialVersionUID = -4799987364890297976L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				 Config.settings.LoadFromLastValue();
+				 fillContent();
+			}
+		});
+		
+		
+		btnSave.addClickListener(new ClickListener() {
+			
+			private static final long serialVersionUID = -878673538684730570L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				Config.settings.WriteToDB();
+				Config.settings.SaveToLastValue();
+				fillContent();
+			}
+		});
+		
+		content.addComponent(hl);
+	}
+	
 	
 	private void fillContent()
 	{
+		
+		if(Settingscontent!=null){
+			content.removeComponent(Settingscontent);
+			Settingscontent=null;
+		}
+			
+		Settingscontent=new VerticalLayout();
+		content.addComponent(Settingscontent);
+		
+		
+		InetAddress addr;
+		try {
+			addr = InetAddress.getLocalHost();
+			
+			 //Getting IPAddress of localhost - getHostAddress return IP Address
+	        // in textual format
+	        String ipAddress = addr.getHostAddress();
+
+			
+			QRCode code = new QRCode();
+		    code.setWidth(150, Unit.PIXELS);
+		    code.setHeight(150, Unit.PIXELS);
+		    code.setValue("Hallo Hubert ;-)");
+		        
+		    Settingscontent.addComponent(code);
+		        
+			
+			
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	     
+       
+		
+		
+		
 		// Categorie List zusammen stellen
 
 				if (Categorys == null)
@@ -147,6 +235,8 @@ public class SettingsWindow  extends Window {
 
 										final Component view = getView(settingItem, position++);
 
+										if(view==null)continue;
+										
 										lay.addComponent(view);
 										entryCount++;
 										Config.settings.indexOf(settingItem);
@@ -175,7 +265,7 @@ public class SettingsWindow  extends Window {
 	
 	private void addControlToLinearLayout(Component view, float itemMargin)
 	{
-		// TODO
+		Settingscontent.addComponent(view);
 	}
 	
 	
@@ -235,75 +325,134 @@ public class SettingsWindow  extends Window {
 
 
 	private Component getAudioView(SettingsAudio sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getStringView(SettingString sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getEnumView(SettingEnum<?> sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getFileView(SettingFile sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getFolderView(SettingFolder sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getFloatView(SettingFloat sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getDblView(SettingDouble sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
-	private Component getIntView(SettingInt sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+	private Component getIntView(final SettingInt sB, int backgroundChanger) {
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.TextField input= new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+
+				int newValue = Integer.parseInt(event.getText());
+				sB.setValue(newValue);
+			}
+		});
+		
+		box.addComponent(input);
+		return box;
 	}
 
 
 	private Component getTimeView(SettingTime sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getStringArrayView(SettingStringArray sB,
 			int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getIntArrayView(SettingIntArray sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 
 
 	private Component getBoolView(SettingBool sB, int backgroundChanger) {
-		// TODO Auto-generated method stub
-		return null;
+
+		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
+		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
+		label.setCaption(sB.getName());
+		box.addComponent(label);
+		
+		return box;
 	}
 	
 	
