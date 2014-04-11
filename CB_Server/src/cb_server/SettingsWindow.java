@@ -334,12 +334,20 @@ public class SettingsWindow  extends Window {
 	}
 
 
-	private Component getStringView(SettingString sB, int backgroundChanger) {
+	private Component getStringView(final SettingString sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box=new HorizontalLayout();
-		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
-		label.setCaption(sB.getName());
-		box.addComponent(label);
+		com.vaadin.ui.TextField input= new TextField(sB.getName(), String.valueOf(sB.getValue()));
 		
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				sB.setValue(event.getText());
+			}
+		});
+		
+		box.addComponent(input);
 		return box;
 	}
 
