@@ -92,7 +92,7 @@ public class CacheboxServer {
 
 		server.setHandler(contexts);
 
-		if (true) {
+		if (false) {
 			// Import PQs
 			ArrayList<PQ> list = new ArrayList<PQ>();
 			log.debug("Load PQ-List");
