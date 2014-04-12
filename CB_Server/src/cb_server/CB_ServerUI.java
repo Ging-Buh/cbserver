@@ -7,6 +7,7 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.eclipse.jetty.util.log.Log;
 import org.vaadin.addon.leaflet.LMap;
 import org.vaadin.artur.icepush.ICEPush;
 
@@ -108,6 +109,14 @@ public class CB_ServerUI extends UI {
 		    }
 		});
 		
+		final Button close = new Button("Finish Server");
+		close.addClickListener(new ClickListener() {
+		    public void buttonClick(ClickEvent event) {
+		    	Log.info("Exit Server");
+		    	System.exit(0);
+		    }
+		});
+		
 		
 		
 		MapView mv = new MapView();
@@ -133,8 +142,12 @@ public class CB_ServerUI extends UI {
 		vl.setExpandRatio(content, 1);	// Inhalt muss den größten Bereich einnehmen
 		
 		// Inhalt vom Header
-		Button bo = new Button("Settings");
-		header.setContent(open);
+		
+		HorizontalLayout headerLayout=new HorizontalLayout();
+		headerLayout.addComponent(close);
+		headerLayout.addComponent(open);
+		header.setContent(headerLayout);
+	
 		
 		// Inhalt vom Content
 		content.setSizeFull();

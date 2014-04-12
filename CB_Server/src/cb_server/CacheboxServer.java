@@ -221,6 +221,8 @@ public class CacheboxServer {
 
 		Database.Settings.StartUp(Config.WorkPath + "/User/Config.db3");
 
+		Config.settings.ReadFromDB();
+		
 		try {
 			Database.Data = new CBServerDB(DatabaseType.CacheBox);
 		} catch (ClassNotFoundException e) {

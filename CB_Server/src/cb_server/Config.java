@@ -16,6 +16,7 @@ public class Config extends Config_Core {
 	{
 		WorkPath = workPath;
 		settings = new SettingsClass();
+		
 	}
 
 	@Override
