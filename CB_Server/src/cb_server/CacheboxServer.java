@@ -22,10 +22,9 @@ import CB_Core.Api.ApiGroundspeakResult;
 import CB_Core.Api.ApiGroundspeak_GetPocketQueryData;
 import CB_Core.Api.ApiGroundspeak_SearchForGeocaches;
 import CB_Core.Api.GroundspeakAPI;
-import CB_Core.Api.ApiGroundspeak_SearchForGeocaches.SearchGC;
-import CB_Core.Api.ApiGroundspeak_SearchForGeocaches.SearchGCName;
-import CB_Core.Api.ApiGroundspeak_SearchForGeocaches.SearchGCOwner;
 import CB_Core.Api.PocketQuery.PQ;
+import CB_Core.Api.SearchGC;
+import CB_Core.Api.SearchGCOwner;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.CategoryDAO;
 import CB_Core.DB.Database;
@@ -131,7 +130,7 @@ public class CacheboxServer {
 								ArrayList<Cache> apiCaches = new ArrayList<Cache>();
 								ArrayList<LogEntry> apiLogs = new ArrayList<LogEntry>();
 								ArrayList<ImageEntry> apiImages = new ArrayList<ImageEntry>();
-								ApiGroundspeak_SearchForGeocaches.SearchGC search = new SearchGC(gcCodes);
+						SearchGC search = new SearchGC(gcCodes);
 								ApiGroundspeak_SearchForGeocaches apis = new ApiGroundspeak_SearchForGeocaches(search, apiCaches, apiLogs, apiImages, gpxFilename.Id);
 								apis.execute();
 								if (apiCaches.size() > 0) {
@@ -145,7 +144,7 @@ public class CacheboxServer {
 			}
 		}
 		if (false) {
-			ApiGroundspeak_SearchForGeocaches.SearchGCOwner search = new SearchGCOwner(50, new Coordinate(48.1, 12.1), 100000, "Rosa BoBs!");
+			SearchGCOwner search = new SearchGCOwner(50, new Coordinate(48.1, 12.1), 100000, "Rosa BoBs!");
 
 			// alle per API importierten Caches landen in der Category und
 			// GpxFilename
