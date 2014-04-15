@@ -101,33 +101,45 @@ public class CacheboxServer {
 			ApiGroundspeak_GetPocketQueryData ipq = new ApiGroundspeak_GetPocketQueryData();
 			for (PQ pq : list) {
 				log.debug("Load PQ " + pq.Name);
-				ipq.setPQ(pq);
-				ApiGroundspeakResult res = ipq.execute();
-				log.debug("Load PQ " + pq.Name + " ready");
+				if (!pq.Name.equals("80 Tage")) continue;
 
-				if (res.getResult() == 0) {
-					ArrayList<String> caches = ipq.getCaches();
-					for (int i = 0; i <= caches.size() / 50; i++) {
-						ArrayList<String> gcCodes = new ArrayList<>();
-						for (int j = 0; j < 50; j++) {
-							if (i * 50 + j < caches.size()) {
-								gcCodes.add(caches.get(i * 50 + j));
+				// Category suchen, die dazu gehört
+				CategoryDAO categoryDAO = new CategoryDAO();
+				Category category = categoryDAO.GetCategory(CoreSettingsForward.Categories, pq.Name);
+				if (category != null) // should not happen!!!
+				{
+					GpxFilename gpxFilename = categoryDAO.CreateNewGpxFilename(category, pq.Name);
+					if (gpxFilename != null) {
+
+						ipq.setPQ(pq);
+						ApiGroundspeakResult res = ipq.execute();
+						log.debug("Load PQ " + pq.Name + " ready");
+
+						if (res.getResult() == 0) {
+							ArrayList<String> caches = ipq.getCaches();
+							for (int i = 0; i <= caches.size() / 50; i++) {
+								ArrayList<String> gcCodes = new ArrayList<>();
+								for (int j = 0; j < 50; j++) {
+									if (i * 50 + j < caches.size()) {
+										gcCodes.add(caches.get(i * 50 + j));
+									}
+								}
+								if (gcCodes.size() == 0) {
+									continue;
+								}
+								log.debug("Import 50 Caches from " + pq.Name + " (" + String.valueOf(i * 50) + "-" + String.valueOf(i * 50 + gcCodes.size() - 1) + ")");
+								ArrayList<Cache> apiCaches = new ArrayList<Cache>();
+								ArrayList<LogEntry> apiLogs = new ArrayList<LogEntry>();
+								ArrayList<ImageEntry> apiImages = new ArrayList<ImageEntry>();
+								ApiGroundspeak_SearchForGeocaches.SearchGC search = new SearchGC(gcCodes);
+								ApiGroundspeak_SearchForGeocaches apis = new ApiGroundspeak_SearchForGeocaches(search, apiCaches, apiLogs, apiImages, gpxFilename.Id);
+								apis.execute();
+								if (apiCaches.size() > 0) {
+									GroundspeakAPI.WriteCachesLogsImages_toDB(apiCaches, apiLogs, apiImages);
+								}
+
 							}
 						}
-						if (gcCodes.size() == 0) {
-							continue;
-						}
-						log.debug("Import 50 Caches from " + pq.Name + " (" + String.valueOf(i * 50) + "-" + String.valueOf(i * 50 + gcCodes.size() - 1) + ")");
-						ArrayList<Cache> apiCaches = new ArrayList<Cache>();
-						ArrayList<LogEntry> apiLogs = new ArrayList<LogEntry>();
-						ArrayList<ImageEntry> apiImages = new ArrayList<ImageEntry>();
-						ApiGroundspeak_SearchForGeocaches.SearchGC search = new SearchGC(gcCodes);
-						ApiGroundspeak_SearchForGeocaches apis = new ApiGroundspeak_SearchForGeocaches(search, apiCaches, apiLogs, apiImages, 0);
-						apis.execute();
-						if (apiCaches.size() > 0) {
-							GroundspeakAPI.WriteCachesLogsImages_toDB(apiCaches, apiLogs, apiImages);
-						}
-
 					}
 				}
 			}
@@ -222,7 +234,7 @@ public class CacheboxServer {
 		Database.Settings.StartUp(Config.WorkPath + "/User/Config.db3");
 
 		Config.settings.ReadFromDB();
-		
+
 		try {
 			Database.Data = new CBServerDB(DatabaseType.CacheBox);
 		} catch (ClassNotFoundException e) {

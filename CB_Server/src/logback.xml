@@ -29,8 +29,13 @@
 		</triggeringPolicy>
 	</appender>
 
-  
-  <root level="DEBUG">
+  <logger name="cb_server.CacheboxServer" level="DEBUG">
+      <appender-ref ref="ROLLFILE"/>
+  </logger>
+  <logger name="Rpc.RpcFunctionsServer" level="DEBUG">
+      <appender-ref ref="ROLLFILE"/>
+  </logger>
+  <root level="INFO">
     <appender-ref ref="STDOUT" />
 	<appender-ref ref="ROLLFILE" />
   </root>

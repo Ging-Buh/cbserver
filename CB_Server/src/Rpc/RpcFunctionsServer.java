@@ -146,6 +146,7 @@ public class RpcFunctionsServer {
 					Database.SetFound(entry.cacheId, true);
 					break;
 				case NewWaypoint:
+					log.debug("New Waypoint: " + entry.cacheId);
 					WaypointDAO wpdao = new WaypointDAO();
 					wpdao.WriteToDatabase(entry.waypoint);
 					break;
@@ -171,6 +172,7 @@ public class RpcFunctionsServer {
 				case Undefined:
 					break;
 				case WaypointChanged:
+					log.debug("Waypoint changed: " + entry.cacheId);
 					wpdao = new WaypointDAO();
 					entry.waypoint.checkSum = 0;	// auf 0 setzen damit der WP in der DB upgedated wird
 					wpdao.UpdateDatabase(entry.waypoint);
