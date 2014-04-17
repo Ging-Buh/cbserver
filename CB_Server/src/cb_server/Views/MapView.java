@@ -18,6 +18,7 @@ import CB_Core.DB.Database;
 import CB_Core.Enums.CacheTypes;
 import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -115,12 +116,12 @@ public class MapView extends CustomComponent implements
 			markers = new HashMap<Long, LMarker>();
 			underlays = new HashMap<Long, LMarker>(); 
 				for (int i=0,n=Database.Data.Query.size(); i<n; i++){
-					Cache cache=Database.Data.Query.get(i);	
+					Cache cache=new Cache(Database.Data.Query.get(i));	
 				LMarker marker = new LMarker(cache.Latitude(),
 						cache.Longitude());
 				marker.setIconSize(new Point(15, 15));
 				marker.setIconAnchor(new Point(7, 7));
-				marker.setTitle(cache.Name);
+				marker.setTitle(cache.getName());
 				marker.setPopup(cache.shortDescription);
 
 				marker.setIcon(new ThemeResource(getCacheIcon(cache, iconSize)));
@@ -148,7 +149,7 @@ public class MapView extends CustomComponent implements
 		}
 
 		for (int i=0,n=Database.Data.Query.size(); i<n; i++){
-			Cache cache=Database.Data.Query.get(i);
+			CacheLite cache=Database.Data.Query.get(i);
 			LMarker marker = null;
 			try {
 				marker = markers.get(cache.Id);
@@ -190,7 +191,7 @@ public class MapView extends CustomComponent implements
 				break;
 			}
 			if (zoom > 14) {
-				marker.setLabel(cache.Name);
+				marker.setLabel(cache.getName());
 			} else {
 				marker.setLabel(null);
 			}
@@ -213,7 +214,7 @@ public class MapView extends CustomComponent implements
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cache, Waypoint waypoint) {
 		if (cache == null) {
 			return;
 		}
@@ -225,7 +226,7 @@ public class MapView extends CustomComponent implements
 		}
 	}
 
-	private String getCacheIcon(Cache cache, int iconSize) {
+	private String getCacheIcon(CacheLite cache, int iconSize) {
 		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.Cache)) {
 			return getSmallMapIcon(cache);
 		} else {
@@ -234,7 +235,7 @@ public class MapView extends CustomComponent implements
 		}
 	}
 
-	private String getMapIcon(Cache cache) {
+	private String getMapIcon(CacheLite cache) {
 		int IconId;
 		if (cache.ImTheOwner())
 			IconId = 26;
@@ -258,7 +259,7 @@ public class MapView extends CustomComponent implements
 			return "icons/" + IconId + ".png";
 	}
 
-	private String getSmallMapIcon(Cache cache) {
+	private String getSmallMapIcon(CacheLite cache) {
 		int iconId = 0;
 
 		switch (cache.Type) {

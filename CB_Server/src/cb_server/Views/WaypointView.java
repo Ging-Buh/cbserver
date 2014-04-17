@@ -10,9 +10,12 @@ import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableFooterEv
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableHeaderEvent;
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableRowEvent;
 
+import CB_Core.DAO.WaypointDAO;
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
+import CB_Utils.Lists.CB_List;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -86,12 +89,17 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cache, Waypoint waypoint) {
 		if (doNotUpdate) return;
 		beans.removeAllItems();
 		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, null));
-		for (int i=0,n=cache.waypoints.size(); i<n; i++){
-			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, cache.waypoints.get(i)));
+		
+		WaypointDAO dao=new WaypointDAO();
+		
+		CB_List<Waypoint> waypoints = dao.getWaypointsFromCacheID(cache.Id);
+		
+		for (int i=0,n=waypoints.size(); i<n; i++){
+			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, waypoints.get(i)));
 		}
 		table.setData(beans);
 	}
@@ -103,11 +111,11 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		private String GCCode;
 		private String Title;
 		private String Description;
-		private Cache cache;
+		private CacheLite cache;
 		private Waypoint waypoint;
 		
-		public WaypointBean(Cache cache, Waypoint waypoint) {
-			this.cache = cache;
+		public WaypointBean(CacheLite cache2, Waypoint waypoint) {
+			this.cache = cache2;
 			this.waypoint = waypoint;
 			this.setGCCode("");
 			this.setTitle("");
@@ -115,9 +123,9 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 
 		public String getTitle() {
 			if (waypoint == null)
-				return cache.Name;
+				return cache.getName();
 			else
-				return waypoint.Title;
+				return waypoint.getTitle();
 		}
 
 		public void setTitle(String title) {
@@ -126,9 +134,9 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 
 		public String getGCCode() {
 			if (waypoint == null) {
-				return cache.GcCode;
+				return cache.getGcCode();
 			} else {
-				return waypoint.GcCode;
+				return waypoint.getGcCode();
 			}
 		}
 

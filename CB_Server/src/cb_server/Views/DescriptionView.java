@@ -2,6 +2,7 @@ package cb_server.Views;
 
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -25,7 +26,7 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cache, Waypoint waypoint) {
 
 		String desc = Database.GetDescription(cache);
 		browser.setValue(desc);

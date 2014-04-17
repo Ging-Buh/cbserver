@@ -5,6 +5,7 @@ import java.util.Date;
 
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheLite;
 import cb_server.Events.SelectedCacheChangedEventList;
 
 import com.vaadin.data.Item;
@@ -93,17 +94,17 @@ public class CacheListView extends Panel {
 		private String GCCode;
 		private String Name;
 		private String Description;
-		private Cache cache;
+		private CacheLite cache;
 		
-		public CacheBean(Cache cache) {
-			this.cache = cache;
+		public CacheBean(CacheLite cacheLite) {
+			this.cache = cacheLite;
 			this.setGCCode("");
 			this.setName("");
 			this.setDescription("");
 		}
 
 		public String getName() {
-			return cache.Name;
+			return cache.getName();
 		}
 
 		public void setName(String name) {
@@ -111,7 +112,7 @@ public class CacheListView extends Panel {
 		}
 
 		public String getGCCode() {
-			return cache.GcCode;
+			return cache.getGcCode();
 		}
 
 		public void setGCCode(String gCCode) {
@@ -123,7 +124,7 @@ public class CacheListView extends Panel {
 		}
 		
 		public String getDescription() {
-			return "Hallo " + cache.GcCode;
+			return "Hallo " + cache.getGcCode();
 		}
 	}
 }

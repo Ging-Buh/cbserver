@@ -1,6 +1,7 @@
 package cb_server.Events;
 
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
 
 // this is an interface for all Objects which sould receive the selectedCacheChanged Event
@@ -8,5 +9,5 @@ import CB_Core.Types.Waypoint;
 
 public interface SelectedCacheChangedEventListner 
 {
-		public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint);
+		public void SelectedCacheChangedEvent(CacheLite cache2, Waypoint waypoint);
 }
