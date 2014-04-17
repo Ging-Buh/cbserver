@@ -16,12 +16,15 @@ import org.slf4j.LoggerFactory;
 
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
+import cb_server.Import.ImportScheduler;
+import cb_server.Import.ServerImporterProgress;
 import CB_Core.CoreSettingsForward;
 import CB_Core.FilterProperties;
 import CB_Core.Api.ApiGroundspeakResult;
 import CB_Core.Api.ApiGroundspeak_GetPocketQueryData;
 import CB_Core.Api.ApiGroundspeak_SearchForGeocaches;
 import CB_Core.Api.GroundspeakAPI;
+import CB_Core.Api.PocketQuery;
 import CB_Core.Api.PocketQuery.PQ;
 import CB_Core.Api.SearchGC;
 import CB_Core.Api.SearchGCOwner;
@@ -29,6 +32,8 @@ import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.CategoryDAO;
 import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
+import CB_Core.Import.Importer;
+import CB_Core.Import.ImporterProgress;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Categories;
 import CB_Core.Types.Category;
@@ -91,57 +96,180 @@ public class CacheboxServer {
 
 		server.setHandler(contexts);
 
+		
+		ImportScheduler importScheduler = new ImportScheduler();
+		
 		if (false) {
 			// Import PQs
-			ArrayList<PQ> list = new ArrayList<PQ>();
+			ArrayList<PQ> pqList = new ArrayList<PQ>();
 			log.debug("Load PQ-List");
-			CB_Core.Api.PocketQuery.GetPocketQueryList(list);
+			CB_Core.Api.PocketQuery.GetPocketQueryList(pqList);
 			log.debug("Load PQ-List ready");
 			ApiGroundspeak_GetPocketQueryData ipq = new ApiGroundspeak_GetPocketQueryData();
-			for (PQ pq : list) {
+			for (PQ pq : pqList) {
 				log.debug("Load PQ " + pq.Name);
-				if (!pq.Name.equals("80 Tage")) continue;
+				if (!pq.Name.equals("80 Tage"))
+					continue;
 
-				// Category suchen, die dazu gehört
-				CategoryDAO categoryDAO = new CategoryDAO();
-				Category category = categoryDAO.GetCategory(CoreSettingsForward.Categories, pq.Name);
-				if (category != null) // should not happen!!!
-				{
-					GpxFilename gpxFilename = categoryDAO.CreateNewGpxFilename(category, pq.Name);
-					if (gpxFilename != null) {
+				if (true) {
+					// Zipped Pocketquery
+					int i = PocketQuery.DownloadSinglePocketQuery(pq, Config.PocketQueryFolder.getValue());
+					System.out.println(i);
+				} else {
 
-						ipq.setPQ(pq);
-						ApiGroundspeakResult res = ipq.execute();
-						log.debug("Load PQ " + pq.Name + " ready");
+					// Category suchen, die dazu gehört
+					CategoryDAO categoryDAO = new CategoryDAO();
+					Category category = categoryDAO.GetCategory(CoreSettingsForward.Categories, pq.Name);
+					if (category != null) // should not happen!!!
+					{
+						GpxFilename gpxFilename = categoryDAO.CreateNewGpxFilename(category, pq.Name);
+						if (gpxFilename != null) {
 
-						if (res.getResult() == 0) {
-							ArrayList<String> caches = ipq.getCaches();
-							for (int i = 0; i <= caches.size() / 50; i++) {
-								ArrayList<String> gcCodes = new ArrayList<>();
-								for (int j = 0; j < 50; j++) {
-									if (i * 50 + j < caches.size()) {
-										gcCodes.add(caches.get(i * 50 + j));
+							ipq.setPQ(pq);
+							ApiGroundspeakResult res = ipq.execute();
+							log.debug("Load PQ " + pq.Name + " ready");
+
+							if (res.getResult() == 0) {
+								ArrayList<String> caches = ipq.getCaches();
+								for (int i = 0; i <= caches.size() / 50; i++) {
+									ArrayList<String> gcCodes = new ArrayList<>();
+									for (int j = 0; j < 50; j++) {
+										if (i * 50 + j < caches.size()) {
+											gcCodes.add(caches.get(i * 50 + j));
+										}
 									}
-								}
-								if (gcCodes.size() == 0) {
-									continue;
-								}
-								log.debug("Import 50 Caches from " + pq.Name + " (" + String.valueOf(i * 50) + "-" + String.valueOf(i * 50 + gcCodes.size() - 1) + ")");
-								ArrayList<Cache> apiCaches = new ArrayList<Cache>();
-								ArrayList<LogEntry> apiLogs = new ArrayList<LogEntry>();
-								ArrayList<ImageEntry> apiImages = new ArrayList<ImageEntry>();
-						SearchGC search = new SearchGC(gcCodes);
-								ApiGroundspeak_SearchForGeocaches apis = new ApiGroundspeak_SearchForGeocaches(search, apiCaches, apiLogs, apiImages, gpxFilename.Id);
-								apis.execute();
-								if (apiCaches.size() > 0) {
-									GroundspeakAPI.WriteCachesLogsImages_toDB(apiCaches, apiLogs, apiImages);
-								}
+									if (gcCodes.size() == 0) {
+										continue;
+									}
+									log.debug("Import 50 Caches from " + pq.Name + " (" + String.valueOf(i * 50) + "-" + String.valueOf(i * 50 + gcCodes.size() - 1) + ")");
+									ArrayList<Cache> apiCaches = new ArrayList<Cache>();
+									ArrayList<LogEntry> apiLogs = new ArrayList<LogEntry>();
+									ArrayList<ImageEntry> apiImages = new ArrayList<ImageEntry>();
+									SearchGC search = new SearchGC(gcCodes);
+									ApiGroundspeak_SearchForGeocaches apis = new ApiGroundspeak_SearchForGeocaches(search, apiCaches, apiLogs, apiImages, gpxFilename.Id);
+									apis.execute();
+									if (apiCaches.size() > 0) {
+										GroundspeakAPI.WriteCachesLogsImages_toDB(apiCaches, apiLogs, apiImages);
+									}
 
+								}
 							}
 						}
 					}
 				}
 			}
+
+			// Import ZIP GPX Files
+			Importer importer = new Importer();
+			ServerImporterProgress ip = new ServerImporterProgress();
+			try {
+				boolean importPQfromGC = true;
+				boolean importGPX = true;
+				boolean importImages = true;
+				boolean importSpoiler = true;
+				// if Import PQ
+				if (importPQfromGC) {
+					ip.addStep(ip.new Step("importGC", 4));
+				}
+				// if Import GPX
+				if (importGPX) {
+					ip.addStep(ip.new Step("ExtractZip", 1));
+					ip.addStep(ip.new Step("AnalyseGPX", 1));
+					ip.addStep(ip.new Step("ImportGPX", 4));
+				}
+				// if Import Vote
+				ip.addStep(ip.new Step("sendGcVote", 1));
+				ip.addStep(ip.new Step("importGcVote", 4));
+				// if Import Images
+				if (importImages) {
+					ip.addStep(ip.new Step("importImages", 4));
+				}
+				// if Clean Logs
+				ip.addStep(ip.new Step("DeleteLogs", 1));
+				// if CompactDB
+				ip.addStep(ip.new Step("CompactDB", 1));
+
+				if (pqList != null && pqList.size() > 0) {
+				}
+				if (importGPX) {
+					System.gc();
+					long startTime = System.currentTimeMillis();
+
+					Database.Data.beginTransaction();
+					Database.Data.Query.clear();
+					try {
+
+						importer.importGpx(Config.PocketQueryFolder.getValue(), ip);
+
+						Database.Data.setTransactionSuccessful();
+					} catch (Exception exc) {
+						exc.printStackTrace();
+					}
+					Database.Data.endTransaction();
+
+					//					if (BreakawayImportThread.isCanceld())
+					//					{
+					//						cancelImport();
+					//						ip.ProgressChangeMsg("", "");
+					//						return;
+					//					}
+
+					log.debug("Import  GPX Import took " + (System.currentTimeMillis() - startTime) + "ms");
+
+					System.gc();
+
+					// del alten entpackten Ordener wenn vorhanden?
+					File directory = new File(Config.PocketQueryFolder.getValue());
+					File[] filelist = directory.listFiles();
+					for (File tmp : filelist) {
+						if (tmp.isDirectory()) {
+							ArrayList<File> ordnerInhalt = FileIO.recursiveDirectoryReader(tmp, new ArrayList<File>());
+							for (File tmp2 : ordnerInhalt) {
+								tmp2.delete();
+							}
+
+						}
+						tmp.delete();
+					}
+
+				}
+				if (importImages || importSpoiler) {
+					
+//						dis.setAnimationType(AnimationType.Download);
+						int result = importer.importImagesNew(ip, importImages, importSpoiler, "");
+
+						if (result == GroundspeakAPI.CONNECTION_TIMEOUT)
+						{
+//							GL.that.Toast(ConnectionError.INSTANCE);
+							ip.ProgressChangeMsg("", "");
+							return;
+						}
+
+						if (result == GroundspeakAPI.API_IS_UNAVAILABLE)
+						{
+//							GL.that.Toast(ApiUnavailable.INSTANCE);
+							ip.ProgressChangeMsg("", "");
+							return;
+						}
+
+//						if (BreakawayImportThread.isCanceld())
+//						{
+//							cancelImport();
+//							ip.ProgressChangeMsg("", "");
+//							return;
+//						}
+//						dis.setAnimationType(AnimationType.Work);
+					
+				}
+			} catch (/*Interrupted*/Exception e) {
+				// import canceld
+				//					cancelImport();
+				//					FilterProperties props = GlobalCore.LastFilter;
+				//					EditFilterSettings.ApplyFilter(props);
+				ip.ProgressChangeMsg("", "");
+				return;
+			}
+
 		}
 		if (false) {
 			SearchGCOwner search = new SearchGCOwner(50, new Coordinate(48.1, 12.1), 100000, "Rosa BoBs!");

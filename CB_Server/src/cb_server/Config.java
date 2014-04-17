@@ -1,10 +1,11 @@
 package cb_server;
 
+import CB_Core.Settings.CB_Core_Settings;
 import CB_Utils.Config_Core;
 
 
 
-public class Config extends Config_Core {
+public class Config extends Config_Core implements CB_Core_Settings {
 	
 	public Config(String workPath) {
 		super(workPath);
