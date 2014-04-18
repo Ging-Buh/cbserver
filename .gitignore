@@ -9,3 +9,4 @@ build/
 .svn
 *.lock
 cbserver.log*
+etilqs_*
