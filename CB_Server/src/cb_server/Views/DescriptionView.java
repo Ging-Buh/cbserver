@@ -1,6 +1,7 @@
 package cb_server.Views;
 
 import java.io.File;
+import java.net.URI;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -15,6 +16,7 @@ import cb_server.Config;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
+import com.vaadin.server.Page;
 import com.vaadin.shared.ui.label.ContentMode;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
@@ -45,7 +47,12 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 		String cachehtml = Database.GetDescription(cache);
 		String html = DescriptionImageGrabber.ResolveImages(cache, cachehtml, false, NonLocalImages, NonLocalImagesUrl);
 		// Replace local path with URL because Browser can not show Images with local path.
-		html = html.replace("file://" + CB_Core_Settings.DescriptionImageFolder.getValue(), "http://localhost:8085/images");
+		
+		URI uri = Page.getCurrent().getLocation();
+		if (uri != null) {
+			String newUrl = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + "/images";
+			html = html.replace("file://" + CB_Core_Settings.DescriptionImageFolder.getValue(), newUrl);
+		}
 //		if (!Config.DescriptionNoAttributes.getValue()) html = getAttributesHtml(cache) + html;
 
 		// add 2 empty lines so that the last line of description can be selected with the markers
