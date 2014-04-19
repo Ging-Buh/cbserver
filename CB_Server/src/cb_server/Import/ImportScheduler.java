@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -28,23 +29,45 @@ import CB_Core.Types.Category;
 import CB_Core.Types.GpxFilename;
 import CB_Core.Types.ImageEntry;
 import CB_Core.Types.LogEntry;
+import CB_Utils.Settings.SettingStoreType;
 import CB_Utils.Util.FileIO;
 import cb_server.CacheboxServer;
 import cb_server.Config;
+import cb_server.SettingsClass;
 
 public class ImportScheduler implements Runnable {
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private Future<?> future = null;
 	private static Logger log;
 	private boolean importRunning = false;
-	
+	public static ImportScheduler importScheduler = new ImportScheduler();
+
 	public ImportScheduler() {
 		log = LoggerFactory.getLogger(CacheboxServer.class);
-		scheduler.scheduleAtFixedRate(this, 60, 24*60, TimeUnit.MINUTES);
+	}
+
+	public void start() {
+		stop();
+		
+		int interval = Config.settings.PQImportInterval.getValue();
+		if (interval > 0) {
+			log.debug("Start Import Scheduler: " + interval);
+			future = scheduler.scheduleAtFixedRate(this, interval, interval, TimeUnit.MINUTES);
+		}
+	}
+
+	public void stop() {
+		if (future != null) {
+			log.debug("Stop Import Scheduler");
+			future.cancel(true);
+			future = null;
+		}
 	}
 
 	@Override
 	public void run() {
 		System.out.println("run Import");
+		if (true) return;
 		log.info("Start Import");
 		if (importRunning) {
 			log.debug("Import already started");
@@ -107,7 +130,7 @@ public class ImportScheduler implements Runnable {
 							log.debug("PQ " + pq.Name + " already imported!");
 							continue;
 						}
-						
+
 						// Zipped Pocketquery
 						int i = PocketQuery.DownloadSinglePocketQuery(pq, Config.PocketQueryFolder.getValue());
 						if (i == 0) {

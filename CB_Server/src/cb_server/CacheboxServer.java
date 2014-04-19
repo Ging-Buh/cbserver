@@ -58,6 +58,7 @@ public class CacheboxServer {
 		InitialConfig();
 		InitialCacheDB();
 		Config.settings.ReadFromDB();
+		ImportScheduler.importScheduler.start();
 		int port = 80;
 		try {
 			port = Integer.valueOf(args[0]);
