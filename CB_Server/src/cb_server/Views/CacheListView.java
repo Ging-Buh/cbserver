@@ -5,6 +5,7 @@ import java.util.Date;
 
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
+import CB_Core.Types.CacheListLite;
 import CB_Core.Types.CacheLite;
 import cb_server.Events.SelectedCacheChangedEventList;
 
@@ -21,35 +22,33 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
-public class CacheListView extends Panel {
+public class CacheListView extends CB_ViewBase {
 
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
+	private BeanItemContainer<CacheBean> beans;
 
-	public CacheListView() {		
-		
-	    BeanItemContainer<CacheBean> beans = new BeanItemContainer<CacheBean>(CacheBean.class);
-	   // beans.setBeanIdProperty("GCCode");
-	     
-	    for (int i=0,n=Database.Data.Query.size(); i<n; i++){
-	    	beans.addBean(new CacheBean(Database.Data.Query.get(i)));
-	    }
+	public CacheListView() {
+		super();
+		beans = new BeanItemContainer<CacheBean>(CacheBean.class);
+		// beans.setBeanIdProperty("GCCode");
 
-	    
+//		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
+//			beans.addBean(new CacheBean(Database.Data.Query.get(i)));
+//		}
 
 		this.table = new Table("CacheList", beans);
-		this.setContent(table);
+		this.setCompositionRoot(table);
 		this.setSizeFull();
 		table.setSizeFull();
 		table.setSelectable(true);
 		table.setImmediate(true);
-	
-//		table.addGeneratedColumn("NewCol", new DescriptionColumnGenerator());
-//		table.setColumnHeader("NewCol", "NC");
+
+		//		table.addGeneratedColumn("NewCol", new DescriptionColumnGenerator());
+		//		table.setColumnHeader("NewCol", "NC");
 		// Have to set explicitly to hide the "equatorial" property
-//		table.setVisibleColumns(new Object[]{"GCCode", "Name", "Description"});
-	    
-		
+		//		table.setVisibleColumns(new Object[]{"GCCode", "Name", "Description"});
+
 		table.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -1246546962581855595L;
 
@@ -57,35 +56,45 @@ public class CacheListView extends Panel {
 			public void valueChange(ValueChangeEvent event) {
 				Object o = table.getValue();
 				if (o instanceof CacheBean) {
-					SelectedCacheChangedEventList.Call(((CacheBean)o).cache, null);
+					SelectedCacheChangedEventList.Call(((CacheBean) o).cache, null);
 				}
 			}
 		});
-		
+
 	}
 
-    class DescriptionColumnGenerator implements Table.ColumnGenerator {
-        private static final long serialVersionUID = 3741451390162331681L;
+	@Override
+	public void cacheListChanged(CacheListLite cacheList) {
+		super.cacheListChanged(cacheList);
+		log.debug("Remove all Beans");
+		beans.removeAllItems();
+		log.debug("Add new Beans for new CacheList");
+		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
+			beans.addBean(new CacheBean(Database.Data.Query.get(i)));
+		}
+	}
 
-        /**
-         * Generates the cell containing the Date value. The column is
-         * irrelevant in this use case.
-         */
-        public Component generateCell(Table source, Object itemId,
-                Object columnId) {
-        	Item it = source.getItem(itemId);
-        	it.getItemPropertyIds();
-            Property prop = source.getItem(itemId).getItemProperty("GCCode");
-//            if (prop.getType().equals(String.class)) {
-                Label label = new Label((String)prop.getValue() + "--");
-                label.addStyleName("column-type-date");
-                return label;
-//            }
+	class DescriptionColumnGenerator implements Table.ColumnGenerator {
+		private static final long serialVersionUID = 3741451390162331681L;
 
-//            return null;
-        }
-    }
-	
+		/**
+		 * Generates the cell containing the Date value. The column is
+		 * irrelevant in this use case.
+		 */
+		public Component generateCell(Table source, Object itemId, Object columnId) {
+			Item it = source.getItem(itemId);
+			it.getItemPropertyIds();
+			Property prop = source.getItem(itemId).getItemProperty("GCCode");
+			//            if (prop.getType().equals(String.class)) {
+			Label label = new Label((String) prop.getValue() + "--");
+			label.addStyleName("column-type-date");
+			return label;
+			//            }
+
+			//            return null;
+		}
+	}
+
 	public class CacheBean implements Serializable {
 		/**
 		 * 
@@ -95,7 +104,7 @@ public class CacheListView extends Panel {
 		private String Name;
 		private String Description;
 		private CacheLite cache;
-		
+
 		public CacheBean(CacheLite cacheLite) {
 			this.cache = cacheLite;
 			this.setGCCode("");
@@ -118,11 +127,11 @@ public class CacheListView extends Panel {
 		public void setGCCode(String gCCode) {
 			GCCode = gCCode;
 		}
-		
+
 		public void setDescription(String desc) {
 			this.Description = desc;
 		}
-		
+
 		public String getDescription() {
 			return "Hallo " + cache.getGcCode();
 		}

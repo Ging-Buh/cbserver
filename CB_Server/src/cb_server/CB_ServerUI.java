@@ -1,5 +1,6 @@
 package cb_server;
 
+import java.util.LinkedList;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -8,13 +9,22 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 import org.eclipse.jetty.util.log.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.vaadin.addon.leaflet.LMap;
 import org.vaadin.artur.icepush.ICEPush;
 
+import CB_Core.FilterProperties;
+import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
+import CB_Core.Settings.CB_Core_Settings;
+import CB_Core.Types.CacheListLite;
+import CB_Utils.Events.ProgresssChangedEventList;
+import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
 import cb_server.Views.DescriptionView;
 import cb_server.Views.MapView;
+import cb_server.Views.ProgressView;
 import cb_server.Views.WaypointView;
 
 import com.vaadin.annotations.PreserveOnRefresh;
@@ -24,7 +34,6 @@ import com.vaadin.server.VaadinRequest;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
-import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Panel;
@@ -42,20 +51,27 @@ import de.steinwedel.messagebox.MessageBox;
 @Theme("cb_server")
 @PreserveOnRefresh
 public class CB_ServerUI extends UI {
+	private Logger log;
 	private LMap leafletMap;
 	static private UI that;
 	private final ICEPush pusher = new ICEPush();
 	private final MyExecutor executor = new MyExecutor();
-	
+	private CacheListLite cacheList = new CacheListLite();
+	private LinkedList<CB_ViewBase> views = new LinkedList<>();
+	private FilterProperties lastFilter = null;
 	@Override
 	protected void init(VaadinRequest request) {
+		log = LoggerFactory.getLogger(CB_ServerUI.class);
+		log.info("Initialize CB_ServerUI");
 		that = this;
 		pusher.extend(this);
 		
+		System.out.println("New Session: " + getSession().toString());
 		// Force locale "English"
 		MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
 		// You can use MessageBox.RESOURCES_FACTORY.setResourceBundle(basename);
 		// to localize to your language
+		
 		
 		final com.vaadin.ui.TextField gcLogin = new TextField("GCLogin");
 		gcLogin.setValue(Config.settings.GcLogin.getValue());
@@ -81,7 +97,8 @@ public class CB_ServerUI extends UI {
 		TimerTask action = new TimerTask() {
 			public void run() {
 				try {
-					changeValue(button);
+//					changeValue(button);
+					ProgresssChangedEventList.Call("Tick", 100);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -123,6 +140,10 @@ public class CB_ServerUI extends UI {
 		DescriptionView dv = new DescriptionView();
 		CacheListView clv = new CacheListView();
 		WaypointView wpv = new WaypointView();
+//		views.add(mv);
+//		views.add(dv);
+		views.add(clv);
+//		views.add(wpv);
 		
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
@@ -171,20 +192,22 @@ public class CB_ServerUI extends UI {
 		tabLinksUnten.addTab(wpv, "Waypoints");
 		
 		// Inhalt vom Footer
-		Button bu = new Button("Unten");
-		footer.setContent(bu);
+		ProgressView progressView = new ProgressView();
+		footer.setContent(progressView);
 		
 
 
+		// CacheList laden
+		lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		Thread loadCacheListThread = new Thread(new LoadCacheListThread());
+		loadCacheListThread.start();
 	}
 
-	private void changeValue(final Button button) {
+	public void pushChangedContent() {
 		executor.execute(new Runnable() {
 			public void run() {
 				getSession().lock();
-				try {
-					button.setCaption(button.getCaption() + "x");
-					
+				try {					
 					//NOTE: Comment this line below and problem will go away
 					pusher.push();
 				} finally {
@@ -197,6 +220,25 @@ public class CB_ServerUI extends UI {
 		public MyExecutor() {
 			super(5, 20, 20, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 		}
+	}
+	
+	
+	private class LoadCacheListThread implements Runnable {
+
+		@Override
+		public void run() {
+			log.info("Load CacheList!");
+			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
+			
+			CacheListDAO cacheListDAO = new CacheListDAO();
+			cacheListDAO.ReadCacheList(cacheList, sqlWhere);
+			log.debug("CacheList loaded!");
+			for (CB_ViewBase view : views) {
+				view.cacheListChanged(cacheList);
+			}
+			
+		}
+		
 	}
 }
 

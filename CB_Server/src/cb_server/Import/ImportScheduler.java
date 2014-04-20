@@ -29,6 +29,7 @@ import CB_Core.Types.Category;
 import CB_Core.Types.GpxFilename;
 import CB_Core.Types.ImageEntry;
 import CB_Core.Types.LogEntry;
+import CB_Utils.Events.ProgresssChangedEventList;
 import CB_Utils.Settings.SettingStoreType;
 import CB_Utils.Util.FileIO;
 import cb_server.CacheboxServer;
@@ -52,7 +53,7 @@ public class ImportScheduler implements Runnable {
 		int interval = Config.settings.PQImportInterval.getValue();
 		if (interval > 0) {
 			log.debug("Start Import Scheduler: " + interval);
-			future = scheduler.scheduleAtFixedRate(this, interval, interval, TimeUnit.MINUTES);
+			future = scheduler.scheduleAtFixedRate(this, 1, interval, TimeUnit.MINUTES);
 		}
 	}
 
@@ -67,7 +68,8 @@ public class ImportScheduler implements Runnable {
 	@Override
 	public void run() {
 		System.out.println("run Import");
-		if (true) return;
+//		ProgresssChangedEventList.Call("ProgressChanged", 100);
+//		if (true) return;
 		log.info("Start Import");
 		if (importRunning) {
 			log.debug("Import already started");
@@ -147,7 +149,7 @@ public class ImportScheduler implements Runnable {
 					long startTime = System.currentTimeMillis();
 
 					Database.Data.beginTransaction();
-					Database.Data.Query.clear();
+//					Database.Data.Query.clear();
 					try {
 
 						importer.importGpx(Config.PocketQueryFolder.getValue(), ip);
