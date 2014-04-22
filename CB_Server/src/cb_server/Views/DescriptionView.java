@@ -12,6 +12,7 @@ import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
+import CB_Core.Types.WaypointLite;
 import cb_server.Config;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -39,7 +40,7 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cacheLite, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cacheLite, WaypointLite waypoint) {
 		NonLocalImages.clear();
 		NonLocalImagesUrl.clear();
 
