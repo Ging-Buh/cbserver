@@ -32,6 +32,12 @@
   <logger name="cb_server.CacheboxServer" level="DEBUG">
       <appender-ref ref="ROLLFILE"/>
   </logger>
+  <logger name="cb_server.CB_ServerUI" level="DEBUG">
+      <appender-ref ref="ROLLFILE"/>
+  </logger>
+  <logger name="cb_server.Views.CB_ViewBase" level="DEBUG">
+      <appender-ref ref="ROLLFILE"/>
+  </logger>
   <logger name="Rpc.RpcFunctionsServer" level="DEBUG">
       <appender-ref ref="ROLLFILE"/>
   </logger>
