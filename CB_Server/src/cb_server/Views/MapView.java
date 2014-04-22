@@ -19,7 +19,7 @@ import CB_Core.Enums.CacheTypes;
 import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheLite;
-import CB_Core.Types.Waypoint;
+import CB_Core.Types.WaypointLite;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -214,7 +214,7 @@ public class MapView extends CustomComponent implements
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cache, WaypointLite waypoint) {
 		if (cache == null) {
 			return;
 		}
@@ -324,7 +324,7 @@ public class MapView extends CustomComponent implements
 
 	}
 
-	private String getUnderlayIcon(Cache cache, Waypoint waypoint, int iconSize)
+	private String getUnderlayIcon(Cache cache, WaypointLite waypoint, int iconSize)
 	{
 		if ((iconSize == 0) && (cache != SelectedCacheChangedEventList.Cache))
 		{
