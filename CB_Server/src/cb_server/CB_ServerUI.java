@@ -23,8 +23,10 @@ import CB_Utils.Events.ProgresssChangedEventList;
 import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
 import cb_server.Views.DescriptionView;
+import cb_server.Views.LogView;
 import cb_server.Views.MapView;
 import cb_server.Views.ProgressView;
+import cb_server.Views.SolverView;
 import cb_server.Views.WaypointView;
 
 import com.vaadin.annotations.PreserveOnRefresh;
@@ -98,7 +100,7 @@ public class CB_ServerUI extends UI {
 			public void run() {
 				try {
 //					changeValue(button);
-					ProgresssChangedEventList.Call("Tick", 100);
+//					ProgresssChangedEventList.Call("Tick", 100);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -140,10 +142,14 @@ public class CB_ServerUI extends UI {
 		DescriptionView dv = new DescriptionView();
 		CacheListView clv = new CacheListView();
 		WaypointView wpv = new WaypointView();
+		LogView lv = new LogView();
+		SolverView sv = new SolverView();
 //		views.add(mv);
 //		views.add(dv);
 		views.add(clv);
 //		views.add(wpv);
+		views.add(lv);
+		views.add(sv);
 		
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
@@ -185,6 +191,8 @@ public class CB_ServerUI extends UI {
 		tabRechts.addTab(dv, "DescriptionView");
 		tabLinks.addTab(clv, "CacheList");
 		tabRechts.addTab(mv, "MapView");
+		tabRechts.addTab(lv, "Logs");
+		tabRechts.addTab(sv, "Solver");
 		
 		TabSheet tabLinksUnten = new TabSheet();
 		contentSplit.setSecondComponent(tabLinksUnten);

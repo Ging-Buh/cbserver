@@ -69,8 +69,8 @@ public class CacheListView extends CB_ViewBase {
 		log.debug("Remove all Beans");
 		beans.removeAllItems();
 		log.debug("Add new Beans for new CacheList");
-		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
-			beans.addBean(new CacheBean(Database.Data.Query.get(i)));
+		for (int i = 0, n = cacheList.size(); i < n; i++) {
+			beans.addBean(new CacheBean(cacheList.get(i)));
 		}
 	}
 
