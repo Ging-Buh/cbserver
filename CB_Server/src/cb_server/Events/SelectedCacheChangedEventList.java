@@ -8,13 +8,13 @@ import CB_Core.Enums.CacheTypes;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheLite;
-import CB_Core.Types.Waypoint;
+import CB_Core.Types.WaypointLite;
 
 public class SelectedCacheChangedEventList {
 	public static ArrayList<SelectedCacheChangedEventListner> list = new ArrayList<SelectedCacheChangedEventListner>();
 	// hier werden der aktuell ausgewählte cache und wp gespeichert
 	public static CacheLite Cache;
-	public static Waypoint Waypoint;
+	public static WaypointLite Waypoint;
 
 	public static void Add(SelectedCacheChangedEventListner event) {
 		synchronized (list) {
@@ -29,7 +29,7 @@ public class SelectedCacheChangedEventList {
 		}
 	}
 
-	public static void Call(CacheLite cache2, Waypoint waypoint) {
+	public static void Call(CacheLite cache2, WaypointLite waypoint) {
 		synchronized (list) {
 			for (SelectedCacheChangedEventListner event : list) {
 				if (event == null)
