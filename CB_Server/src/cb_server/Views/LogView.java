@@ -4,6 +4,7 @@ import CB_Core.DB.Database;
 import CB_Core.Types.CacheLite;
 import CB_Core.Types.LogEntry;
 import CB_Core.Types.Waypoint;
+import CB_Core.Types.WaypointLite;
 import CB_Utils.Lists.CB_List;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -40,7 +41,7 @@ public class LogView extends CB_ViewBase implements SelectedCacheChangedEventLis
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cache2, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(CacheLite cache2, WaypointLite waypoint) {
 		list.removeAllComponents();
 		
 		CB_List<LogEntry> cleanLogs = new CB_List<LogEntry>();
