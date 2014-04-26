@@ -239,7 +239,7 @@ public class MapView extends CustomComponent implements
 		int IconId;
 		if (cache.ImTheOwner())
 			IconId = 26;
-		else if (cache.Found)
+		else if (cache.isFound())
 			IconId = 19;
 		else if ((cache.Type == CacheTypes.Mystery)
 				&& cache.CorrectedCoordiantesOrMysterySolved())
@@ -307,12 +307,12 @@ public class MapView extends CustomComponent implements
 			iconId = 0;
 		}
 
-		if (cache.Found)
+		if (cache.isFound())
 			iconId = 6;
 		if (cache.ImTheOwner())
 			iconId = 7;
 
-		if (cache.Archived || !cache.Available)
+		if (cache.isArchived() || !cache.isAvailable())
 			iconId += 8;
 
 		if (cache.Type == CacheTypes.MyParking)
