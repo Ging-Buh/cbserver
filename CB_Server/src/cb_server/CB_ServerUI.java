@@ -18,7 +18,7 @@ import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
 import CB_Core.Settings.CB_Core_Settings;
-import CB_Core.Types.CacheListLite;
+import CB_Core.Types.CacheList;
 import CB_Utils.Events.ProgresssChangedEventList;
 import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
@@ -58,7 +58,7 @@ public class CB_ServerUI extends UI {
 	static private UI that;
 	private final ICEPush pusher = new ICEPush();
 	private final MyExecutor executor = new MyExecutor();
-	private CacheListLite cacheList = new CacheListLite();
+	private CacheList cacheList = new CacheList();
 	private LinkedList<CB_ViewBase> views = new LinkedList<>();
 	private FilterProperties lastFilter = null;
 	@Override
@@ -239,7 +239,7 @@ public class CB_ServerUI extends UI {
 			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 			
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(cacheList, sqlWhere);
+			cacheListDAO.ReadCacheList(cacheList, sqlWhere, true, false);
 			log.debug("CacheList loaded!");
 			for (CB_ViewBase view : views) {
 				view.cacheListChanged(cacheList);

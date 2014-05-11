@@ -18,8 +18,7 @@ import CB_Core.DB.Database;
 import CB_Core.Enums.CacheTypes;
 import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
-import CB_Core.Types.CacheLite;
-import CB_Core.Types.WaypointLite;
+import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -116,13 +115,13 @@ public class MapView extends CustomComponent implements
 			markers = new HashMap<Long, LMarker>();
 			underlays = new HashMap<Long, LMarker>(); 
 				for (int i=0,n=Database.Data.Query.size(); i<n; i++){
-					Cache cache=new Cache(Database.Data.Query.get(i));	
+					Cache cache = Database.Data.Query.get(i);	
 				LMarker marker = new LMarker(cache.Latitude(),
 						cache.Longitude());
 				marker.setIconSize(new Point(15, 15));
 				marker.setIconAnchor(new Point(7, 7));
 				marker.setTitle(cache.getName());
-				marker.setPopup(cache.shortDescription);
+				marker.setPopup(cache.getShortDescription());
 
 				marker.setIcon(new ThemeResource(getCacheIcon(cache, iconSize)));
 				marker.setVisible(false);
@@ -149,7 +148,7 @@ public class MapView extends CustomComponent implements
 		}
 
 		for (int i=0,n=Database.Data.Query.size(); i<n; i++){
-			CacheLite cache=Database.Data.Query.get(i);
+			Cache cache = Database.Data.Query.get(i);
 			LMarker marker = null;
 			try {
 				marker = markers.get(cache.Id);
@@ -214,7 +213,7 @@ public class MapView extends CustomComponent implements
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cache, WaypointLite waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
 		if (cache == null) {
 			return;
 		}
@@ -226,7 +225,7 @@ public class MapView extends CustomComponent implements
 		}
 	}
 
-	private String getCacheIcon(CacheLite cache, int iconSize) {
+	private String getCacheIcon(Cache cache, int iconSize) {
 		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.Cache)) {
 			return getSmallMapIcon(cache);
 		} else {
@@ -235,11 +234,11 @@ public class MapView extends CustomComponent implements
 		}
 	}
 
-	private String getMapIcon(CacheLite cache) {
+	private String getMapIcon(Cache cache) {
 		int IconId;
 		if (cache.ImTheOwner())
 			IconId = 26;
-		else if (cache.Found)
+		else if (cache.isFound())
 			IconId = 19;
 		else if ((cache.Type == CacheTypes.Mystery)
 				&& cache.CorrectedCoordiantesOrMysterySolved())
@@ -259,7 +258,7 @@ public class MapView extends CustomComponent implements
 			return "icons/" + IconId + ".png";
 	}
 
-	private String getSmallMapIcon(CacheLite cache) {
+	private String getSmallMapIcon(Cache cache) {
 		int iconId = 0;
 
 		switch (cache.Type) {
@@ -307,12 +306,12 @@ public class MapView extends CustomComponent implements
 			iconId = 0;
 		}
 
-		if (cache.Found)
+		if (cache.isFound())
 			iconId = 6;
 		if (cache.ImTheOwner())
 			iconId = 7;
 
-		if (cache.Archived || !cache.Available)
+		if (cache.isArchived() || !cache.isAvailable())
 			iconId += 8;
 
 		if (cache.Type == CacheTypes.MyParking)
@@ -324,7 +323,7 @@ public class MapView extends CustomComponent implements
 
 	}
 
-	private String getUnderlayIcon(Cache cache, WaypointLite waypoint, int iconSize)
+	private String getUnderlayIcon(Cache cache, Waypoint waypoint, int iconSize)
 	{
 		if ((iconSize == 0) && (cache != SelectedCacheChangedEventList.Cache))
 		{

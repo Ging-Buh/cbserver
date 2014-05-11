@@ -10,9 +10,7 @@ import CB_Core.Enums.Attributes;
 import CB_Core.Import.DescriptionImageGrabber;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Cache;
-import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
-import CB_Core.Types.WaypointLite;
 import cb_server.Config;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -40,11 +38,10 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cacheLite, WaypointLite waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
 		NonLocalImages.clear();
 		NonLocalImagesUrl.clear();
 
-		cache = new Cache(cacheLite);
 		String cachehtml = Database.GetDescription(cache);
 		String html = DescriptionImageGrabber.ResolveImages(cache, cachehtml, false, NonLocalImages, NonLocalImagesUrl);
 		// Replace local path with URL because Browser can not show Images with local path.

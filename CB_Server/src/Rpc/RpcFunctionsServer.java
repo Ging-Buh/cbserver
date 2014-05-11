@@ -63,7 +63,7 @@ public class RpcFunctionsServer {
 				String joinString = "INNER JOIN GPXFilenames gpx on GpxFilename_Id=gpx.Id";
 				String whereString = "gpx.CategoryId=" + msg.getCategoryId();
 				CacheListDAO dao = new CacheListDAO();
-				dao.ReadCacheList(loadedCacheList, joinString, whereString, true);
+				dao.ReadCacheList(loadedCacheList, joinString, whereString, true, true, false);
 				// geladene CacheList zur Liste der gespeicherten CacheLists hinzufügen
 				loadedCacheLists.put(msg.getCategoryId(), loadedCacheList);
 			} else {
@@ -103,8 +103,8 @@ public class RpcFunctionsServer {
 					}
 					cache.ReloadSpoilerRessources();
 					// URL für den Download der Spoiler setzen
-					for (int j=0, m=cache.spoilerRessources.size();j<m;j++){
-						ImageEntry image=cache.spoilerRessources.get(j);
+					for (int j=0, m=cache.getSpoilerRessources().size();j<m;j++){
+						ImageEntry image=cache.getSpoilerRessources().get(j);
 						String path = "";
 						log.debug("Image: " + image.LocalPath);
 						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
@@ -174,7 +174,7 @@ public class RpcFunctionsServer {
 				case WaypointChanged:
 					log.debug("Waypoint changed: " + entry.cacheId);
 					wpdao = new WaypointDAO();
-					entry.waypoint.checkSum = 0;	// auf 0 setzen damit der WP in der DB upgedated wird
+					entry.waypoint.setCheckSum(0);	// auf 0 setzen damit der WP in der DB upgedated wird
 					wpdao.UpdateDatabase(entry.waypoint);
 					break;
 				default:

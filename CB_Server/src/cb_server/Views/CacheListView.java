@@ -5,8 +5,8 @@ import java.util.Date;
 
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
-import CB_Core.Types.CacheListLite;
-import CB_Core.Types.CacheLite;
+import CB_Core.Types.CacheList;
+import CB_Core.Types.Cache;
 import cb_server.Events.SelectedCacheChangedEventList;
 
 import com.vaadin.data.Item;
@@ -64,7 +64,7 @@ public class CacheListView extends CB_ViewBase {
 	}
 
 	@Override
-	public void cacheListChanged(CacheListLite cacheList) {
+	public void cacheListChanged(CacheList cacheList) {
 		super.cacheListChanged(cacheList);
 		log.debug("Remove all Beans");
 		beans.removeAllItems();
@@ -103,9 +103,9 @@ public class CacheListView extends CB_ViewBase {
 		private String GCCode;
 		private String Name;
 		private String Description;
-		private CacheLite cache;
+		private Cache cache;
 
-		public CacheBean(CacheLite cacheLite) {
+		public CacheBean(Cache cacheLite) {
 			this.cache = cacheLite;
 			this.setGCCode("");
 			this.setName("");

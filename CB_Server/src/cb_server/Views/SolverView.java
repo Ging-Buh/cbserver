@@ -9,9 +9,10 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Button.ClickEvent;
 
 import CB_Core.DB.Database;
-import CB_Core.Types.CacheLite;
+import CB_Core.Solver.Solver;
+import CB_Core.Solver.SolverZeile;
+import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
-import CB_Core.Types.WaypointLite;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -49,9 +50,13 @@ public class SolverView extends CB_ViewBase implements SelectedCacheChangedEvent
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void buttonClick(ClickEvent event) {
-//				Solver solver = new Solver(formula.getValue());
-//				solver.Solve();
-//				solution.setValue(solver.getSolverString());
+				Solver solver = new Solver(formula.getValue());
+				solver.Solve();
+				String result = "";
+				for (SolverZeile zeile : solver){
+					result += zeile.Solution + System.getProperty("line.separator");
+				}
+				solution.setValue(result);
 			}
 		});
 		buttons.addComponent(bSolve);
@@ -61,7 +66,7 @@ public class SolverView extends CB_ViewBase implements SelectedCacheChangedEvent
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cache2, WaypointLite waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint) {
 		formula.setValue(Database.GetSolver(cache2.Id));
 		solution.setValue("");
 	}

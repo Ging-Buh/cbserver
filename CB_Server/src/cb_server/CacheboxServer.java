@@ -329,7 +329,7 @@ public class CacheboxServer {
 
 		synchronized (Database.Data.Query) {
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere);
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
 		}
 
 	}

@@ -13,9 +13,7 @@ import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableRowEvent
 import CB_Core.DAO.WaypointDAO;
 import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
-import CB_Core.Types.CacheLite;
 import CB_Core.Types.Waypoint;
-import CB_Core.Types.WaypointLite;
 import CB_Utils.Lists.CB_List;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
@@ -90,14 +88,14 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(CacheLite cache, WaypointLite waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
 		if (doNotUpdate) return;
 		beans.removeAllItems();
 		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, null));
 		
 		WaypointDAO dao=new WaypointDAO();
 		
-		CB_List<WaypointLite> waypoints = dao.getWaypointsFromCacheID(cache.Id,true);
+		CB_List<Waypoint> waypoints = dao.getWaypointsFromCacheID(cache.Id,true);
 		
 		for (int i=0,n=waypoints.size(); i<n; i++){
 			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, waypoints.get(i)));
@@ -112,12 +110,12 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		private String GCCode;
 		private String Title;
 		private String Description;
-		private CacheLite cache;
+		private Cache cache;
 		private Waypoint waypoint;
 		
-		public WaypointBean(CacheLite cache2, WaypointLite waypointLite) {
-			this.cache = cache2;
-			this.waypoint = (Waypoint) waypointLite;
+		public WaypointBean(Cache cache, Waypoint waypoint) {
+			this.cache = cache;
+			this.waypoint = waypoint;
 			this.setGCCode("");
 			this.setTitle("");
 		}
