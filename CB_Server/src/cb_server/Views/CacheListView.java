@@ -7,6 +7,7 @@ import CB_Core.DB.Database;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheList;
 import CB_Core.Types.Cache;
+import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
 
 import com.vaadin.data.Item;
@@ -56,7 +57,12 @@ public class CacheListView extends CB_ViewBase {
 			public void valueChange(ValueChangeEvent event) {
 				Object o = table.getValue();
 				if (o instanceof CacheBean) {
-					SelectedCacheChangedEventList.Call(((CacheBean) o).cache, null);
+					Cache cache = ((CacheBean) o).cache;
+					Waypoint waypoint = cache.GetFinalWaypoint();
+					if (waypoint == null) {
+						waypoint = cache.GetStartWaypoint();
+					}
+					SelectedCacheChangedEventList.Call(cache, waypoint);
 				}
 			}
 		});

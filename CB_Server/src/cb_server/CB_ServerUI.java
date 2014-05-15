@@ -153,7 +153,7 @@ public class CB_ServerUI extends UI {
 		WaypointView wpv = new WaypointView();
 		LogView lv = new LogView();
 		SolverView sv = new SolverView();
-//		views.add(mv);
+		views.add(mv);
 //		views.add(dv);
 		views.add(clv);
 //		views.add(wpv);
