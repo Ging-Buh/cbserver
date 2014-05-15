@@ -12,6 +12,7 @@ import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedOnTableRowEvent
 
 import CB_Core.DAO.WaypointDAO;
 import CB_Core.DB.Database;
+import CB_Core.Enums.CacheTypes;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import CB_Utils.Lists.CB_List;
@@ -49,7 +50,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 				Object o = table.getValue();
 				if (o instanceof WaypointBean) {
 					doNotUpdate = true;
-					SelectedCacheChangedEventList.Call(SelectedCacheChangedEventList.Cache, ((WaypointBean)o).waypoint);
+					SelectedCacheChangedEventList.Call(SelectedCacheChangedEventList.getCache(), ((WaypointBean)o).waypoint);
 					doNotUpdate = false;
 				}
 			}
@@ -91,14 +92,14 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
 		if (doNotUpdate) return;
 		beans.removeAllItems();
-		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, null));
+		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.getCache(), null));
 		
 		WaypointDAO dao=new WaypointDAO();
 		
 		CB_List<Waypoint> waypoints = dao.getWaypointsFromCacheID(cache.Id,true);
 		
 		for (int i=0,n=waypoints.size(); i<n; i++){
-			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.Cache, waypoints.get(i)));
+			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.getCache(), waypoints.get(i)));
 		}
 		table.setData(beans);
 	}
@@ -110,6 +111,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		private String GCCode;
 		private String Title;
 		private String Description;
+		private CacheTypes type;
 		private Cache cache;
 		private Waypoint waypoint;
 		
@@ -118,6 +120,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 			this.waypoint = waypoint;
 			this.setGCCode("");
 			this.setTitle("");
+			this.setType(CacheTypes.Cache);
 		}
 
 		public String getTitle() {
@@ -143,5 +146,16 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 			GCCode = gCCode;
 		}
 		
+		public CacheTypes getType() {
+			if (waypoint == null) {
+				return cache.Type;
+			} else {
+				return waypoint.Type;
+			}
+		}
+		
+		public void setType(CacheTypes type) {
+			this.type = type;
+		}
 	}
 }

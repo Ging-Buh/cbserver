@@ -20,6 +20,7 @@ import CB_Core.DB.Database;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.CacheList;
 import CB_Utils.Events.ProgresssChangedEventList;
+import cb_server.Import.ImportScheduler;
 import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
 import cb_server.Views.DescriptionView;
@@ -128,10 +129,18 @@ public class CB_ServerUI extends UI {
 		    }
 		});
 		
+		final Button bImport = new Button("Import");
+		bImport.addClickListener(new ClickListener() {
+		    public void buttonClick(ClickEvent event) {
+		    	// run Import once
+		    	ImportScheduler.importScheduler.startOnce();
+		    }
+		});
+
 		final Button close = new Button("Finish Server");
 		close.addClickListener(new ClickListener() {
 		    public void buttonClick(ClickEvent event) {
-		    	Log.info("Exit Server");
+		    	log.info("Exit Server");
 		    	System.exit(0);
 		    }
 		});
@@ -173,6 +182,7 @@ public class CB_ServerUI extends UI {
 		HorizontalLayout headerLayout=new HorizontalLayout();
 		headerLayout.addComponent(close);
 		headerLayout.addComponent(open);
+		headerLayout.addComponent(bImport);
 		header.setContent(headerLayout);
 	
 		

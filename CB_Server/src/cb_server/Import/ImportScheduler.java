@@ -42,6 +42,7 @@ public class ImportScheduler implements Runnable {
 	private static Logger log;
 	private boolean importRunning = false;
 	public static ImportScheduler importScheduler = new ImportScheduler();
+	private boolean stopAfterImport = false;
 
 	public ImportScheduler() {
 		log = LoggerFactory.getLogger(CacheboxServer.class);
@@ -49,7 +50,7 @@ public class ImportScheduler implements Runnable {
 
 	public void start() {
 		stop();
-		
+		stopAfterImport = false;
 		int interval = Config.settings.PQImportInterval.getValue();
 		if (interval > 0) {
 			log.debug("Start Import Scheduler: " + interval);
@@ -65,11 +66,21 @@ public class ImportScheduler implements Runnable {
 		}
 	}
 
+	public void startOnce() {
+		stop();
+		stopAfterImport = true;
+		int interval = Config.settings.PQImportInterval.getValue();
+
+		log.debug("Start Import Scheduler: " + interval);
+		future = scheduler.scheduleAtFixedRate(this, 1, Long.MAX_VALUE, TimeUnit.SECONDS);
+
+	}
+
 	@Override
 	public void run() {
 		System.out.println("run Import");
-//		ProgresssChangedEventList.Call("ProgressChanged", 100);
-//		if (true) return;
+		//		ProgresssChangedEventList.Call("ProgressChanged", 100);
+		//		if (true) return;
 		log.info("Start Import");
 		if (importRunning) {
 			log.debug("Import already started");
@@ -149,7 +160,7 @@ public class ImportScheduler implements Runnable {
 					long startTime = System.currentTimeMillis();
 
 					Database.Data.beginTransaction();
-//					Database.Data.Query.clear();
+					//					Database.Data.Query.clear();
 					try {
 
 						importer.importGpx(Config.PocketQueryFolder.getValue(), ip);
@@ -227,6 +238,8 @@ public class ImportScheduler implements Runnable {
 		}
 		System.out.println("Import finished");
 		log.info("Import finished");
-
+		if (stopAfterImport) {
+			stop();
+		}
 	}
 }

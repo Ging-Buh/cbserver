@@ -174,7 +174,7 @@ public class MapView extends CustomComponent implements
 //				uMarker.setVisible(false);
 //			}
 //			uMarker.setVisible(false);
-			marker.setActive(cache == SelectedCacheChangedEventList.Cache);
+			marker.setActive(cache == SelectedCacheChangedEventList.getCache());
 			switch (iconSize) {
 			case 0:
 				marker.setIconSize(new Point(12, 12));
@@ -226,7 +226,7 @@ public class MapView extends CustomComponent implements
 	}
 
 	private String getCacheIcon(Cache cache, int iconSize) {
-		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.Cache)) {
+		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.getCache())) {
 			return getSmallMapIcon(cache);
 		} else {
 			// der SelectedCache wird immer mit den großen Symbolen dargestellt!
@@ -325,7 +325,7 @@ public class MapView extends CustomComponent implements
 
 	private String getUnderlayIcon(Cache cache, Waypoint waypoint, int iconSize)
 	{
-		if ((iconSize == 0) && (cache != SelectedCacheChangedEventList.Cache))
+		if ((iconSize == 0) && (cache != SelectedCacheChangedEventList.getCache()))
 		{
 			return null;
 		}
@@ -333,7 +333,7 @@ public class MapView extends CustomComponent implements
 		{
 			if (waypoint == null)
 			{
-				if ((cache != null) && (cache == SelectedCacheChangedEventList.Cache))
+				if ((cache != null) && (cache == SelectedCacheChangedEventList.getCache()))
 				{
 					return "icons/shaddowrect-selected.png";
 				}
@@ -344,7 +344,7 @@ public class MapView extends CustomComponent implements
 			}
 			else
 			{
-				if (waypoint == SelectedCacheChangedEventList.Waypoint)
+				if (waypoint == SelectedCacheChangedEventList.getWaypoint())
 				{
 					return "icons/shaddowrect-selected.png";
 				}
