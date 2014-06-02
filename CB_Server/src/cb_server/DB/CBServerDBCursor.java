@@ -78,6 +78,7 @@ public class CBServerDBCursor extends CoreCursor
 		try
 		{
 			if (rs != null) rs.close();
+			if (ps != null) ps.close();
 		}
 		catch (SQLException e)
 		{

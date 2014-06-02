@@ -106,7 +106,7 @@ public class RpcFunctionsServer {
 					for (int j=0, m=cache.getSpoilerRessources().size();j<m;j++){
 						ImageEntry image=cache.getSpoilerRessources().get(j);
 						String path = "";
-						log.debug("Image: " + image.LocalPath);
+	//					log.debug("Image: " + image.LocalPath);
 						int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
 						if (pos < 0) {
 							pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());

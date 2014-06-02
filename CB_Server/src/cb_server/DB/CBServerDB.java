@@ -104,14 +104,15 @@ public class CBServerDB extends Database
 			e.printStackTrace();
 		}
 
+
 		// TODO Hack to get Rowcount
 		ResultSet rs2 = null;
 		int rowcount = 0;
-
+		PreparedStatement statement2 = null;
 		try
 		{
 
-			PreparedStatement statement2 = myDB.prepareStatement("select count(*) from (" + sql + ")");
+			statement2 = myDB.prepareStatement("select count(*) from (" + sql + ")");
 
 			if (args != null)
 			{
@@ -131,6 +132,14 @@ public class CBServerDB extends Database
 		{
 			e.printStackTrace();
 		}
+		finally {
+			try {
+				statement2.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 		return new CBServerDBCursor(rs, rowcount, statement);
 	}
@@ -139,7 +148,7 @@ public class CBServerDB extends Database
 	public void execSQL(String sql)
 	{
 		if (myDB == null) return;
-		Statement statement;
+		Statement statement = null;
 		try
 		{
 			statement = myDB.createStatement();
@@ -149,6 +158,14 @@ public class CBServerDB extends Database
 		{
 
 			e.printStackTrace();
+		}
+		finally {
+			try {
+				statement.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -182,10 +199,10 @@ public class CBServerDB extends Database
 			sql.append(" where ");
 			sql.append(whereClause);
 		}
-
+		PreparedStatement st = null;
 		try
 		{
-			PreparedStatement st = myDB.prepareStatement(sql.toString());
+			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
 			for (Entry<String, Object> entry : val.entrySet())
@@ -208,6 +225,14 @@ public class CBServerDB extends Database
 		catch (SQLException e)
 		{
 			return 0;
+		}
+		finally {
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -247,10 +272,10 @@ public class CBServerDB extends Database
 		}
 
 		sql.append(" )");
-
+		PreparedStatement st = null;
 		try
 		{
-			PreparedStatement st = myDB.prepareStatement(sql.toString());
+			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
 			for (Entry<String, Object> entry : val.entrySet())
@@ -266,6 +291,14 @@ public class CBServerDB extends Database
 		catch (SQLException e)
 		{
 			return 0;
+		}
+		finally {
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -284,10 +317,10 @@ public class CBServerDB extends Database
 			sql.append(" where ");
 			sql.append(whereClause);
 		}
-
+		PreparedStatement st = null;
 		try
 		{
-			PreparedStatement st = myDB.prepareStatement(sql.toString());
+			st = myDB.prepareStatement(sql.toString());
 
 			if (whereArgs != null)
 			{
@@ -303,6 +336,14 @@ public class CBServerDB extends Database
 		catch (SQLException e)
 		{
 			return 0;
+		}
+		finally {
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -384,10 +425,10 @@ public class CBServerDB extends Database
 		}
 
 		sql.append(" )");
-
+		PreparedStatement st = null;
 		try
 		{
-			PreparedStatement st = myDB.prepareStatement(sql.toString());
+			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
 			for (Entry<String, Object> entry : val.entrySet())
@@ -402,6 +443,14 @@ public class CBServerDB extends Database
 		catch (SQLException e)
 		{
 			return 0;
+		}
+		finally {
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 
 	}
@@ -442,10 +491,10 @@ public class CBServerDB extends Database
 		}
 
 		sql.append(" )");
-
+		PreparedStatement st = null;
 		try
 		{
-			PreparedStatement st = myDB.prepareStatement(sql.toString());
+			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
 			for (Entry<String, Object> entry : val.entrySet())
@@ -461,6 +510,14 @@ public class CBServerDB extends Database
 		{
 			return 0;
 		}
+		finally {
+			try {
+				st.close();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 
 	}
 
@@ -472,15 +529,17 @@ public class CBServerDB extends Database
 
 		int count = 0;
 		Connection myDB = null;
+		Statement statement = null;
 		try
 		{
 			myDB = DriverManager.getConnection("jdbc:sqlite:" + filename);
 
-			Statement statement = myDB.createStatement();
+			statement = myDB.createStatement();
 			ResultSet result = statement.executeQuery("select count(*) from caches");
 			// result.first();
 			count = result.getInt(1);
 			result.close();
+			statement.close();
 			myDB.close();
 		}
 		catch (SQLException e)
