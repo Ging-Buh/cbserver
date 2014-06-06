@@ -3,6 +3,7 @@ package cb_server.Views;
 import java.io.Serializable;
 
 import org.vaadin.peter.contextmenu.ContextMenu;
+import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuItem;
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuItemClickListener;
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuOpenedListener.TableListener;
 import org.vaadin.peter.contextmenu.ContextMenu.ContextMenuItemClickEvent;
@@ -15,9 +16,11 @@ import CB_Core.DB.Database;
 import CB_Core.Enums.CacheTypes;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
+import CB_Locator.Coordinate;
 import CB_Utils.Lists.CB_List;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
+import cb_server.Views.Dialogs.WaypointDialog;
 
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
@@ -31,6 +34,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 	private BeanItemContainer<WaypointBean> beans;
 	public Table table;
 	private boolean doNotUpdate = false;
+	private boolean createNewWaypoint = false;
 	
 	public WaypointView() {
 	    beans = new BeanItemContainer<WaypointBean>(WaypointBean.class);
@@ -59,29 +63,80 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		
 		// Context Menu
 		ContextMenu contextMenu = new ContextMenu();
-		contextMenu.addItem("Edit");
-		contextMenu.addContextMenuTableListener(new TableListener() {
-			
-			@Override
-			public void onContextMenuOpenFromRow(ContextMenuOpenedOnTableRowEvent event) {
-			}
-			
-			@Override
-			public void onContextMenuOpenFromHeader(
-					ContextMenuOpenedOnTableHeaderEvent event) {
-			}
-			
-			@Override
-			public void onContextMenuOpenFromFooter(
-					ContextMenuOpenedOnTableFooterEvent event) {
-			}
-		});
 		contextMenu.setOpenAutomatically(true);
-		contextMenu.addItemClickListener(new ContextMenuItemClickListener() {
-			
+		ContextMenuItem cmi = contextMenu.addItem("Edit");
+		cmi.addItemClickListener(new ContextMenuItemClickListener() {
 			@Override
 			public void contextMenuItemClicked(ContextMenuItemClickEvent event) {
-				String s = "";
+				createNewWaypoint = false;
+				WaypointDialog dial = new WaypointDialog(SelectedCacheChangedEventList.getWaypoint(), new WaypointDialog.ReturnListner() {
+					@Override
+					public void returnedWP(Waypoint waypoint) {
+						if (waypoint != null) {
+							if (waypoint.IsStart)
+							{
+								// Es muss hier sichergestellt sein dass dieser Waypoint der einzige dieses Caches ist, der als Startpunkt
+								// definiert
+								// ist!!!
+								WaypointDAO wpd = new WaypointDAO();
+								wpd.ResetStartWaypoint(SelectedCacheChangedEventList.getCache(), waypoint);
+							}
+							WaypointDAO waypointDAO = new WaypointDAO();
+							waypointDAO.UpdateDatabase(waypoint);
+							WaypointView.this.table.setContainerDataSource(WaypointView.this.beans);
+//							that.setBaseAdapter(lvAdapter);
+						}
+						
+					}
+				});
+				WaypointView.this.getUI().addWindow(dial);
+				
+			}
+		});
+		cmi = contextMenu.addItem("New Waypoint");
+		cmi.addItemClickListener(new ContextMenuItemClickListener() {
+			@Override
+			public void contextMenuItemClicked(ContextMenuItemClickEvent event) {
+				createNewWaypoint = true;
+				String newGcCode = "";
+				try
+				{
+					newGcCode = Database.CreateFreeGcCode(SelectedCacheChangedEventList.getCache().getGcCode());
+				}
+				catch (Exception e)
+				{
+					return;
+				}
+				Coordinate coord = SelectedCacheChangedEventList.getCache().Pos;
+				Waypoint newWP = new Waypoint(newGcCode, CacheTypes.ReferencePoint, "", coord.getLatitude(), coord.getLongitude(),
+						SelectedCacheChangedEventList.getCache().Id, "", "Waypoint"/*Translation.Get("wyptDefTitle")*/);
+				WaypointDialog dial = new WaypointDialog(newWP, new WaypointDialog.ReturnListner() {
+					@Override
+					public void returnedWP(Waypoint waypoint) {
+						if (waypoint != null) {
+							SelectedCacheChangedEventList.getCache().waypoints.add(waypoint);
+							WaypointView.this.table.setContainerDataSource(WaypointView.this.beans);
+							SelectedCacheChangedEventList.Call(SelectedCacheChangedEventList.getCache(), waypoint);
+							if (waypoint.IsStart)
+							{
+								// Es muss hier sichergestellt sein dass dieser Waypoint der einzige dieses Caches ist, der als Startpunkt
+								// definiert
+								// ist!!!
+								WaypointDAO wpd = new WaypointDAO();
+								wpd.ResetStartWaypoint(SelectedCacheChangedEventList.getCache(), waypoint);
+							}
+							WaypointDAO waypointDAO = new WaypointDAO();
+							waypointDAO.WriteToDatabase(waypoint);
+
+							SelectedCacheChangedEvent(SelectedCacheChangedEventList.getCache(), waypoint);
+
+
+
+						}
+						
+					}
+				});
+				WaypointView.this.getUI().addWindow(dial);
 				
 			}
 		});
@@ -114,6 +169,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		private CacheTypes type;
 		private Cache cache;
 		private Waypoint waypoint;
+		private String Coord;
 		
 		public WaypointBean(Cache cache, Waypoint waypoint) {
 			this.cache = cache;
@@ -156,6 +212,18 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 		
 		public void setType(CacheTypes type) {
 			this.type = type;
+		}
+
+		public String getCoord() {
+			if (waypoint != null) {
+				return waypoint.Pos.FormatCoordinate();
+			} else {
+				return cache.Pos.FormatCoordinate();
+			}
+		}
+
+		public void setCoord(String coord) {
+			Coord = coord;
 		}
 	}
 }

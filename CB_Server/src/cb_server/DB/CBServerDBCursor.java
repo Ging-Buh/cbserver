@@ -85,6 +85,7 @@ public class CBServerDBCursor extends CoreCursor
 			e.printStackTrace();
 		}
 		rs = null;
+		ps = null;
 	}
 
 	@Override

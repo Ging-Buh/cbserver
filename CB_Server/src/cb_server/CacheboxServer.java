@@ -7,12 +7,25 @@ import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.atmosphere.di.ServletContextHolder;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.component.LifeCycle.Listener;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.gwt.dev.shell.log.ServletContextTreeLogger;
 
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
@@ -93,9 +106,14 @@ public class CacheboxServer {
 		webappSpoiler.setContextPath("/spoilers");
 		webappSpoiler.setParentLoaderPriority(true);
 
+		// Map
+		ServletContextHandler mapContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		mapContext.setContextPath("/map");
+		mapContext.addServlet(new ServletHolder(new MapServlet()), "/*");
+		
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler });
-
+		contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler, mapContext });
+		
 		server.setHandler(contexts);
 
 		
@@ -380,4 +398,5 @@ public class CacheboxServer {
 		Database.FieldNotes.StartUp(Config.WorkPath + "/User/FieldNotes.db3");
 	}
 
+	
 }
