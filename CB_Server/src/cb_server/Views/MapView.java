@@ -70,8 +70,18 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		pk.setMaxZoom(18);
 		pk.setSubDomains("tile2");
 		pk.setDetectRetina(true);
+		pk.setVisible(false);
 
+		LTileLayer lk = new LTileLayer();
+		lk.setUrl("http://localhost:8085/map/{z}/{x}/{y}.png");
+		lk.setMaxZoom(19);
+		lk.setDetectRetina(true);
+		lk.setSubDomains("tile2");
+		lk.setVisible(true);
+		lk.setActive(false);
+		
 		leafletMap.addBaseLayer(pk, "");
+		leafletMap.addBaseLayer(lk, "MapsForge");
 		leafletMap.addBaseLayer(baselayer, "");
 
 		leafletMap.addMoveEndListener(new LeafletMoveEndListener() {

@@ -34,60 +34,60 @@ import de.Map.DesktopManager;
 public class MapServlet extends HttpServlet {
 	private static final long serialVersionUID = 2094731483963312861L;
 	private String greeting = "Hello World";
-
+	private SERVER_DatabaseRenderer databaseRenderer;
+	private File mapFile;
+	private ExternalRenderTheme renderTheme;
+	private DisplayModel model;
+	private static Object syncObject = new Object();
 	public MapServlet() {
-		DisplayModel model = new DisplayModel();
+		model = new DisplayModel();
 		DesktopManager manager = new DesktopManager(model);
-				
-		File mapFile=new File("./cachebox/repository/maps/germany.map");
-		File RenderThemeFile=new File("./cachebox/repository/maps/osmarender/osmarender.xml");
-		ExternalRenderTheme renderTheme = null;
+
+		mapFile = new File("./cachebox/repository/maps/germany.map");
+		File RenderThemeFile = new File("./cachebox/repository/maps/osmarender/osmarender.xml");
+		renderTheme = null;
 		try {
 			renderTheme = new ExternalRenderTheme(RenderThemeFile);
 		} catch (FileNotFoundException e) {
-						e.printStackTrace();
-		}
-		
-		MapDatabase	MF_mapDatabase = new MapDatabase();
-		MF_mapDatabase.closeFile();
-		MF_mapDatabase.openFile(mapFile);
-		
-		GraphicFactory Mapsforge_Factory =new ext_AwtGraphicFactory(1);
-		SERVER_DatabaseRenderer databaseRenderer = new SERVER_DatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
-		
-		
-		Tile ti=new Tile(34986, 22738, (byte) 16);
-		RendererJob job = new RendererJob(ti, mapFile, renderTheme, model, 1, false);
-		TileBitmap tile= databaseRenderer.executeJob(job);
-		
-		
-		// Hi Hubert, wie willst Du das Image zurück geben?
-		// Als OutputStream? Dann wäre das der Richtige Code, um es als PNG zurück zu geben.
-		
-		OutputStream os= new ByteArrayOutputStream();
-		
-		try {
-			tile.compress(os);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		
-		// Oder auf der Platte Speichern 
-		ext_AwtTileBitmap bmp=(ext_AwtTileBitmap) tile;
-		BufferedImage bufferedImage =bmp.getBufferedImage();
-		
-		File outputfile = new File("./cachebox/repository/maps/testimage.jpg");
-		try {
-			ImageIO.write(bufferedImage, "jpg", outputfile);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		
-		}
+		MapDatabase MF_mapDatabase = new MapDatabase();
+		MF_mapDatabase.closeFile();
+		MF_mapDatabase.openFile(mapFile);
+
+		GraphicFactory Mapsforge_Factory = new ext_AwtGraphicFactory(1);
+		databaseRenderer = new SERVER_DatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
+		/*
+				Tile ti = new Tile(34986, 22738, (byte) 16);
+				RendererJob job = new RendererJob(ti, mapFile, renderTheme, model, 1, false);
+				TileBitmap tile = databaseRenderer.executeJob(job);
+
+				// Hi Hubert, wie willst Du das Image zurück geben?
+				// Als OutputStream? Dann wäre das der Richtige Code, um es als PNG zurück zu geben.
+
+				OutputStream os = new ByteArrayOutputStream();
+
+				try {
+					tile.compress(os);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				// Oder auf der Platte Speichern 
+				ext_AwtTileBitmap bmp = (ext_AwtTileBitmap) tile;
+				BufferedImage bufferedImage = bmp.getBufferedImage();
+
+				File outputfile = new File("./cachebox/repository/maps/testimage.jpg");
+				try {
+					ImageIO.write(bufferedImage, "jpg", outputfile);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+		*/
+	}
 
 	public MapServlet(String greeting) {
 		this();
@@ -95,9 +95,26 @@ public class MapServlet extends HttpServlet {
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		response.setContentType("text/html");
-		response.setStatus(HttpServletResponse.SC_OK);
-		response.getWriter().println("<h1>" + greeting + "</h1>");
-		response.getWriter().println("session=" + request.getSession(true).getId());
+		synchronized (syncObject) {
+			response.setContentType("image/png");
+			response.setStatus(HttpServletResponse.SC_OK);
+
+			Tile ti = new Tile(34986, 22738, (byte) 16);
+			RendererJob job = new RendererJob(ti, mapFile, renderTheme, model, 1, false);
+			TileBitmap tile = databaseRenderer.executeJob(job);
+
+			// Hi Hubert, wie willst Du das Image zurück geben?
+			// Als OutputStream? Dann wäre das der Richtige Code, um es als PNG zurück zu geben.
+
+			//		OutputStream os = new ByteArrayOutputStream();
+
+			try {
+				tile.compress(response.getOutputStream());
+				//			tile.compress(os);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
