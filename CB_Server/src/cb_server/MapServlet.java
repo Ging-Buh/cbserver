@@ -30,6 +30,7 @@ import org.mapsforge.map.layer.renderer.RendererJob;
 import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.reader.MapDatabase;
 import org.mapsforge.map.rendertheme.ExternalRenderTheme;
+import org.mortbay.log.Log;
 
 import CB_Locator.Map.Descriptor;
 import CB_Locator.Map.Layer;
@@ -122,6 +123,7 @@ public class MapServlet extends HttpServlet {
 
 			try {
 				tile.compress(response.getOutputStream());
+				Log.info("Generated MapTile for: " + sQuery);
 				//			tile.compress(os);
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
