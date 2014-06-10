@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Enumeration;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
@@ -105,10 +106,17 @@ public class MapServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		synchronized (syncObject) {
+
+			String sQuery = request.getPathInfo().replace(".png", "");
+			String[] query = sQuery.split("/");
+			int z = Integer.valueOf(query[1]);
+			int x = Integer.valueOf(query[2]);
+			int y = Integer.valueOf(query[3]);
+			
 			response.setContentType("image/png");
 			response.setStatus(HttpServletResponse.SC_OK);
 
-			Tile ti = new Tile(34986, 22738, (byte) 16);
+			Tile ti = new Tile(x, y, (byte) z);
 			RendererJob job = new RendererJob(ti, mapFile, renderTheme, model, 1, false);
 			TileBitmap tile = databaseRenderer.executeJob(job);
 
