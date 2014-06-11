@@ -19,6 +19,7 @@ import CB_Core.Enums.CacheTypes;
 import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
+import Rpc.RpcFunctionsServer;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -72,8 +73,11 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		pk.setDetectRetina(false);
 		pk.setVisible(false);
 
+		
+		int port= RpcFunctionsServer.jettyPort;
+		
 		LTileLayer lk = new LTileLayer();
-		lk.setUrl("http://localhost:8085/map/{z}/{x}/{y}.png");
+		lk.setUrl("http://localhost:" + String.valueOf(port) + "/map/{z}/{x}/{y}.png");
 		lk.setMaxZoom(19);
 		lk.setDetectRetina(false);
 		lk.setSubDomains("tile2");
