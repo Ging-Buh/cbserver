@@ -2,9 +2,15 @@ package cb_server;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.management.ManagementFactory;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -67,6 +73,9 @@ public class CacheboxServer {
 		writeLockFile("cbserver.lock");
 		log.debug(System.getProperty("sun.net.http.allowRestrictedHeaders"));
 		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+		
+		copyWebContent();
+		
 		log.info("Hallo Jetty Vaadin Server");
 		log.debug("Initialize Config");
 		InitialConfig();
@@ -319,6 +328,90 @@ public class CacheboxServer {
 
 	}
 
+	
+	/**
+	 * Copy the WebContentFolder if need
+	 */
+	private static void copyWebContent()
+	{
+		
+		File root= new File("./");
+		File WebContentFolder =new File(root.getAbsolutePath()+"/Webcontent");
+		if(WebContentFolder.exists()&&WebContentFolder.isDirectory())
+		{
+			log.info("WebContentFolder exist, NOP");
+		}
+		else
+		{
+			log.info("Missing WebContentFolder, copy from Jar");
+
+			 try
+		     {
+		          String destPath =root.getAbsolutePath()+"/WebContent/VAADIN";
+		          String JarFolder="/VAADIN";
+		          CopyJarFolder(destPath, JarFolder); 
+		          
+		           destPath =root.getAbsolutePath()+"/WebContent/WEB-INF";
+		           JarFolder="/WEB-INF";
+		          CopyJarFolder(destPath, JarFolder); 
+		          
+		           destPath =root.getAbsolutePath()+"/WebContent/META-INF";
+		           JarFolder="/META-INF";
+		          CopyJarFolder(destPath, JarFolder); 
+		     }
+
+		     catch(Exception e)
+		     {
+		    	 e.printStackTrace();
+		     }
+			
+		}
+		
+		
+	}
+
+
+	private static void CopyJarFolder(String destPath, String JarFolder)
+			throws URISyntaxException, FileNotFoundException, IOException {
+		File dir = new File(destPath);  
+		  dir.mkdirs();  
+		  
+		  URL url =CacheboxServer.class.getClass().getResource(JarFolder);
+		  URI uri= new URI(url.toString());
+		  
+		  File resource = new File(uri);
+		  File[] listResource = resource.listFiles();
+		  String[] files=resource.list();
+		  for (int i = 0; i < files.length; i++) 
+		  {
+			  if(listResource[i].isDirectory())
+			  {
+				  //Recursive call
+				 String rcursiveJarFolder=JarFolder + "/" + listResource[i].getName();
+				 String recursiveDestPath=destPath + "/" + listResource[i].getName();
+				 CopyJarFolder(recursiveDestPath,rcursiveJarFolder);
+				 continue;
+			  }
+			  
+			   File dstfile1=new File(dir,files[i]);
+		       FileInputStream is1 = new FileInputStream(listResource[i]);
+		       FileOutputStream fos1 = new FileOutputStream(dstfile1);
+		       int b1;
+		       while((b1 = is1.read()) != -1) 
+		       {
+		            fos1.write(b1);
+		       }
+		       fos1.close();
+		       is1.close();
+		  }
+	}
+	
+	private void CopyFolder()
+	{
+	    
+
+	}
+	
 	public static void writeLockFile(String filename) {
 		String prePid = ManagementFactory.getRuntimeMXBean().getName();
 		String pid = null;
