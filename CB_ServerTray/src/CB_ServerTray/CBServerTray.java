@@ -45,7 +45,7 @@ public class CBServerTray {
  
         //Display the window.
         frame.pack();
-        frame.setVisible(true);
+        frame.setVisible(false);
         
         if (SystemTray.isSupported()) {
             final PopupMenu popup = new PopupMenu();
