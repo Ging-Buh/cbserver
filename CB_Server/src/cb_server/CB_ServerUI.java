@@ -12,7 +12,6 @@ import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.vaadin.addon.leaflet.LMap;
-import org.vaadin.artur.icepush.ICEPush;
 
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
@@ -31,9 +30,11 @@ import cb_server.Views.SolverView;
 import cb_server.Views.WaypointView;
 
 import com.vaadin.annotations.PreserveOnRefresh;
+import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -53,11 +54,11 @@ import de.steinwedel.messagebox.MessageBox;
 @SuppressWarnings("serial")
 @Theme("cb_server")
 @PreserveOnRefresh
+@Push
 public class CB_ServerUI extends UI {
 	private Logger log;
 	private LMap leafletMap;
 	static private UI that;
-	private final ICEPush pusher = new ICEPush();
 	private final MyExecutor executor = new MyExecutor();
 	private CacheList cacheList = new CacheList();
 	private LinkedList<CB_ViewBase> views = new LinkedList<>();
@@ -67,8 +68,7 @@ public class CB_ServerUI extends UI {
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
 		that = this;
-		pusher.extend(this);
-		
+		this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
 		System.out.println("New Session: " + getSession().toString());
 		// Force locale "English"
 		MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
@@ -227,7 +227,7 @@ public class CB_ServerUI extends UI {
 				getSession().lock();
 				try {					
 					//NOTE: Comment this line below and problem will go away
-					pusher.push();
+//					pusher.push();
 				} finally {
 					getSession().unlock();
 				}

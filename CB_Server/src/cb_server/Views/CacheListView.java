@@ -78,6 +78,7 @@ public class CacheListView extends CB_ViewBase {
 		for (int i = 0, n = cacheList.size(); i < n; i++) {
 			beans.addBean(new CacheBean(cacheList.get(i)));
 		}
+		getUI().push();
 	}
 
 	class DescriptionColumnGenerator implements Table.ColumnGenerator {

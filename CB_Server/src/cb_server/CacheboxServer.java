@@ -74,7 +74,7 @@ public class CacheboxServer {
 		log.debug(System.getProperty("sun.net.http.allowRestrictedHeaders"));
 		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
 		
-		copyWebContent();
+		//copyWebContent();
 		
 		log.info("Hallo Jetty Vaadin Server");
 		log.debug("Initialize Config");
