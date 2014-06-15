@@ -1,6 +1,10 @@
 package cb_server.Views.Dialogs;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+
 import CB_Locator.Coordinate;
+
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
 import com.vaadin.ui.AbstractLayout;
@@ -90,6 +94,26 @@ public class CoordinateDialog extends Window implements BlurListener {
 
 		Button bAnalyze = new Button("Analyze");
 		bAnalyze.setWidth("100%");
+		bAnalyze.addClickListener(new ClickListener() {
+			@Override
+			public void buttonClick(ClickEvent event) {
+	            String text = tfCoordinate.getValue();
+	            DecimalFormat format = (DecimalFormat) DecimalFormat.getInstance();
+	            DecimalFormatSymbols symbols = format.getDecimalFormatSymbols();
+	            char sep = symbols.getDecimalSeparator();
+	            text = text.replace('.', sep);
+	            text = text.replace(',', sep);
+
+	            Coordinate acoord = new Coordinate(text);
+	            if (acoord.isValid())
+	            {
+	            	CoordinateDialog.this.coord = acoord;
+	                updateView();
+	                return;
+	            }
+
+			}
+		});
 		layoutContent.addComponent(bAnalyze);
 
 		HorizontalLayout layoutButtons = new HorizontalLayout();
