@@ -9,8 +9,7 @@
 	</context-param>
 	<servlet>
 		<servlet-name>CB_Server Application</servlet-name>
-<!-- 		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class> -->
-		<servlet-class>org.vaadin.artur.icepush.ICEPushServlet</servlet-class>
+ 		<servlet-class>com.vaadin.server.VaadinServlet</servlet-class> 
 		<init-param>
 			<description>
 			Vaadin UI class to use</description>
