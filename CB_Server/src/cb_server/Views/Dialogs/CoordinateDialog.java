@@ -95,6 +95,7 @@ public class CoordinateDialog extends Window implements BlurListener {
 		Button bAnalyze = new Button("Analyze");
 		bAnalyze.setWidth("100%");
 		bAnalyze.addClickListener(new ClickListener() {
+			private static final long serialVersionUID = -4834634673220564100L;
 			@Override
 			public void buttonClick(ClickEvent event) {
 	            String text = tfCoordinate.getValue();
