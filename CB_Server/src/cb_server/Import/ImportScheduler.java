@@ -122,6 +122,9 @@ public class ImportScheduler implements Runnable {
 				if (importPQfromGC) {
 					ip.setJobMax("importGC", 10);
 					ip.ProgressChangeMsg("importGC", "Download PQ-List from GC");
+					// get List of all PQ's to import (from Setting)
+					String pqsToImport = ";"+ Config.settings.PQImportNames.getValue() + ";";
+					
 					// Import PQs
 					ArrayList<PQ> pqList = new ArrayList<PQ>();
 					log.debug("Load PQ-List");
@@ -133,10 +136,15 @@ public class ImportScheduler implements Runnable {
 					for (PQ pq : pqList) {
 						ip.ProgressInkrement("importGC", "Download PQ - " + pq.Name, false);
 						log.debug("Load PQ " + pq.Name);
+						if (!pqsToImport.contains(pq.Name)) {
+							// not in Import List
+							log.debug("Not in PQ-List to import!");
+							continue;
+						}
 						Date lastGenerated = dao.getLastGeneratedDate(pq.Name);
 						if (lastGenerated == null) {
-							// lastGenerated == null -> PQ wurde in der DB nicht gefunden -> nicht importieren
-							continue;
+							// lastGenerated == null -> PQ wurde in der DB nicht gefunden -> importieren
+							lastGenerated = new Date(0);
 						}
 						if (lastGenerated.getTime() >= pq.DateLastGenerated.getTime()) {
 							// diese PQ mit dem Timestamp wurde schon importiert -> nicht nochmal

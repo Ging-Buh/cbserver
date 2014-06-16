@@ -9,6 +9,7 @@ import CB_Utils.Settings.SettingCategory;
 import CB_Utils.Settings.SettingInt;
 import CB_Utils.Settings.SettingModus;
 import CB_Utils.Settings.SettingStoreType;
+import CB_Utils.Settings.SettingString;
 import CB_Utils.Settings.SettingsList;
 import CB_Utils.Util.iChanged;
 
@@ -19,6 +20,7 @@ public class SettingsClass extends SettingsList implements CB_Core_Settings {
 
 	public SettingInt Port;
 	public SettingInt PQImportInterval;	// in Hours
+	public SettingString PQImportNames; // PQ's to import automatically, ";" seperated
 
 	public SettingsClass() {
 		super();
@@ -32,8 +34,10 @@ public class SettingsClass extends SettingsList implements CB_Core_Settings {
 				ImportScheduler.importScheduler.start();
 			}
 		});
+		PQImportNames = new SettingString("PQImportNames", SettingCategory.API, SettingModus.Normal, "", SettingStoreType.Local);
 		this.add(Port);
 		this.add(PQImportInterval);
+		this.add(PQImportNames);
 	}
 	
 	@Override
