@@ -40,6 +40,9 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
+import com.vaadin.ui.MenuBar;
+import com.vaadin.ui.MenuBar.Command;
+import com.vaadin.ui.MenuBar.MenuItem;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -57,12 +60,12 @@ import de.steinwedel.messagebox.MessageBox;
 @Push
 public class CB_ServerUI extends UI {
 	private Logger log;
-	private LMap leafletMap;
 	static private UI that;
 	private final MyExecutor executor = new MyExecutor();
 	private CacheList cacheList = new CacheList();
 	private LinkedList<CB_ViewBase> views = new LinkedList<>();
 	private FilterProperties lastFilter = null;
+	private MenuBar mainMenu = null;
 	@Override
 	protected void init(VaadinRequest request) {
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
@@ -115,6 +118,15 @@ public class CB_ServerUI extends UI {
 		button.setCaption("c1");
 		
 		
+		mainMenu = new MenuBar();
+		MenuItem miImport = mainMenu.addItem("Import", null, null);
+		MenuItem miGroundspeak = miImport.addItem("From Groundspeak", null);
+		MenuItem miImportPQ = miGroundspeak.addItem("PocketQuery", new Command() {
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				
+			}
+		});
 		
 		
 		final Button open = new Button("Open Settings-Window");
@@ -180,6 +192,7 @@ public class CB_ServerUI extends UI {
 		// Inhalt vom Header
 		
 		HorizontalLayout headerLayout=new HorizontalLayout();
+		headerLayout.addComponent(mainMenu);
 		headerLayout.addComponent(close);
 		headerLayout.addComponent(open);
 		headerLayout.addComponent(bImport);

@@ -19,7 +19,7 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
-public class WaypointDialog extends Window {
+public class WaypointDialog extends ButtonDialog {
 	public interface ReturnListner {
 		public void returnedWP(Waypoint wp);
 	}
@@ -40,10 +40,11 @@ public class WaypointDialog extends Window {
 		this.waypoint = waypoint;
 		this.coord = waypoint.Pos;
 		this.returnListner = returnListener;
-		setModal(true);
-		setResizable(false);
-		VerticalLayout content = new VerticalLayout();
-		setContent(content);
+	}
+	
+	@Override
+	protected void createContent(VerticalLayout content) {
+		// TODO Auto-generated method stub
 
 		GridLayout layoutContent = new GridLayout();
 		content.addComponent(layoutContent);
@@ -101,43 +102,25 @@ public class WaypointDialog extends Window {
 		cbTyp.setNullSelectionAllowed(false);
 		layoutContent.addComponent(cbTyp);
 
-		HorizontalLayout layoutButtons = new HorizontalLayout();
-		content.addComponent(layoutButtons);
-		addOKCancelButtons(layoutButtons);
 	}
 
-	private void addOKCancelButtons(AbstractLayout content) {
-		Button bOK = new Button("OK");
-		content.addComponent(bOK);
-		Button bCancel = new Button("Abbrechen");
-		content.addComponent(bCancel);
+	@Override
+	protected void cancelClicked() {
+		// TODO Auto-generated method stub
+		
+	}
 
-		bOK.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 8451830127082999189L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				waypoint.setTitle(tfName.getValue());
-				waypoint.setDescription(tfDescription.getValue());
-				waypoint.setClue(tfClue.getValue());
-				waypoint.Type = (CacheTypes) cbTyp.getValue();
-				waypoint.Pos.setLatitude(coord.getLatitude());
-				waypoint.Pos.setLongitude(coord.getLongitude());
-				if (returnListner != null) {
-					returnListner.returnedWP(waypoint);
-				}
-				close();
-			}
-		});
-
-		bCancel.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 6832736272605304637L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				close();
-			}
-		});
+	@Override
+	protected void okClicked() {
+		waypoint.setTitle(tfName.getValue());
+		waypoint.setDescription(tfDescription.getValue());
+		waypoint.setClue(tfClue.getValue());
+		waypoint.Type = (CacheTypes) cbTyp.getValue();
+		waypoint.Pos.setLatitude(coord.getLatitude());
+		waypoint.Pos.setLongitude(coord.getLongitude());
+		if (returnListner != null) {
+			returnListner.returnedWP(waypoint);
+		}
 	}
 
 }
