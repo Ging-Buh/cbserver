@@ -1,7 +1,5 @@
 package cb_server.Views.Dialogs;
 
-import CB_Core.Enums.CacheTypes;
-
 import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;

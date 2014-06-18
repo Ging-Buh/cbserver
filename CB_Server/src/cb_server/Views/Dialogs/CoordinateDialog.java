@@ -7,23 +7,20 @@ import CB_Locator.Coordinate;
 
 import com.vaadin.event.FieldEvents.BlurEvent;
 import com.vaadin.event.FieldEvents.BlurListener;
-import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TabSheet.SelectedTabChangeEvent;
 import com.vaadin.ui.TabSheet.SelectedTabChangeListener;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 
-public class CoordinateDialog extends Window implements BlurListener {
+public class CoordinateDialog extends ButtonDialog implements BlurListener {
 	private static final long serialVersionUID = 1834633252228907909L;
 
 	public interface ReturnListner {
@@ -62,11 +59,25 @@ public class CoordinateDialog extends Window implements BlurListener {
 		super("Edit Coordinate");
 		this.coord = coord;
 		this.returnListner = returnListener;
-		setModal(true);
-		setResizable(false);
-		VerticalLayout content = new VerticalLayout();
-		setContent(content);
+	}
+	
 
+	@Override
+	protected void cancelClicked() {
+	}
+
+	@Override
+	protected void okClicked() {
+		if (returnListner != null) {
+			Coordinate result = new Coordinate();
+			result.setLatitude(48);
+			result.setLongitude(12);
+			returnListner.returnedCoord(result);
+		}
+	}
+	
+	@Override
+	protected void createContent(VerticalLayout content) {
 		GridLayout layoutContent = new GridLayout(2, 2);
 		content.addComponent(layoutContent);
 
@@ -116,10 +127,6 @@ public class CoordinateDialog extends Window implements BlurListener {
 			}
 		});
 		layoutContent.addComponent(bAnalyze);
-
-		HorizontalLayout layoutButtons = new HorizontalLayout();
-		content.addComponent(layoutButtons);
-		addOKCancelButtons(layoutButtons);
 
 		updateView();
 		parseView();
@@ -349,37 +356,6 @@ public class CoordinateDialog extends Window implements BlurListener {
 		return layout;
 	}
 
-	private void addOKCancelButtons(AbstractLayout content) {
-		Button bOK = new Button("OK");
-		content.addComponent(bOK);
-		Button bCancel = new Button("Abbrechen");
-		content.addComponent(bCancel);
-
-		bOK.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 8451830127082999189L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				if (returnListner != null) {
-					Coordinate result = new Coordinate();
-					result.setLatitude(48);
-					result.setLongitude(12);
-					returnListner.returnedCoord(result);
-				}
-				close();
-			}
-		});
-
-		bCancel.addClickListener(new ClickListener() {
-			private static final long serialVersionUID = 6832736272605304637L;
-
-			@Override
-			public void buttonClick(ClickEvent event) {
-				close();
-			}
-		});
-	}
-
 	private String formatDouble(double nummer, int nachkomma) {
 		return String.format("%." + nachkomma + "f", nummer);
 	}
@@ -528,5 +504,6 @@ public class CoordinateDialog extends Window implements BlurListener {
 		} else
 			updateView();
 	}
+
 
 }

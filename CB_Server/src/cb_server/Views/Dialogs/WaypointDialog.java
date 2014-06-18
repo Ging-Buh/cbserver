@@ -1,22 +1,14 @@
 package cb_server.Views.Dialogs;
 
-import CB_Core.DAO.WaypointDAO;
 import CB_Core.Enums.CacheTypes;
 import CB_Core.Types.Waypoint;
 import CB_Locator.Coordinate;
-import cb_server.Events.SelectedCacheChangedEventList;
-import cb_server.Views.WaypointView;
-
-import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.AbstractLayout;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
-import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Window;
 import com.vaadin.ui.Button.ClickEvent;
 
 public class WaypointDialog extends ButtonDialog {
@@ -44,8 +36,6 @@ public class WaypointDialog extends ButtonDialog {
 	
 	@Override
 	protected void createContent(VerticalLayout content) {
-		// TODO Auto-generated method stub
-
 		GridLayout layoutContent = new GridLayout();
 		content.addComponent(layoutContent);
 
@@ -106,8 +96,6 @@ public class WaypointDialog extends ButtonDialog {
 
 	@Override
 	protected void cancelClicked() {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override

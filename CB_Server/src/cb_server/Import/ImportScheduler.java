@@ -11,30 +11,16 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import CB_Core.CoreSettingsForward;
-import CB_Core.Api.ApiGroundspeakResult;
 import CB_Core.Api.ApiGroundspeak_GetPocketQueryData;
-import CB_Core.Api.ApiGroundspeak_SearchForGeocaches;
 import CB_Core.Api.GroundspeakAPI;
 import CB_Core.Api.PocketQuery;
-import CB_Core.Api.SearchGC;
 import CB_Core.Api.PocketQuery.PQ;
-import CB_Core.DAO.CategoryDAO;
 import CB_Core.DAO.PocketqueryDAO;
 import CB_Core.DB.Database;
 import CB_Core.Import.Importer;
-import CB_Core.Import.ImporterProgress.Step;
-import CB_Core.Types.Cache;
-import CB_Core.Types.Category;
-import CB_Core.Types.GpxFilename;
-import CB_Core.Types.ImageEntry;
-import CB_Core.Types.LogEntry;
-import CB_Utils.Events.ProgresssChangedEventList;
-import CB_Utils.Settings.SettingStoreType;
 import CB_Utils.Util.FileIO;
 import cb_server.CacheboxServer;
 import cb_server.Config;
-import cb_server.SettingsClass;
 
 public class ImportScheduler implements Runnable {
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
