@@ -48,10 +48,6 @@
 	<classpathentry kind="lib" path="lib/gdx-freetype-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-freetype-platform-1.0.0-natives-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-platform-1.0.0-natives-desktop.jar"/>
-	<classpathentry kind="lib" path="lib/mapsforge-core-0.4.0-SNAPSHOT-CACHEBOX-PATCH_2.jar"/>
-	<classpathentry kind="lib" path="lib/mapsforge-map-0.4.0-SNAPSHOT-CACHEBOX-PATCH_2.jar"/>
-	<classpathentry kind="lib" path="lib/mapsforge-map-awt-0.4.0-SNAPSHOT-CACHEBOX-PATCH_2.jar" sourcepath="C:/@Work/Longri/Gits/Mapsforge-rescue/mapsforge/mapsforge-map-awt"/>
-	<classpathentry kind="lib" path="lib/mapsforge-map-reader-0.4.0-SNAPSHOT-CACHEBOX-PATCH_2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Rpc"/>
@@ -62,5 +58,7 @@
 		</attributes>
 	</classpathentry>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_UI_Base"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Desktop"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_mapsforge"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

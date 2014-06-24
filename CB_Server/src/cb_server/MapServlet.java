@@ -25,7 +25,7 @@ import org.mapsforge.map.awt.AwtTileBitmap;
 import org.mapsforge.map.awt.ext_AwtGraphicFactory;
 import org.mapsforge.map.awt.ext_AwtTileBitmap;
 import org.mapsforge.map.layer.renderer.DatabaseRenderer;
-import org.mapsforge.map.layer.renderer.SERVER_DatabaseRenderer;
+
 import org.mapsforge.map.layer.renderer.RendererJob;
 import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.reader.MapDatabase;
