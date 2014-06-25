@@ -104,9 +104,8 @@ public class WaypointDialog extends ButtonDialog {
 		waypoint.setDescription(tfDescription.getValue());
 		waypoint.setClue(tfClue.getValue());
 		waypoint.Type = (CacheTypes) cbTyp.getValue();
-		waypoint.Pos.setLatitude(coord.getLatitude());
-		waypoint.Pos.setLongitude(coord.getLongitude());
-		if (returnListner != null) {
+		waypoint.Pos=new Coordinate(coord);
+				if (returnListner != null) {
 			returnListner.returnedWP(waypoint);
 		}
 	}
