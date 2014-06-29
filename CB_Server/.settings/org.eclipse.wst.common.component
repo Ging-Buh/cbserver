@@ -2,7 +2,6 @@
     <wb-module deploy-name="CB_Server">
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
-        <wb-resource deploy-path="/WEB-INF/classes" source-path="/WebContent"/>
         <property name="context-root" value="CB_Server"/>
         <property name="java-output-path" value="/CB_Server/build/classes"/>
     </wb-module>

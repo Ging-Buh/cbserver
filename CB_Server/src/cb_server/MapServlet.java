@@ -51,8 +51,8 @@ public class MapServlet extends HttpServlet {
 		model = new DisplayModel();
 		DesktopManager manager = new DesktopManager(model);
 
-		mapFile = new File("./cachebox/repository/maps/germany.map");
-		File RenderThemeFile = new File("./cachebox/repository/maps/osmarender/osmarender.xml");
+		mapFile = new File(Config.WorkPath + "/repository/maps/germany.map");
+		File RenderThemeFile = new File(Config.WorkPath + "/repository/maps/osmarender/osmarender.xml");
 		renderTheme = null;
 		try {
 			renderTheme = new ExternalRenderTheme(RenderThemeFile);
