@@ -31,7 +31,8 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 		this.browser = new Label("Description");
 		browser.setContentMode(ContentMode.HTML);
 		this.setContent(browser);
-		browser.setSizeUndefined();
+		browser.setSizeFull();
+		browser.setHeight(SIZE_UNDEFINED, Unit.PIXELS);
 		this.setSizeFull();
 		
 		SelectedCacheChangedEventList.Add(this);

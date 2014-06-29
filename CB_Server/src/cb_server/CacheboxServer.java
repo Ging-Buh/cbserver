@@ -51,7 +51,8 @@ public class CacheboxServer {
 		InitialCacheDB();
 		Config.settings.ReadFromDB();
 		ImportScheduler.importScheduler.start();
-		int port = 80;
+		// Changed default Port to 8085
+		int port = 8085;
 		try {
 			port = Integer.valueOf(args[0]);
 		} catch (Exception ex) {

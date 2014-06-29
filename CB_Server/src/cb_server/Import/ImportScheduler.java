@@ -74,10 +74,10 @@ public class ImportScheduler implements Runnable {
 			return;
 		}
 		importRunning = true;
+		ServerImporterProgress ip = new ServerImporterProgress();
 		try {
 			// Import ZIP GPX Files
 			Importer importer = new Importer();
-			ServerImporterProgress ip = new ServerImporterProgress();
 			try {
 				boolean importPQfromGC = true;
 				boolean importGPX = true;
@@ -94,16 +94,16 @@ public class ImportScheduler implements Runnable {
 					ip.addStep(ip.new Step("ImportGPX", 4));
 				}
 				// if Import Vote
-				ip.addStep(ip.new Step("sendGcVote", 1));
-				ip.addStep(ip.new Step("importGcVote", 4));
+//				ip.addStep(ip.new Step("sendGcVote", 1));
+//				ip.addStep(ip.new Step("importGcVote", 4));
 				// if Import Images
 				if (importImages) {
-					ip.addStep(ip.new Step("importImages", 4));
+					ip.addStep(ip.new Step("importImages", 10));
 				}
 				// if Clean Logs
-				ip.addStep(ip.new Step("DeleteLogs", 1));
+//				ip.addStep(ip.new Step("DeleteLogs", 1));
 				// if CompactDB
-				ip.addStep(ip.new Step("CompactDB", 1));
+//				ip.addStep(ip.new Step("CompactDB", 1));
 
 				if (importPQfromGC) {
 					ip.setJobMax("importGC", 10);
@@ -232,6 +232,10 @@ public class ImportScheduler implements Runnable {
 		}
 		System.out.println("Import finished");
 		log.info("Import finished");
+		ip.ProgressInkrement("importImages", "Importing Images finished", true);
+		// Refresh Cache List
+		
+		
 		if (stopAfterImport) {
 			stop();
 		}

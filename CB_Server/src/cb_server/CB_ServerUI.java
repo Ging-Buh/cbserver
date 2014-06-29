@@ -60,7 +60,6 @@ import de.steinwedel.messagebox.MessageBox;
 @Push
 public class CB_ServerUI extends UI {
 	private Logger log;
-	static private UI that;
 	private final MyExecutor executor = new MyExecutor();
 	private CacheList cacheList = new CacheList();
 	private LinkedList<CB_ViewBase> views = new LinkedList<>();
@@ -70,13 +69,13 @@ public class CB_ServerUI extends UI {
 	protected void init(VaadinRequest request) {
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
-		that = this;
 		this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
 		System.out.println("New Session: " + getSession().toString());
 		// Force locale "English"
 		MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
 		// You can use MessageBox.RESOURCES_FACTORY.setResourceBundle(basename);
 		// to localize to your language
+
 		
 		
 		final com.vaadin.ui.TextField gcLogin = new TextField("GCLogin");
@@ -99,7 +98,7 @@ public class CB_ServerUI extends UI {
 		
 
 		button.setImmediate(true);
-		that.setImmediate(true);
+		this.setImmediate(true);
 		TimerTask action = new TimerTask() {
 			public void run() {
 				try {
