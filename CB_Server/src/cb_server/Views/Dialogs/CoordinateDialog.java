@@ -69,8 +69,7 @@ public class CoordinateDialog extends ButtonDialog implements BlurListener {
 	@Override
 	protected void okClicked() {
 		if (returnListner != null) {
-			Coordinate result = new Coordinate(48,12);
-						returnListner.returnedCoord(result);
+			returnListner.returnedCoord(this.coord);
 		}
 	}
 	
