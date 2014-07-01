@@ -31,6 +31,7 @@ import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Categories;
+import CB_Utils.Plattform;
 import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
 
@@ -38,6 +39,9 @@ public class CacheboxServer {
 	public static Logger log;
 
 	public static void main(String[] args) throws Exception {
+		
+		Plattform.used=Plattform.Server;
+		
 		log = LoggerFactory.getLogger(CacheboxServer.class);
 		writeLockFile("cbserver.lock");
 		log.debug(System.getProperty("sun.net.http.allowRestrictedHeaders"));
