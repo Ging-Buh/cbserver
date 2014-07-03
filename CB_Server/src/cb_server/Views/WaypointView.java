@@ -69,6 +69,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 			@Override
 			public void contextMenuItemClicked(ContextMenuItemClickEvent event) {
 				createNewWaypoint = false;
+				if (SelectedCacheChangedEventList.getWaypoint() == null) return;
 				WaypointDialog dial = new WaypointDialog(SelectedCacheChangedEventList.getWaypoint(), new WaypointDialog.ReturnListner() {
 					@Override
 					public void returnedWP(Waypoint waypoint) {

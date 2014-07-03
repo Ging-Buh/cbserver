@@ -31,7 +31,9 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 
 	private static final long serialVersionUID = 5665480835651086183L;
 	public LMap leafletMap;
+	private Bounds lastBounds = null;
 	String[] MapIconsSmall = { "small1yes", "small2yes", "small3yes", "small4yes", "small5yes", "small5solved", "small6yes", "small7yes", "small1no", "small2no", "small3no", "small4no", "small5no", "small5solved-no", "small6no", "small7no", "20", "22" };
+	private Cache selectedCache = null;
 
 	public MapView() {
 
@@ -58,7 +60,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 
 		// Note, this url should only be used for testing purposes. If you wish
 		// to use cloudmade base maps, get your own API key.
-//		baselayer.setUrl("http://{s}.tile.cloudmade.com/a751804431c2443ab399100902c651e8/997/256/{z}/{x}/{y}.png");
+		//		baselayer.setUrl("http://{s}.tile.cloudmade.com/a751804431c2443ab399100902c651e8/997/256/{z}/{x}/{y}.png");
 		baselayer.setUrl("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 
 		// This will make everything sharper on "retina devices", but also text
@@ -73,9 +75,8 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		pk.setDetectRetina(false);
 		pk.setVisible(false);
 
-		
-		int port= RpcFunctionsServer.jettyPort;
-		
+		int port = RpcFunctionsServer.jettyPort;
+
 		LTileLayer lk = new LTileLayer();
 		lk.setUrl("http://localhost:" + String.valueOf(port) + "/map/{z}/{x}/{y}.png");
 		lk.setMaxZoom(19);
@@ -83,7 +84,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		lk.setSubDomains("tile2");
 		lk.setVisible(true);
 		lk.setActive(false);
-		
+
 		leafletMap.addBaseLayer(pk, "");
 		leafletMap.addBaseLayer(lk, "MapsForge");
 		leafletMap.addBaseLayer(baselayer, "");
@@ -93,6 +94,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 			@Override
 			public void onMoveEnd(LeafletMoveEndEvent event) {
 				System.out.println("Move");
+				lastBounds = event.getBounds();
 				updateIcons(event.getZoomLevel(), event.getBounds());
 
 			}
@@ -107,11 +109,12 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 	public void cacheListChanged(CB_Core.Types.CacheList cacheList) {
 		super.cacheListChanged(cacheList);
 	};
-	
+
 	HashMap<Long, LMarker> markers = null;
+	ArrayList<LMarker> cacheMarkers = null; // für Waypoint des selectedCache
 	LLayerGroup llg = null;
+	LLayerGroup lgCache = null;
 	HashMap<Long, LMarker> underlays = null;
-	LLayerGroup llgu = null; // für Underlay Icons
 
 	private void updateIcons(int zoom, Bounds bounds) {
 		long start = System.currentTimeMillis();
@@ -123,7 +126,6 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 
 		if (markers == null) {
 			llg = new LLayerGroup();
-			llgu = new LLayerGroup();
 			markers = new HashMap<Long, LMarker>();
 			underlays = new HashMap<Long, LMarker>();
 			for (int i = 0, n = cacheList.size(); i < n; i++) {
@@ -151,22 +153,81 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				markers.put(cache.Id, marker);
 				llg.addComponent(marker);
 
-				// Underlay Icons
-				//				marker = new LMarker(cache.Latitude(),
-				//						cache.Longitude());
-				//				marker.setIconSize(new Point(48, 48));
-				//				marker.setIconAnchor(new Point(24, 24));
-				//				marker.setIcon(new ThemeResource(getUnderlayIcon(cache, null, iconSize)));
-				//				
-				//				marker.setVisible(false);
-				//				llgu.addComponent(marker);
-				//				underlays.put(cache.Id, marker);
-
 			}
 			leafletMap.addLayer(llg);
-			//			leafletMap.addLayer(llgu);
 		}
+		if (selectedCache != SelectedCacheChangedEventList.getCache()) {
+			selectedCache = SelectedCacheChangedEventList.getCache();
+			// The selectedCache has changed - recalculate the Waypoits of the selectedCache
+			if (cacheMarkers == null) {
+				cacheMarkers = new ArrayList<LMarker>();
+			} else {
+				cacheMarkers.clear();
+			}
+			if (lgCache == null) {
+				lgCache = new LLayerGroup();
+				leafletMap.addLayer(lgCache);
+			} else {
+				lgCache.removeAllComponents();
+			}
+			for (int i = 0, n = selectedCache.waypoints.size(); i <= n; i++) {
+				Waypoint waypoint = null;
+				String title;
+				String description;
+				// letzter Durchlauf für das Icon des Caches selbst, da dies z.B. bei gelösten Mysterys noch nicht gezeigt wird
+				if (i < n) {
+					waypoint = selectedCache.waypoints.get(i);
+					title = waypoint.getTitle();
+					description = waypoint.getDescription();
+				} else {
+					title = selectedCache.getName();
+					description = selectedCache.getShortDescription();
+				}
+				
+				LMarker marker = null;
+				if (waypoint != null) {
+					marker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
+				} else {
+					marker = new LMarker(selectedCache.Latitude(), selectedCache.Longitude());
+				}
+				marker.setIconSize(new Point(15, 15));
+				marker.setIconAnchor(new Point(7, 7));
+				marker.setTitle(title);
+				marker.setPopup(description);
 
+				if (waypoint != null) {
+					marker.setIcon(new ThemeResource(getWaypointIcon(waypoint)));
+				} else {
+					marker.setIcon(new ThemeResource(getCacheIcon(selectedCache, iconSize)));
+				}
+				marker.setVisible(true);
+				marker.setLabel(null);
+
+				switch (iconSize) {
+				case 0:
+					marker.setIconSize(new Point(12, 12));
+					marker.setIconAnchor(new Point(6, 6));
+					break;
+				case 1:
+					marker.setIconSize(new Point(24, 24));
+					marker.setIconAnchor(new Point(12, 12));
+					break;
+				case 2:
+					marker.setIconSize(new Point(32, 32));
+					marker.setIconAnchor(new Point(16, 16));
+					break;
+				}
+				if (zoom > 14) {
+					marker.setLabel(title);
+				} else {
+					marker.setLabel(null);
+				}
+				
+				
+				cacheMarkers.add(marker);
+				lgCache.addComponent(marker);
+			}
+		}
 		for (int i = 0, n = cacheList.size(); i < n; i++) {
 			Cache cache = cacheList.get(i);
 			LMarker marker = null;
@@ -175,25 +236,16 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 			} catch (Exception ex) {
 				continue; // TODO
 			}
-
-			marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+			
+			if (cache == selectedCache) {
+				// hier diesen Marker verstecken, da der Cache-Marker für den SelectedCache mit den Waypoints erzeugt wird
+				marker.setVisible(false);
+			} else {
+				marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+			}
 			marker.setIcon(new ThemeResource(getCacheIcon(cache, iconSize)));
 
-			//			LMarker uMarker = null;
-			//			try {
-			//				uMarker = underlays.get(cache.Id);
-			//			} catch (Exception ex) {
-			//				continue; // TODO
-			//			}
-			//			
-			//			if (iconSize == 2) {
-			//				uMarker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(),
-			//						bounds));
-			//			} else {
-			//				uMarker.setVisible(false);
-			//			}
-			//			uMarker.setVisible(false);
-			marker.setActive(cache == SelectedCacheChangedEventList.getCache());
+			marker.setActive(cache == selectedCache);
 			switch (iconSize) {
 			case 0:
 				marker.setIconSize(new Point(12, 12));
@@ -235,6 +287,9 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		if (cache == null) {
 			return;
 		}
+		if ((cache != selectedCache) && (lastBounds != null)) {
+			updateIcons(leafletMap.getZoomLevel(), lastBounds);
+		}
 		if (waypoint == null) {
 			leafletMap.setCenter(cache.Latitude(), cache.Longitude());
 		} else {
@@ -273,6 +328,22 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		else
 			return "icons/" + IconId + ".png";
 	}
+
+	private String getWaypointIcon(Waypoint waypoint)
+	{
+		int IconId = 0;
+		if ((waypoint.Type == CacheTypes.MultiStage) && (waypoint.IsStart)) {
+			IconId = 24;
+		} else {
+			IconId = waypoint.Type.ordinal();
+		}
+		
+		if (IconId == 26)
+			return "icons/start.png";
+		else
+			return "icons/" + IconId + ".png";
+	}
+
 
 	private String getSmallMapIcon(Cache cache) {
 		int iconId = 0;
