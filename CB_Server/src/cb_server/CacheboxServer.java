@@ -95,8 +95,13 @@ public class CacheboxServer {
 		mapContext.setContextPath("/map");
 		mapContext.addServlet(new ServletHolder(new MapServlet()), "/*");
 		
+		// Icons
+		ServletContextHandler iconsContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		iconsContext.setContextPath("/ics");
+		iconsContext.addServlet(new ServletHolder(new IconServlet()), "/*");
+		
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler, mapContext });
+		contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler, mapContext, iconsContext });
 		
 		server.setHandler(contexts);
 
