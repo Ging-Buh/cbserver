@@ -221,20 +221,20 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				marker.setVisible(true);
 				marker.setLabel(null);
 
-				switch (iconSize) {
-				case 0:
-					marker.setIconSize(new Point(12, 12));
-					marker.setIconAnchor(new Point(6, 6));
-					break;
-				case 1:
-					marker.setIconSize(new Point(24, 24));
-					marker.setIconAnchor(new Point(12, 12));
-					break;
-				case 2:
+//				switch (iconSize) {
+//				case 0:
+//					marker.setIconSize(new Point(12, 12));
+//					marker.setIconAnchor(new Point(6, 6));
+//					break;
+//				case 1:
+//					marker.setIconSize(new Point(24, 24));
+//					marker.setIconAnchor(new Point(12, 12));
+//					break;
+//				case 2:
 					marker.setIconSize(new Point(32, 32));
 					marker.setIconAnchor(new Point(16, 16));
-					break;
-				}
+//					break;
+//				}
 				if (zoom > 14) {
 					marker.setLabel(title);
 				} else {
@@ -259,7 +259,17 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				// hier diesen Marker verstecken, da der Cache-Marker für den SelectedCache mit den Waypoints erzeugt wird
 				marker.setVisible(false);
 			} else {
-				marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+				Waypoint waypoint = cache.GetFinalWaypoint();
+				if (waypoint == null) {
+					waypoint = cache.GetStartWaypoint();
+				}
+
+				
+				if (waypoint != null) {
+					marker.setVisible(isInBounds(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude(), bounds));					
+				} else {
+					marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
+				}
 			}
 			marker.setIcon(new ExternalResource(getCacheIcon(cache, iconSize)));
 
@@ -317,9 +327,13 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
 		if (cache == null) {
 			return;
+		}
+		if (cacheChanged || waypointChanged) {
+			// reset selectedCache to force update of the cache/waypoint information
+			selectedCache = null;
 		}
 		if ((cache != selectedCache) && (lastBounds != null)) {
 			updateIcons(leafletMap.getZoomLevel(), lastBounds);
@@ -377,9 +391,9 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		}
 		
 		String url = host + "ics/" + 2 + "/" + IconId + "/";
-		url += "0";
+		url += (waypoint == SelectedCacheChangedEventList.getWaypoint()) ? "1" : "0";
 		url += "/";
-		url += "0";
+		url += (selectedCache.isArchived() || !selectedCache.isAvailable()) ? "0" : "1";
 		
 		return url;
 	}

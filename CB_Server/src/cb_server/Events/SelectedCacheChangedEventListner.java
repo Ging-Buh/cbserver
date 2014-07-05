@@ -9,5 +9,6 @@ import CB_Core.Types.Waypoint;
 
 public interface SelectedCacheChangedEventListner 
 {
-		public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint);
+	// cacheChanged and waypointChanged are set when informations of cache or waypoint has changed
+	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged);
 }

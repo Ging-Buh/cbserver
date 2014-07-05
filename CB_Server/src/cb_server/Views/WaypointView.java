@@ -86,6 +86,7 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 							waypointDAO.UpdateDatabase(waypoint);
 							WaypointView.this.table.setContainerDataSource(WaypointView.this.beans);
 //							that.setBaseAdapter(lvAdapter);
+							SelectedCacheChangedEventList.WaypointChanged(SelectedCacheChangedEventList.getCache(), waypoint);
 						}
 						
 					}
@@ -129,8 +130,8 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 							WaypointDAO waypointDAO = new WaypointDAO();
 							waypointDAO.WriteToDatabase(waypoint);
 
-							SelectedCacheChangedEvent(SelectedCacheChangedEventList.getCache(), waypoint);
-
+//							SelectedCacheChangedEvent(SelectedCacheChangedEventList.getCache(), waypoint, false, false);
+							SelectedCacheChangedEventList.WaypointChanged(SelectedCacheChangedEventList.getCache(), waypoint);
 
 
 						}
@@ -145,17 +146,17 @@ public class WaypointView extends Panel implements SelectedCacheChangedEventList
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
 		if (doNotUpdate) return;
 		beans.removeAllItems();
 		beans.addBean(new WaypointBean(SelectedCacheChangedEventList.getCache(), null));
 		
 		WaypointDAO dao=new WaypointDAO();
 		
-		CB_List<Waypoint> waypoints = dao.getWaypointsFromCacheID(cache.Id,true);
+//		CB_List<Waypoint> waypoints = dao.getWaypointsFromCacheID(cache.Id,true);
 		
-		for (int i=0,n=waypoints.size(); i<n; i++){
-			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.getCache(), waypoints.get(i)));
+		for (int i = 0, n = cache.waypoints.size(); i < n; i++) {
+			beans.addBean(new WaypointBean(SelectedCacheChangedEventList.getCache(), cache.waypoints.get(i)));
 		}
 		table.setData(beans);
 	}

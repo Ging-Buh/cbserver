@@ -39,7 +39,7 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
 		NonLocalImages.clear();
 		NonLocalImagesUrl.clear();
 

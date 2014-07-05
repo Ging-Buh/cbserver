@@ -34,9 +34,9 @@ public class CacheListView extends CB_ViewBase {
 		beans = new BeanItemContainer<CacheBean>(CacheBean.class);
 		// beans.setBeanIdProperty("GCCode");
 
-//		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
-//			beans.addBean(new CacheBean(Database.Data.Query.get(i)));
-//		}
+		//		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
+		//			beans.addBean(new CacheBean(Database.Data.Query.get(i)));
+		//		}
 
 		this.table = new Table("CacheList", beans);
 		this.setCompositionRoot(table);
@@ -75,8 +75,17 @@ public class CacheListView extends CB_ViewBase {
 		log.debug("Remove all Beans");
 		beans.removeAllItems();
 		log.debug("Add new Beans for new CacheList");
-		for (int i = 0, n = cacheList.size(); i < n; i++) {
-			beans.addBean(new CacheBean(cacheList.get(i)));
+		try {
+			table.getUI().getSession().lock();
+			try {
+				for (int i = 0, n = cacheList.size(); i < n; i++) {
+					beans.addBean(new CacheBean(cacheList.get(i)));
+				}
+			} finally {
+			   table.getUI().getSession().unlock();
+			}
+		} catch (Exception ex) {
+			System.out.println("lskjdl");
 		}
 		getUI().push();
 	}

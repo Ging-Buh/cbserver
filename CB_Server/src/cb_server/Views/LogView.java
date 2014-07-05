@@ -40,7 +40,7 @@ public class LogView extends CB_ViewBase implements SelectedCacheChangedEventLis
 	}
 
 	@Override
-	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint) {
+	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
 		list.removeAllComponents();
 		
 		CB_List<LogEntry> cleanLogs = new CB_List<LogEntry>();

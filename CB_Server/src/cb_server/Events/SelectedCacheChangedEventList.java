@@ -54,10 +54,34 @@ public class SelectedCacheChangedEventList implements SolverCacheInterface {
 					selectedCache.loadDetail();
 				}
 
-				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint);
+				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint, false, false);
 			}
 		}
 
+	}
+
+	// SelectedCache has not changed but information of cache
+	public static void CacheChanged(Cache cache, Waypoint waypoint) {
+		synchronized (list) {
+			for (SelectedCacheChangedEventListner event : list) {
+				if (event == null)
+					continue;
+				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint, true, false);
+			}
+		}
+		
+	}
+
+	// SelectedWaypoint has not changed but information of cache
+	public static void WaypointChanged(Cache cache, Waypoint waypoint) {
+		synchronized (list) {
+			for (SelectedCacheChangedEventListner event : list) {
+				if (event == null)
+					continue;
+				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint, false, true);
+			}
+		}
+		
 	}
 
 	public static Cache getCache() {
