@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import CB_Core.DB.Database;
+import CB_Core.Enums.CacheTypes;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheList;
 import CB_Core.Types.Cache;
@@ -16,8 +17,12 @@ import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItemContainer;
+import com.vaadin.server.ExternalResource;
+import com.vaadin.server.Resource;
+import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
+import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
@@ -28,9 +33,11 @@ public class CacheListView extends CB_ViewBase {
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
 	private BeanItemContainer<CacheBean> beans;
+	private String host;
 
 	public CacheListView() {
 		super();
+		host = com.vaadin.server.Page.getCurrent().getLocation().getScheme() + "://" + com.vaadin.server.Page.getCurrent().getLocation().getAuthority() + "/";
 		beans = new BeanItemContainer<CacheBean>(CacheBean.class);
 		// beans.setBeanIdProperty("GCCode");
 
@@ -66,7 +73,61 @@ public class CacheListView extends CB_ViewBase {
 				}
 			}
 		});
+		table.addGeneratedColumn("icon", new Table.ColumnGenerator() {
+			private static final long serialVersionUID = 5199037506976926798L;
 
+			@Override
+			public Object generateCell(Table source, Object itemId, Object columnId) {
+				Cache cache = null;
+				if (itemId instanceof CacheBean) {
+					cache = ((CacheBean)itemId).cache;
+				}
+				return new Embedded("", new ExternalResource(getCacheIcon(cache, 2) + "/icon.png"));
+			}
+		});
+
+	}
+
+	private String getCacheIcon(Cache cache, int iconSize) {
+		String url = host + "ics/" + iconSize + "/" + getMapIcon(cache) + "/";
+		url += "0";
+		url += "/";
+		url += (!cache.isAvailable()) ? "0" : "1";
+		url += "/";
+		url += (cache.isArchived()) ? "0" : "1";
+		url += "/";
+		url += (cache.isArchived()) ? "0" : "1";
+		url += "/";
+		url += (cache.isFound()) ? "0" : "1";
+		url += "/";
+		url += (cache.ImTheOwner()) ? "0" : "1";
+		url += "/";
+		url += "0"; // Background
+		url += "/";
+		url += "0";
+		url += "/";
+		url += "0";
+		return url;
+	}
+
+	private int getMapIcon(Cache cache) {
+		int IconId;
+		if (cache.ImTheOwner())
+			IconId = 26;
+		else if (cache.isFound())
+			IconId = 19;
+		else if ((cache.Type == CacheTypes.Mystery) && cache.CorrectedCoordiantesOrMysterySolved())
+			IconId = 21;
+		else if ((cache.Type == CacheTypes.Multi) && cache.HasStartWaypoint())
+			IconId = 23; // Multi mit Startpunkt
+		else if ((cache.Type == CacheTypes.Mystery) && cache.HasStartWaypoint())
+			IconId = 25; // Mystery ohne Final aber mit Startpunkt
+		else if ((cache.Type == CacheTypes.Munzee))
+			IconId = 22;
+		else
+			IconId = cache.Type.ordinal();
+
+		return IconId;
 	}
 
 	@Override
@@ -120,6 +181,7 @@ public class CacheListView extends CB_ViewBase {
 		private String Name;
 		private String Description;
 		private Cache cache;
+		private Resource icon;
 
 		public CacheBean(Cache cacheLite) {
 			this.cache = cacheLite;

@@ -349,8 +349,22 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		String url = host + "ics/" + iconSize + "/" + getMapIcon(cache) + "/";
 		url += (cache == selectedCache) ? "1" : "0";
 		url += "/";
-		url += (cache.isArchived() || !cache.isAvailable()) ? "0" : "1";
-		
+		url += (!cache.isAvailable()) ? "0" : "1";
+		url += "/";
+		url += (cache.isArchived()) ? "0" : "1";
+		url += "/";
+		url += (cache.isArchived()) ? "0" : "1";
+		url += "/";
+		url += (cache.isFound()) ? "0" : "1";
+		url += "/";
+		url += (cache.ImTheOwner()) ? "0" : "1";
+		url += "/";
+		url += "1"; // Background
+		url += "/";
+		url += "0";
+		url += "/";
+		url += "0";
+
 		return url;
 		
 //		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.getCache())) {

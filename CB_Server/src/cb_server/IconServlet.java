@@ -33,37 +33,39 @@ public class IconServlet extends HttpServlet {
 		int cacheTyp = Integer.parseInt(query[2]);
 		boolean selected = query[3].equals("1");
 		boolean deactivated = query[4].equals("0");
-		//		FileInputStream fis = new FileInputStream("D:\\Cachebox\\CBServer\\CBServer_GIT\\CB_Server\\WebContent\\VAADIN\\themes\\cb_server\\icons\\0.png");
-		//	       try {
-		//	            int c;
-		//	            while ((c = fis.read()) != -1) {
-		//	            response.getWriter().write(c);
-		//	            }
-		//	        } finally {
-		//	            if (fis != null) 
-		//	                fis.close();
-		//	                response.getWriter().close();
-		//	        }
+		boolean archived = query.length > 5 ? query[5].equals("1") : false;
+		boolean found = query.length > 6 ? query[6].equals("1") : false;
+		boolean owner = query.length > 7 ? query[7].equals("1") : false;
+		boolean background = query.length > 8 ? query[8].equals("1") : false;
+		int difficulty = query.length > 9 ? Integer.parseInt(query[9]) : 0;
+		int terrain = query.length > 9 ? Integer.parseInt(query[10]) : 0;
+
 		response.setContentType("image/png");
 		response.setStatus(HttpServletResponse.SC_OK);
-		System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 		InputStream is = null;
-		if (selected) {
-			is = getClass().getResourceAsStream("/icons/shaddowrect-selected.png");			
+		InputStream is2 = null;
+		ResourceBitmap bmp = null;
+		ResourceBitmap bmp2 = null;
+		if (background) {
+			if (selected) {
+				is = getClass().getResourceAsStream("/icons/shaddowrect-selected.png");
+			} else {
+				is = getClass().getResourceAsStream("/icons/shaddowrect.png");
+			}
+			bmp = AwtGraphicFactory.INSTANCE.createResourceBitmap(is, 0);
+			is2 = getClass().getResourceAsStream("/icons/" + cacheTyp + ".png");
+			bmp2 = AwtGraphicFactory.INSTANCE.createResourceBitmap(is2, 0);
 		} else {
-			is = getClass().getResourceAsStream("/icons/shaddowrect.png");
+			is = getClass().getResourceAsStream("/icons/" + cacheTyp + ".png");
+			bmp = AwtGraphicFactory.INSTANCE.createResourceBitmap(is, 0);
 		}
-		ResourceBitmap bmp = AwtGraphicFactory.INSTANCE.createResourceBitmap(is, 0);
-		InputStream is2 = getClass().getResourceAsStream("/icons/" + cacheTyp + ".png");
-		ResourceBitmap bmp2 = AwtGraphicFactory.INSTANCE.createResourceBitmap(is2, 0);
-		
-		
-//		TileBitmap bitmap = AwtGraphicFactory.INSTANCE.createTileBitmap(32, true);
+
 		Canvas canvas = AwtGraphicFactory.INSTANCE.createCanvas();
 		canvas.setBitmap(bmp);
-		canvas.drawBitmap(bmp2, 8, 8);
-		// Weiﬂer Hintergrund
-//		canvas.fillColor(Color.WHITE);
+		if (bmp2 != null) {
+			canvas.drawBitmap(bmp2, 8, 8);
+		}
+
 		if (deactivated) {
 			// Roter durchstreichen
 			Paint p = AwtGraphicFactory.INSTANCE.createPaint();
