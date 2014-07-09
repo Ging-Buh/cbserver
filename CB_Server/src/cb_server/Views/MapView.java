@@ -353,8 +353,6 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		url += "/";
 		url += (cache.isArchived()) ? "0" : "1";
 		url += "/";
-		url += (cache.isArchived()) ? "0" : "1";
-		url += "/";
 		url += (cache.isFound()) ? "0" : "1";
 		url += "/";
 		url += (cache.ImTheOwner()) ? "0" : "1";

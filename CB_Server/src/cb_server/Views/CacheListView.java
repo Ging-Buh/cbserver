@@ -82,31 +82,24 @@ public class CacheListView extends CB_ViewBase {
 				if (itemId instanceof CacheBean) {
 					cache = ((CacheBean)itemId).cache;
 				}
-				return new Embedded("", new ExternalResource(getCacheIcon(cache, 2) + "/icon.png"));
+				return new Embedded("", new ExternalResource(getCacheIcon(cache, 24) + "/icon.png"));
 			}
 		});
 
 	}
 
 	private String getCacheIcon(Cache cache, int iconSize) {
-		String url = host + "ics/" + iconSize + "/" + getMapIcon(cache) + "/";
-		url += "0";
-		url += "/";
-		url += (!cache.isAvailable()) ? "0" : "1";
-		url += "/";
-		url += (cache.isArchived()) ? "0" : "1";
-		url += "/";
-		url += (cache.isArchived()) ? "0" : "1";
-		url += "/";
-		url += (cache.isFound()) ? "0" : "1";
-		url += "/";
-		url += (cache.ImTheOwner()) ? "0" : "1";
-		url += "/";
-		url += "0"; // Background
-		url += "/";
-		url += "0";
-		url += "/";
-		url += "0";
+		String url = host + "ics";
+		url += "/" + iconSize;
+		url += "/" + getMapIcon(cache);
+		url += "/0";
+		url += "/" + ((!cache.isAvailable()) ? "0" : "1");
+		url += "/" + ((cache.isArchived()) ? "0" : "1");
+		url += "/" + ((cache.isFound()) ? "0" : "1");
+		url += "/" + ((cache.ImTheOwner()) ? "0" : "1");
+		url += "/0"; // Background
+		url += "/0";
+		url += "/0";
 		return url;
 	}
 

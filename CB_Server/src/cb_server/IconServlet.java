@@ -38,7 +38,7 @@ public class IconServlet extends HttpServlet {
 		boolean owner = query.length > 7 ? query[7].equals("1") : false;
 		boolean background = query.length > 8 ? query[8].equals("1") : false;
 		int difficulty = query.length > 9 ? Integer.parseInt(query[9]) : 0;
-		int terrain = query.length > 9 ? Integer.parseInt(query[10]) : 0;
+		int terrain = query.length > 10 ? Integer.parseInt(query[10]) : 0;
 
 		response.setContentType("image/png");
 		response.setStatus(HttpServletResponse.SC_OK);
@@ -65,7 +65,6 @@ public class IconServlet extends HttpServlet {
 		if (bmp2 != null) {
 			canvas.drawBitmap(bmp2, 8, 8);
 		}
-
 		if (deactivated) {
 			// Roter durchstreichen
 			Paint p = AwtGraphicFactory.INSTANCE.createPaint();
