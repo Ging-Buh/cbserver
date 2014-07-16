@@ -37,9 +37,15 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 	private static final long serialVersionUID = 5665480835651086183L;
 	public LMap leafletMap;
 	private Bounds lastBounds = null;
-	String[] MapIconsSmall = { "small1yes", "small2yes", "small3yes", "small4yes", "small5yes", "small5solved", "small6yes", "small7yes", "small1no", "small2no", "small3no", "small4no", "small5no", "small5solved-no", "small6no", "small7no", "20", "22" };
 	private Cache selectedCache = null;
 	private String host;
+	private int bigIconSize = 24;
+	private int bigBackgroundSize = 28;
+	private int mediumIconSize = 20;
+	private int mediumBackgroundSize = 24;
+	private int smallIconSize = 15;
+	private int smallBackgroundSize = 15;
+
 	public MapView() {
 		leafletMap = new LMap();
 		this.setCompositionRoot(leafletMap);
@@ -105,7 +111,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 			}
 		});
 		leafletMap.addClickListener(new LeafletClickListener() {
-			
+
 			@Override
 			public void onClick(LeafletClickEvent event) {
 				System.out.println("Click:" + event.toString());
@@ -132,11 +138,15 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		this.getUI().getPage();
 		host = com.vaadin.server.Page.getCurrent().getLocation().getScheme() + "://" + com.vaadin.server.Page.getCurrent().getLocation().getAuthority() + "/";
 		long start = System.currentTimeMillis();
-		int iconSize = 0; // 8x8
-		if ((zoom >= 13) && (zoom <= 14))
-			iconSize = 1; // 13x13
-		else if (zoom > 14)
-			iconSize = 2; // default Images
+		int iconSize = smallIconSize;
+		int backgroundSize = smallBackgroundSize;
+		if ((zoom >= 13) && (zoom <= 14)) {
+			iconSize = mediumIconSize;
+			backgroundSize = mediumBackgroundSize;
+		} else if (zoom > 14) {
+			iconSize = bigIconSize; // default Images
+			backgroundSize = bigBackgroundSize;
+		}
 
 		if (markers == null) {
 			llg = new LLayerGroup();
@@ -154,12 +164,12 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				} else {
 					marker = new LMarker(cache.Latitude(), cache.Longitude());
 				}
-				marker.setIconSize(new Point(15, 15));
-				marker.setIconAnchor(new Point(7, 7));
+				marker.setIconSize(new Point(backgroundSize, backgroundSize));
+				marker.setIconAnchor(new Point(backgroundSize / 2, backgroundSize / 2));
 				marker.setTitle(cache.getName());
 				marker.setPopup(cache.getShortDescription());
 
-				marker.setIcon(new ExternalResource(getCacheIcon(cache, iconSize)));
+				marker.setIcon(new ExternalResource(getCacheIcon(cache, iconSize, backgroundSize, false, false)));
 				marker.setVisible(false);
 				marker.setCaption("Caption");
 				marker.setDescription("Description");
@@ -189,16 +199,19 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				Waypoint waypoint = null;
 				String title;
 				String description;
+				boolean selected = false;
 				// letzter Durchlauf für das Icon des Caches selbst, da dies z.B. bei gelösten Mysterys noch nicht gezeigt wird
 				if (i < n) {
 					waypoint = selectedCache.waypoints.get(i);
 					title = waypoint.getTitle();
 					description = waypoint.getDescription();
+					selected = SelectedCacheChangedEventList.getWaypoint() == waypoint;
 				} else {
 					title = selectedCache.getName();
 					description = selectedCache.getShortDescription();
+					selected = SelectedCacheChangedEventList.getWaypoint() == null;
 				}
-				
+
 				LMarker marker = null;
 				if (waypoint != null) {
 					marker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
@@ -206,42 +219,27 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 					marker = new LMarker(selectedCache.Latitude(), selectedCache.Longitude());
 				}
 				marker.addClickListener(cacheClickListener);
-				marker.setIconSize(new Point(15, 15));
-				marker.setIconAnchor(new Point(7, 7));
+				marker.setIconSize(new Point(bigBackgroundSize, bigBackgroundSize));
+				marker.setIconAnchor(new Point(bigBackgroundSize / 2, bigBackgroundSize / 2));
 				marker.setTitle(title);
 				marker.setPopup(description);
-				
+
 				if (waypoint != null) {
-					marker.setIcon(new ExternalResource(getWaypointIcon(waypoint)));
+					marker.setIcon(new ExternalResource(getWaypointIcon(waypoint, bigIconSize, bigBackgroundSize, selected)));
 					marker.setData(waypoint);
 				} else {
-					marker.setIcon(new ExternalResource(getCacheIcon(selectedCache, iconSize)));
+					marker.setIcon(new ExternalResource(getCacheIcon(selectedCache, bigIconSize, bigBackgroundSize, selected, false)));
 					marker.setData(selectedCache);
 				}
 				marker.setVisible(true);
 				marker.setLabel(null);
 
-//				switch (iconSize) {
-//				case 0:
-//					marker.setIconSize(new Point(12, 12));
-//					marker.setIconAnchor(new Point(6, 6));
-//					break;
-//				case 1:
-//					marker.setIconSize(new Point(24, 24));
-//					marker.setIconAnchor(new Point(12, 12));
-//					break;
-//				case 2:
-					marker.setIconSize(new Point(32, 32));
-					marker.setIconAnchor(new Point(16, 16));
-//					break;
-//				}
 				if (zoom > 14) {
 					marker.setLabel(title);
 				} else {
 					marker.setLabel(null);
 				}
-				
-				
+
 				cacheMarkers.add(marker);
 				lgCache.addComponent(marker);
 			}
@@ -254,7 +252,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 			} catch (Exception ex) {
 				continue; // TODO
 			}
-			
+
 			if (cache == selectedCache) {
 				// hier diesen Marker verstecken, da der Cache-Marker für den SelectedCache mit den Waypoints erzeugt wird
 				marker.setVisible(false);
@@ -264,30 +262,18 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 					waypoint = cache.GetStartWaypoint();
 				}
 
-				
 				if (waypoint != null) {
-					marker.setVisible(isInBounds(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude(), bounds));					
+					marker.setVisible(isInBounds(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude(), bounds));
 				} else {
 					marker.setVisible(isInBounds(cache.Latitude(), cache.Longitude(), bounds));
 				}
 			}
-			marker.setIcon(new ExternalResource(getCacheIcon(cache, iconSize)));
+			marker.setIcon(new ExternalResource(getCacheIcon(cache, iconSize, backgroundSize, false, false)));
 
 			marker.setActive(false);
-			switch (iconSize) {
-			case 0:
-				marker.setIconSize(new Point(12, 12));
-				marker.setIconAnchor(new Point(6, 6));
-				break;
-			case 1:
-				marker.setIconSize(new Point(24, 24));
-				marker.setIconAnchor(new Point(12, 12));
-				break;
-			case 2:
-				marker.setIconSize(new Point(32, 32));
-				marker.setIconAnchor(new Point(16, 16));
-				break;
-			}
+			marker.setIconSize(new Point(backgroundSize, backgroundSize));
+			marker.setIconAnchor(new Point(backgroundSize / 2, backgroundSize / 2));
+
 			if (zoom > 14) {
 				marker.setLabel(cache.getName());
 			} else {
@@ -303,17 +289,18 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		public void onClick(LeafletClickEvent event) {
 			Object source = event.getSource();
 			if (source instanceof LMarker) {
-				Object data = ((LMarker)source).getData();
+				Object data = ((LMarker) source).getData();
 				if (data instanceof Cache) {
-					selectedCache = null;	// damit die Icons neu aufgebaut werden
-					SelectedCacheChangedEventList.Call((Cache)data, null);
+					selectedCache = null; // damit die Icons neu aufgebaut werden
+					SelectedCacheChangedEventList.Call((Cache) data, null);
 				} else if (data instanceof Waypoint) {
-					selectedCache = null;	// damit die Icons neu aufgebaut werden
-					SelectedCacheChangedEventList.Call(SelectedCacheChangedEventList.getCache(), (Waypoint)data);
+					selectedCache = null; // damit die Icons neu aufgebaut werden
+					SelectedCacheChangedEventList.Call(SelectedCacheChangedEventList.getCache(), (Waypoint) data);
 				}
 			}
 		}
 	};
+
 	private boolean isInBounds(double latitude, double longitude, Bounds bounds) {
 		if (latitude > bounds.getNorthEastLat())
 			return false;
@@ -345,32 +332,33 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		}
 	}
 
-	private String getCacheIcon(Cache cache, int iconSize) {
-		String url = host + "ics/" + iconSize + "/" + getMapIcon(cache) + "/";
-		url += (cache == selectedCache) ? "1" : "0";
-		url += "/";
-		url += (!cache.isAvailable()) ? "0" : "1";
-		url += "/";
-		url += (cache.isArchived()) ? "0" : "1";
-		url += "/";
-		url += (cache.isFound()) ? "0" : "1";
-		url += "/";
-		url += (cache.ImTheOwner()) ? "0" : "1";
-		url += "/";
-		url += "1"; // Background
-		url += "/";
-		url += "0";
-		url += "/";
-		url += "0";
-
+	private String getCacheIcon(Cache cache, int iconSize, int backgroundSize, boolean selected, boolean showDT) {
+		String url = host + "ics/";
+		url += "C";
+		url += String.format("%02d", cache.Type.ordinal()); // 2 stellig
+		if (cache.isArchived())
+			url += "A";
+		if (!cache.isAvailable())
+			url += "N";
+		if (cache.isFound())
+			url += "F";
+		if (cache.ImTheOwner())
+			url += "O";
+		if (cache.CorrectedCoordiantesOrMysterySolved())
+			url += "S";
+		if (cache.HasStartWaypoint())
+			url += "T";
+		if (selected)
+			url += "L";
+		if (showDT) {
+			url += "_D" + (int) (cache.getDifficulty() * 2);
+			url += "_T" + (int) (cache.getTerrain() * 2);
+		}
+		url += "_S" + iconSize;
+		if (backgroundSize > 0) {
+			url += "_B" + backgroundSize;
+		}
 		return url;
-		
-//		if ((iconSize < 1) && (cache != SelectedCacheChangedEventList.getCache())) {
-//			return getSmallMapIcon(cache);
-//		} else {
-//			// der SelectedCache wird immer mit den großen Symbolen dargestellt!
-//			return getMapIcon(cache);
-//		}
 	}
 
 	private int getMapIcon(Cache cache) {
@@ -393,107 +381,16 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		return IconId;
 	}
 
-	private String getWaypointIcon(Waypoint waypoint)
-	{
-		int IconId = 0;
-		if ((waypoint.Type == CacheTypes.MultiStage) && (waypoint.IsStart)) {
-			IconId = 24;
-		} else {
-			IconId = waypoint.Type.ordinal();
+	private String getWaypointIcon(Waypoint waypoint, int iconSize, int backgroundSize, boolean selected) {
+		String url = host + "ics/";
+		url += "W";
+		url += String.format("%02d", waypoint.Type.ordinal()); // 2 stellig
+		if (selected)
+			url += "L";
+		url += "_S" + iconSize;
+		if (backgroundSize > 0) {
+			url += "_B" + backgroundSize;
 		}
-		
-		String url = host + "ics/" + 2 + "/" + IconId + "/";
-		url += (waypoint == SelectedCacheChangedEventList.getWaypoint()) ? "1" : "0";
-		url += "/";
-		url += (selectedCache.isArchived() || !selectedCache.isAvailable()) ? "0" : "1";
-		
 		return url;
 	}
-
-
-	private String getSmallMapIcon(Cache cache) {
-		int iconId = 0;
-
-		switch (cache.Type) {
-		case Traditional:
-			iconId = 0;
-			break;
-		case Letterbox:
-			iconId = 0;
-			break;
-		case Multi:
-			if (cache.HasStartWaypoint())
-				iconId = 1;
-			else
-				iconId = 1;
-			break;
-		case Event:
-			iconId = 2;
-			break;
-		case MegaEvent:
-			iconId = 2;
-			break;
-		case Virtual:
-			iconId = 3;
-			break;
-		case Camera:
-			iconId = 3;
-			break;
-		case Earth:
-			iconId = 3;
-			break;
-		case Mystery: {
-			if (cache.HasFinalWaypoint())
-				iconId = 5;
-			else if (cache.HasStartWaypoint())
-				iconId = 5;
-			else
-				iconId = 4;
-			break;
-		}
-		case Wherigo:
-			iconId = 4;
-			break;
-
-		default:
-			iconId = 0;
-		}
-
-		if (cache.isFound())
-			iconId = 6;
-		if (cache.ImTheOwner())
-			iconId = 7;
-
-		if (cache.isArchived() || !cache.isAvailable())
-			iconId += 8;
-
-		if (cache.Type == CacheTypes.MyParking)
-			iconId = 16;
-		if (cache.Type == CacheTypes.Munzee)
-			iconId = 17;
-
-		return "icons/" + MapIconsSmall[iconId] + ".png";
-
-	}
-
-	private String getUnderlayIcon(Cache cache, Waypoint waypoint, int iconSize) {
-		if ((iconSize == 0) && (cache != SelectedCacheChangedEventList.getCache())) {
-			return null;
-		} else {
-			if (waypoint == null) {
-				if ((cache != null) && (cache == SelectedCacheChangedEventList.getCache())) {
-					return "icons/shaddowrect-selected.png";
-				} else {
-					return "icons/shaddowrect.png";
-				}
-			} else {
-				if (waypoint == SelectedCacheChangedEventList.getWaypoint()) {
-					return "icons/shaddowrect-selected.png";
-				} else {
-					return "icons/shaddowrect.png";
-				}
-			}
-		}
-	}
-
 }

@@ -10,12 +10,14 @@ import CB_Core.Types.CacheList;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
+import cb_server.Views.CacheListView.CacheBean;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
 import com.vaadin.data.util.BeanContainer;
+import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
@@ -32,13 +34,13 @@ public class CacheListView extends CB_ViewBase {
 
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
-	private BeanItemContainer<CacheBean> beans;
+	private CacheContainer beans;
 	private String host;
 
 	public CacheListView() {
 		super();
 		host = com.vaadin.server.Page.getCurrent().getLocation().getScheme() + "://" + com.vaadin.server.Page.getCurrent().getLocation().getAuthority() + "/";
-		beans = new BeanItemContainer<CacheBean>(CacheBean.class);
+		beans = new CacheContainer();
 		// beans.setBeanIdProperty("GCCode");
 
 		//		for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
@@ -55,7 +57,7 @@ public class CacheListView extends CB_ViewBase {
 		//		table.addGeneratedColumn("NewCol", new DescriptionColumnGenerator());
 		//		table.setColumnHeader("NewCol", "NC");
 		// Have to set explicitly to hide the "equatorial" property
-		//		table.setVisibleColumns(new Object[]{"GCCode", "Name", "Description"});
+		//		table.setVisibleColumns(new Object[]{"Description"});
 
 		table.addValueChangeListener(new ValueChangeListener() {
 			private static final long serialVersionUID = -1246546962581855595L;
@@ -73,33 +75,48 @@ public class CacheListView extends CB_ViewBase {
 				}
 			}
 		});
-		table.addGeneratedColumn("icon", new Table.ColumnGenerator() {
-			private static final long serialVersionUID = 5199037506976926798L;
+		/*		table.addGeneratedColumn("icon", new Table.ColumnGenerator() {
+					private static final long serialVersionUID = 5199037506976926798L;
 
-			@Override
-			public Object generateCell(Table source, Object itemId, Object columnId) {
-				Cache cache = null;
-				if (itemId instanceof CacheBean) {
-					cache = ((CacheBean)itemId).cache;
-				}
-				return new Embedded("", new ExternalResource(getCacheIcon(cache, 24) + "/icon.png"));
-			}
-		});
-
+					@Override
+					public Object generateCell(Table source, Object itemId, Object columnId) {
+						Cache cache = null;
+						if (itemId instanceof CacheBean) {
+							cache = ((CacheBean)itemId).cache;
+						}
+						return new Embedded("", new ExternalResource(getCacheIcon(cache, 16, 0, false, false) + ".png"));
+					}
+					
+				});
+		*/
 	}
 
-	private String getCacheIcon(Cache cache, int iconSize) {
-		String url = host + "ics";
-		url += "/" + iconSize;
-		url += "/" + getMapIcon(cache);
-		url += "/0";
-		url += "/" + ((!cache.isAvailable()) ? "0" : "1");
-		url += "/" + ((cache.isArchived()) ? "0" : "1");
-		url += "/" + ((cache.isFound()) ? "0" : "1");
-		url += "/" + ((cache.ImTheOwner()) ? "0" : "1");
-		url += "/0"; // Background
-		url += "/0";
-		url += "/0";
+	private String getCacheIcon(Cache cache, int iconSize, int backgroundSize, boolean selected, boolean showDT) {
+		String url = host + "ics/";
+		url += "C";
+		url += String.format("%02d", cache.Type.ordinal()); // 2 stellig
+		if (cache.isArchived())
+			url += "A";
+		if (!cache.isAvailable())
+			url += "N";
+		if (cache.isFound())
+			url += "F";
+		if (cache.ImTheOwner())
+			url += "O";
+		if (cache.CorrectedCoordiantesOrMysterySolved())
+			url += "S";
+		if (cache.HasStartWaypoint())
+			url += "T";
+		if (selected)
+			url += "L";
+		if (showDT) {
+			url += "_D" + (int) (cache.getDifficulty() * 2);
+			url += "_T" + (int) (cache.getTerrain() * 2);
+		}
+		url += "_S" + iconSize;
+		if (backgroundSize > 0) {
+			url += "_B" + backgroundSize;
+		}
 		return url;
 	}
 
@@ -133,11 +150,13 @@ public class CacheListView extends CB_ViewBase {
 			table.getUI().getSession().lock();
 			try {
 				for (int i = 0, n = cacheList.size(); i < n; i++) {
-					beans.addBean(new CacheBean(cacheList.get(i)));
+					BeanItem<CacheBean> item = beans.addBean(new CacheBean(cacheList.get(i)));
+					table.setItemIcon(item, new ExternalResource(getCacheIcon(cacheList.get(i), 16, 0, false, false) + ".png"));
 				}
 			} finally {
-			   table.getUI().getSession().unlock();
+				table.getUI().getSession().unlock();
 			}
+			table.setVisibleColumns(new Object[]{"icon", "GCCode", "name", "description"});
 		} catch (Exception ex) {
 			System.out.println("lskjdl");
 		}
@@ -204,7 +223,26 @@ public class CacheListView extends CB_ViewBase {
 		}
 
 		public String getDescription() {
-			return "Hallo " + cache.getGcCode();
+			return cache.getCountry();
 		}
+
+		public Embedded getIcon() {
+			return new Embedded("", new ExternalResource(getCacheIcon(cache, 16, 0, false, false) + ".png"));
+		}
+	}
+
+	public class CacheContainer extends BeanItemContainer<CacheBean> {
+
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 2808380911891848063L;
+
+		public CacheContainer() {
+			super(CacheBean.class);
+		}
+
+		
+		
 	}
 }
