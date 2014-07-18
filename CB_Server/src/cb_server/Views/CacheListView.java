@@ -156,7 +156,7 @@ public class CacheListView extends CB_ViewBase {
 			} finally {
 				table.getUI().getSession().unlock();
 			}
-			table.setVisibleColumns(new Object[]{"icon", "GCCode", "name", "description"});
+			table.setVisibleColumns(new Object[]{"icon", "GCCode", "name", "state", "country"});
 		} catch (Exception ex) {
 			System.out.println("lskjdl");
 		}
@@ -191,7 +191,8 @@ public class CacheListView extends CB_ViewBase {
 		private static final long serialVersionUID = 5457794531550146509L;
 		private String GCCode;
 		private String Name;
-		private String Description;
+		private String State;
+		private String Country;
 		private Cache cache;
 		private Resource icon;
 
@@ -199,7 +200,8 @@ public class CacheListView extends CB_ViewBase {
 			this.cache = cacheLite;
 			this.setGCCode("");
 			this.setName("");
-			this.setDescription("");
+			this.setState("");
+			this.setCountry("");
 		}
 
 		public String getName() {
@@ -218,11 +220,19 @@ public class CacheListView extends CB_ViewBase {
 			GCCode = gCCode;
 		}
 
-		public void setDescription(String desc) {
-			this.Description = desc;
+		public void setState(String state) {
+			this.State = state;
+		}
+		
+		public String getState() {
+			return cache.getState();
+		}
+		
+		public void setCountry(String desc) {
+			this.Country = desc;
 		}
 
-		public String getDescription() {
+		public String getCountry() {
 			return cache.getCountry();
 		}
 
