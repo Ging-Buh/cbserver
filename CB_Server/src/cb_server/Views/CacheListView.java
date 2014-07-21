@@ -2,6 +2,7 @@ package cb_server.Views;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 
 import CB_Core.DB.Database;
 import CB_Core.Enums.CacheTypes;
@@ -10,6 +11,7 @@ import CB_Core.Types.CacheList;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import cb_server.Events.SelectedCacheChangedEventList;
+import cb_server.Events.SelectedCacheChangedEventListner;
 import cb_server.Views.CacheListView.CacheBean;
 
 import com.vaadin.data.Item;
@@ -21,6 +23,8 @@ import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
+import com.vaadin.server.SessionDestroyEvent;
+import com.vaadin.server.SessionDestroyListener;
 import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.CustomComponent;
@@ -30,11 +34,12 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
-public class CacheListView extends CB_ViewBase {
+public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEventListner, SessionDestroyListener {
 
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
 	private CacheContainer beans;
+	private HashMap<Long, CacheBean> cacheBeans = new HashMap<Long, CacheListView.CacheBean>();
 	private String host;
 
 	public CacheListView() {
@@ -71,7 +76,11 @@ public class CacheListView extends CB_ViewBase {
 					if (waypoint == null) {
 						waypoint = cache.GetStartWaypoint();
 					}
-					SelectedCacheChangedEventList.Call(cache, waypoint);
+					if (!doNotChange) {
+						doNotChange = true;
+						SelectedCacheChangedEventList.Call(cache, waypoint);
+						doNotChange = false;
+					}
 				}
 			}
 		});
@@ -89,8 +98,11 @@ public class CacheListView extends CB_ViewBase {
 					
 				});
 		*/
+		SelectedCacheChangedEventList.Add(this);
+
 	}
 
+	
 	private String getCacheIcon(Cache cache, int iconSize, int backgroundSize, boolean selected, boolean showDT) {
 		String url = host + "ics/";
 		url += "C";
@@ -145,18 +157,22 @@ public class CacheListView extends CB_ViewBase {
 		super.cacheListChanged(cacheList);
 		log.debug("Remove all Beans");
 		beans.removeAllItems();
+		cacheBeans.clear();
 		log.debug("Add new Beans for new CacheList");
 		try {
 			table.getUI().getSession().lock();
 			try {
 				for (int i = 0, n = cacheList.size(); i < n; i++) {
-					BeanItem<CacheBean> item = beans.addBean(new CacheBean(cacheList.get(i)));
+					Cache cache = cacheList.get(i);
+					CacheBean bean = new CacheBean(cache);
+					cacheBeans.put(cache.Id, bean);
+					BeanItem<CacheBean> item = beans.addBean(bean);
 					table.setItemIcon(item, new ExternalResource(getCacheIcon(cacheList.get(i), 16, 0, false, false) + ".png"));
 				}
 			} finally {
 				table.getUI().getSession().unlock();
 			}
-			table.setVisibleColumns(new Object[]{"icon", "GCCode", "name", "state", "country"});
+			table.setVisibleColumns(new Object[] { "icon", "GCCode", "name", "state", "country" });
 		} catch (Exception ex) {
 			System.out.println("lskjdl");
 		}
@@ -223,11 +239,11 @@ public class CacheListView extends CB_ViewBase {
 		public void setState(String state) {
 			this.State = state;
 		}
-		
+
 		public String getState() {
 			return cache.getState();
 		}
-		
+
 		public void setCountry(String desc) {
 			this.Country = desc;
 		}
@@ -252,7 +268,28 @@ public class CacheListView extends CB_ViewBase {
 			super(CacheBean.class);
 		}
 
-		
+	}
+
+	private boolean doNotChange = false;
+
+	@Override
+	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
+		if (doNotChange)
+			return;
+		System.out.println("lsdjflkasjlfasjklfdjasfsj");
+		CacheBean bean = cacheBeans.get(cache2.Id);
+		if (bean != null) {
+			table.focus();
+			doNotChange = true;
+			table.select(bean);
+			table.setCurrentPageFirstItemId(bean);
+			doNotChange = false;
+		}
+	}
+
+	@Override
+	public void sessionDestroy(SessionDestroyEvent event) {
+		SelectedCacheChangedEventList.Remove(this);
 		
 	}
 }

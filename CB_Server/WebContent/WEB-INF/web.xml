@@ -26,6 +26,10 @@
            	<param-name>widgetset</param-name>
            	<param-value>cb_server.widgetset.Cb_serverWidgetset</param-value>
         </init-param>
+        <init-param>
+      		<param-name>closeIdleSessions</param-name>
+      		<param-value>true</param-value>
+   	 	</init-param>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CB_Server Application</servlet-name>

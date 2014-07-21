@@ -1,9 +1,17 @@
 package cb_server;
 
+import java.awt.BasicStroke;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -32,9 +40,11 @@ public class IconServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String sQuery = request.getPathInfo().substring(1);
 		int pos = sQuery.indexOf(".");
-		if (pos > 0) sQuery = sQuery.substring(0, pos);
+		if (pos > 0)
+			sQuery = sQuery.substring(0, pos);
 		String[] query = sQuery.split("_");
-		
+
+		boolean diffTerr = false;
 		boolean cache = true;
 		int cacheType = 0;
 		boolean deactivated = false;
@@ -50,9 +60,9 @@ public class IconServlet extends HttpServlet {
 		int background = 0;
 		for (int i = 0; i < query.length; i++) {
 			switch (query[i].charAt(0)) {
-			case 'C':	// Cache
-			case 'W':   // Waypoint
-				if (query[i].charAt(0) == 'W') 
+			case 'C': // Cache
+			case 'W': // Waypoint
+				if (query[i].charAt(0) == 'W')
 					cache = false;
 				cacheType = Integer.parseInt(query[i].substring(1, 3));
 				deactivated = query[i].contains("D");
@@ -63,17 +73,20 @@ public class IconServlet extends HttpServlet {
 				hasStart = query[i].contains("T");
 				selected = query[i].contains("L");
 				break;
-			case 'D':	// Difficulty
+			case 'D': // Difficulty
 				difficulty = Integer.parseInt(query[i].substring(1));
 				break;
-			case 'T':	// Terrain
+			case 'T': // Terrain
 				terrain = Integer.parseInt(query[i].substring(1));
 				break;
-			case 'B':	// Background size
+			case 'B': // Background size
 				background = Integer.parseInt(query[i].substring(1));
 				break;
-			case 'S':	// Image size 
+			case 'S': // Image size 
 				size = Integer.parseInt(query[i].substring(1));
+				break;
+			case 'X': // Difficulty/Terrain
+				diffTerr = true;
 				break;
 			}
 		}
@@ -81,11 +94,13 @@ public class IconServlet extends HttpServlet {
 			// background wird == size übergeben. Wenn background nicht > size ist -> keinen Hintergrund
 			background = 0;
 		}
-		
-		String prefix = "32-";	// Prefix für die Icon-Dateien
-		if (size <= 15) prefix = "15-";
+
+		String prefix = "32-"; // Prefix für die Icon-Dateien
+		if (size <= 15)
+			prefix = "15-";
 		String postfix = "";
-		if (solved) postfix = "S";
+		if (solved)
+			postfix = "S";
 		String fileName = "/icons/" + prefix + cacheType + postfix + ".png";
 		if (found) {
 			fileName = "/icons/" + prefix + "Found.png";
@@ -93,60 +108,83 @@ public class IconServlet extends HttpServlet {
 
 		response.setContentType("image/png");
 		response.setStatus(HttpServletResponse.SC_OK);
-		InputStream is = null;
-		InputStream is2 = null;
-		ResourceBitmap bmp = null;
-		ResourceBitmap bmp2 = null;
-		if (background > 0) {
-			if (selected) {
-				is = getClass().getResourceAsStream("/icons/shaddowrect-selected.png");
-			} else {
-				is = getClass().getResourceAsStream("/icons/shaddowrect.png");
-			}
-			bmp = AwtGraphicFactory.INSTANCE.createResourceBitmap(is, 0);
-			is2 = getClass().getResourceAsStream(fileName);
-			bmp2 = AwtGraphicFactory.INSTANCE.createResourceBitmap(is2, 0);
-		} else {
-			is = getClass().getResourceAsStream(fileName);
-			bmp = AwtGraphicFactory.INSTANCE.createResourceBitmap(is, 0);
-			background = size;
-		}	
+	//	response.setHeader("expires", "Thu, 01 Dec 2099 00:00:00 GMT");
 
-		TileBitmap bitmap = AwtGraphicFactory.INSTANCE.createTileBitmap(background, true);
-		Canvas canvas = AwtGraphicFactory.INSTANCE.createCanvas();
-		canvas.setBitmap(bitmap);
-		Matrix matrix = AwtGraphicFactory.INSTANCE.createMatrix();
-		matrix.scale((float) background / (float) bmp.getWidth(), (float) background / (float) bmp.getHeight());
-		canvas.drawBitmap(bmp, matrix);
-		if (bmp2 != null) {
-			matrix = AwtGraphicFactory.INSTANCE.createMatrix();
-			matrix.translate((background - size) / 2, (background - size) / 2);
-			matrix.scale((float) size / (float) bmp2.getWidth(), (float) size / (float) bmp2.getHeight());
-			canvas.drawBitmap(bmp2, matrix);
-		}
-		if (deactivated || archived) {
-			// Roter durchstreichen
-			Paint p = AwtGraphicFactory.INSTANCE.createPaint();
-			int rand = 5;
-			int width = 4;
-			if (background <= 15) { 
-				rand = 3;
-				width = 2;
+		Image img = null;
+		Image img2 = null;
+
+		BufferedImage image = null;
+
+		if (diffTerr) {
+			String id = String.valueOf((int)(difficulty / 2));
+			if (difficulty % 2 > 0) {
+				id += "-5";
 			}
-			p.setColor(Color.RED);
-			p.setStrokeWidth(width);
-			p.setStyle(Style.STROKE);
-			canvas.drawLine(rand, rand, background - rand, background - rand, p);
+			String id2 = String.valueOf((int)(terrain / 2));
+			if (terrain % 2 > 0) {
+				id2 += "-5";
+			}
+			img = getImage("/icons/stars" + id + "small.png");
+			img2 = getImage("/icons/stars" + id2 + "small.png");
+			int starHeight = img.getWidth(null);
+			int starWidth = img.getHeight(null) * size / starHeight;
+			background = size + 2 * starWidth;
+			image = new BufferedImage(background, size, BufferedImage.TYPE_4BYTE_ABGR);
+			Graphics2D graphics = (Graphics2D) image.getGraphics();
+			graphics.setColor(new java.awt.Color(1.0f, 1.0f, 1.0f, 0.5f));
+			graphics.fillRoundRect(0, 0, starWidth + 2, starHeight, starWidth/2, starWidth/2);
+			graphics.fillRoundRect(background - 2 - starWidth, 0, background, starHeight, starWidth/2, starWidth/2);
+			int dx = -size;
+			int dy = 1;
+			graphics.rotate(-Math.PI/2);
+			graphics.drawImage(img, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
+			dy += size + starWidth - 2;
+			graphics.drawImage(img2, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
+		} else {
+			if (background > 0) {
+				if (selected) {
+					img = getImage("/icons/shaddowrect-selected.png");
+				} else {
+					img = getImage("/icons/shaddowrect.png");
+				}
+				img2 = getImage(fileName);
+			} else {
+				background = size;
+				img = getImage(fileName);
+			}
+
+			image = new BufferedImage(background, background, BufferedImage.TYPE_4BYTE_ABGR);
+			Graphics2D graphics = (Graphics2D) image.getGraphics();
+
+			graphics.drawImage(img, 0, 0, image.getWidth(), image.getHeight(), 0, 0, img.getWidth(null), img.getHeight(null), null);
+			if (img2 != null) {
+				int dx = (background - size) / 2;
+				int dy = (background - size) / 2;
+				graphics.drawImage(img2, dx, dy, dx + size, dx + size, 0, 0, img2.getWidth(null), img2.getHeight(null), null);
+			}
+			if (deactivated || archived) {
+				// Roter durchstreichen
+				int rand = 5;
+				int width = 4;
+				if (background <= 16) {
+					rand = 2;
+					width = 2;
+				}
+				graphics.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND));
+				graphics.setColor(java.awt.Color.red);
+				graphics.drawLine(rand, rand, background - rand - 1, background - rand - 1);
+			}
 		}
 		try {
-			bitmap.compress(response.getOutputStream());
+			if (ImageIO.write(image, "png", response.getOutputStream()))
+				System.out.println("###############################");
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
 	}
-	
+
 	protected void doGet_(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String sQuery = request.getPathInfo();
 		String[] query = sQuery.split("/");
@@ -170,11 +208,13 @@ public class IconServlet extends HttpServlet {
 			break;
 		case 1:
 			size = 16;
-			if (backgroundSize > 0) backgroundSize = 20;
+			if (backgroundSize > 0)
+				backgroundSize = 20;
 			break;
 		case 2:
 			size = 32;
-			if (backgroundSize > 0) backgroundSize = 48;
+			if (backgroundSize > 0)
+				backgroundSize = 48;
 			break;
 		}
 
@@ -227,7 +267,11 @@ public class IconServlet extends HttpServlet {
 		}
 
 	}
-	
 
+	public Image getImage(String name) {
+		URL url = this.getClass().getResource(name);
+		//URL url = Resources.class.getResource(name);
+		return Toolkit.getDefaultToolkit().getImage(url);
+	}
 
 }

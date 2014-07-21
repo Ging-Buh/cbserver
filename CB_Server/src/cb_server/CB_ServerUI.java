@@ -19,6 +19,7 @@ import CB_Core.DB.Database;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.CacheList;
 import CB_Utils.Events.ProgresssChangedEventList;
+import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Import.ImportScheduler;
 import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
@@ -34,6 +35,7 @@ import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
+import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -58,15 +60,18 @@ import de.steinwedel.messagebox.MessageBox;
 @Theme("cb_server")
 @PreserveOnRefresh
 @Push
-public class CB_ServerUI extends UI {
+public class CB_ServerUI extends UI implements DetachListener {
 	private Logger log;
 	private final MyExecutor executor = new MyExecutor();
 	private CacheList cacheList = new CacheList();
 	private LinkedList<CB_ViewBase> views = new LinkedList<>();
 	private FilterProperties lastFilter = null;
 	private MenuBar mainMenu = null;
+	private CacheListView clv;
 	@Override
 	protected void init(VaadinRequest request) {
+		addDetachListener(this);
+		
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
 		this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
@@ -160,7 +165,7 @@ public class CB_ServerUI extends UI {
 		
 		MapView mv = new MapView();
 		DescriptionView dv = new DescriptionView();
-		CacheListView clv = new CacheListView();
+		clv = new CacheListView();
 		WaypointView wpv = new WaypointView();
 		LogView lv = new LogView();
 		SolverView sv = new SolverView();
@@ -170,7 +175,7 @@ public class CB_ServerUI extends UI {
 //		views.add(wpv);
 		views.add(lv);
 		views.add(sv);
-		
+		getSession().getService().addSessionDestroyListener(clv);
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
 		this.setContent(vl);
@@ -269,6 +274,12 @@ public class CB_ServerUI extends UI {
 			
 		}
 		
+	}
+
+
+	@Override
+	public void detach(DetachEvent event) {
+		SelectedCacheChangedEventList.Remove(clv);
 	}
 }
 
