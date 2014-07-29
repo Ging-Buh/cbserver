@@ -395,7 +395,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		if (backgroundSize > 0) {
 			url += "_B" + backgroundSize;
 		}
-		return url;
+		return url + ".png";
 	}
 
 	private String getDTIcon(Cache cache, int iconSize) {
@@ -406,7 +406,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		url += "_T";
 		url += (int)Math.round(cache.getTerrain() * 2);
 		url += "_S" + iconSize;
-		return url;
+		return url + ".png";
 	}
 	
 	private String getWaypointIcon(Waypoint waypoint, int iconSize, int backgroundSize, boolean selected) {
@@ -419,6 +419,6 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		if (backgroundSize > 0) {
 			url += "_B" + backgroundSize;
 		}
-		return url;
+		return url + ".png";
 	}
 }

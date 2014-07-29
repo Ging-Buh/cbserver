@@ -129,27 +129,7 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		if (backgroundSize > 0) {
 			url += "_B" + backgroundSize;
 		}
-		return url;
-	}
-
-	private int getMapIcon(Cache cache) {
-		int IconId;
-		if (cache.ImTheOwner())
-			IconId = 26;
-		else if (cache.isFound())
-			IconId = 19;
-		else if ((cache.Type == CacheTypes.Mystery) && cache.CorrectedCoordiantesOrMysterySolved())
-			IconId = 21;
-		else if ((cache.Type == CacheTypes.Multi) && cache.HasStartWaypoint())
-			IconId = 23; // Multi mit Startpunkt
-		else if ((cache.Type == CacheTypes.Mystery) && cache.HasStartWaypoint())
-			IconId = 25; // Mystery ohne Final aber mit Startpunkt
-		else if ((cache.Type == CacheTypes.Munzee))
-			IconId = 22;
-		else
-			IconId = cache.Type.ordinal();
-
-		return IconId;
+		return url + ".png";
 	}
 
 	@Override
