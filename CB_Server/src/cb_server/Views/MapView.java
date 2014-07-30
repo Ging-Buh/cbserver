@@ -184,14 +184,14 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 					tMarker = new LMarker(cache.Latitude(), cache.Longitude());
 					marker = new LMarker(cache.Latitude(), cache.Longitude());
 				}
-				dMarker.setIconSize(new Point((10.0/32*bigBackgroundSize), bigBackgroundSize));
-				dMarker.setIconAnchor(new Point((bigBackgroundSize + (10.0/32*bigBackgroundSize*2))/2, bigBackgroundSize/2));
+				dMarker.setIconSize(new Point((10.0/48*bigBackgroundSize), bigBackgroundSize));
+				dMarker.setIconAnchor(new Point((bigBackgroundSize + (10.0/48*bigBackgroundSize*2))/2 + 1, bigBackgroundSize/2));
 				dMarker.setIcon(new ExternalResource(getDTIcon(cache, bigBackgroundSize, (int)(cache.getDifficulty() * 2))));
 				dMarker.setVisible(false);
 				dMarkers.put(cache.Id, dMarker);
 				lgDT.addComponent(dMarker);
-				tMarker.setIconSize(new Point((10.0/32*bigBackgroundSize), bigBackgroundSize));
-				tMarker.setIconAnchor(new Point(-(bigBackgroundSize + (10.0/32*bigBackgroundSize*2))/2, bigBackgroundSize/2));
+				tMarker.setIconSize(new Point((10.0/48*bigBackgroundSize), bigBackgroundSize));
+				tMarker.setIconAnchor(new Point(-(bigBackgroundSize + 0*(10.0/48*bigBackgroundSize*2))/2, bigBackgroundSize/2));
 				tMarker.setIcon(new ExternalResource(getDTIcon(cache, bigBackgroundSize, (int)(cache.getTerrain() * 2))));
 				tMarker.setVisible(false);
 				tMarkers.put(cache.Id, tMarker);

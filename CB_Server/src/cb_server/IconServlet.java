@@ -156,7 +156,7 @@ public class IconServlet extends HttpServlet {
 				img = getImage("/icons/stars" + id + "small.png");
 				
 				int starHeight = img.getWidth(null);
-				int starWidth = img.getHeight(null) * size / starHeight;
+				int starWidth = Math.round((float)(img.getHeight(null) * size) / starHeight);
 				background = size + 2 * starWidth;
 				image = new BufferedImage(starWidth, size, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D graphics = (Graphics2D) image.getGraphics();
