@@ -137,7 +137,7 @@ public class IconServlet extends HttpServlet {
 
 			response.setContentType("image/png");
 			response.setStatus(HttpServletResponse.SC_OK);
-			response.setHeader("expires", "Thu, 01 Dec 2099 00:00:00 GMT");
+//			response.setHeader("expires", "Thu, 01 Dec 2099 00:00:00 GMT");
 
 			Image img = null;
 			Image img2 = null;
@@ -154,21 +154,21 @@ public class IconServlet extends HttpServlet {
 					id2 += "-5";
 				}
 				img = getImage("/icons/stars" + id + "small.png");
-				img2 = getImage("/icons/stars" + id2 + "small.png");
+				
 				int starHeight = img.getWidth(null);
 				int starWidth = img.getHeight(null) * size / starHeight;
 				background = size + 2 * starWidth;
-				image = new BufferedImage(background, size, BufferedImage.TYPE_INT_ARGB);
+				image = new BufferedImage(starWidth, size, BufferedImage.TYPE_INT_ARGB);
 				Graphics2D graphics = (Graphics2D) image.getGraphics();
 				graphics.setColor(new java.awt.Color(1.0f, 1.0f, 1.0f, 0.5f));
 				graphics.fillRoundRect(0, 0, starWidth + 2, starHeight, starWidth / 2, starWidth / 2);
-				graphics.fillRoundRect(background - 2 - starWidth, 0, background, starHeight, starWidth / 2, starWidth / 2);
+			//	graphics.fillRoundRect(background - 2 - starWidth, 0, background, starHeight, starWidth / 2, starWidth / 2);
 				int dx = -size;
 				int dy = 1;
 				graphics.rotate(-Math.PI / 2);
 				graphics.drawImage(img, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
 				dy += size + starWidth - 2;
-				graphics.drawImage(img2, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
+		//		graphics.drawImage(img2, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
 				graphics.dispose();
 			} else {
 				if (background > 0) {
@@ -218,12 +218,12 @@ public class IconServlet extends HttpServlet {
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		}
-        response.setHeader("Cache-Control", "no-store");
-        response.setHeader("Pragma", "no-cache");
+ //       response.setHeader("Cache-Control", "no-store");
+ //       response.setHeader("Pragma", "no-cache");
 
         response.setDateHeader("Expires", 0);
 
-        response.setContentType("image/" + ("png".equalsIgnoreCase("png") ? "png" : "jpeg"));
+        response.setContentType("image/png");
 
         // Write the image to the client.
         ServletOutputStream outStream = response.getOutputStream();

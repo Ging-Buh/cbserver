@@ -129,7 +129,8 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 
 	HashMap<Long, LMarker> markers = null;
 	ArrayList<LMarker> cacheMarkers = null; // für Waypoint des selectedCache
-	HashMap<Long, LMarker> dtMarkers = null; // für D/T-Wertungen
+	HashMap<Long, LMarker> dMarkers = null; // für D/T-Wertungen
+	HashMap<Long, LMarker> tMarkers = null; // für D/T-Wertungen
 	LLayerGroup llg = null;
 	LLayerGroup lgCache = null;
 	LLayerGroup lgDT = null;
@@ -153,7 +154,8 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		if (lgDT == null) {
 			lgDT = new LLayerGroup();
 			leafletMap.addLayer(lgDT);
-			dtMarkers = new HashMap<Long, LMarker>();
+			dMarkers = new HashMap<Long, LMarker>();
+			tMarkers = new HashMap<Long, LMarker>();
 		}
 		if (llg == null) {
 			llg = new LLayerGroup();
@@ -170,21 +172,30 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				if (waypoint == null) {
 					waypoint = cache.GetStartWaypoint();
 				}
-				LMarker dtMarker = null;
+				LMarker dMarker = null;
+				LMarker tMarker = null;
 				LMarker marker = null;
 				if (waypoint != null) {
-					dtMarker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
+					dMarker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
+					tMarker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
 					marker = new LMarker(waypoint.Pos.getLatitude(), waypoint.Pos.getLongitude());
 				} else {
-					dtMarker = new LMarker(cache.Latitude(), cache.Longitude());
+					dMarker = new LMarker(cache.Latitude(), cache.Longitude());
+					tMarker = new LMarker(cache.Latitude(), cache.Longitude());
 					marker = new LMarker(cache.Latitude(), cache.Longitude());
 				}
-				dtMarker.setIconSize(new Point(bigBackgroundSize + (10.0/32*bigBackgroundSize*2), bigBackgroundSize));
-				dtMarker.setIconAnchor(new Point((bigBackgroundSize + (10.0/32*bigBackgroundSize*2))/2, bigBackgroundSize/2));
-				dtMarker.setIcon(new ExternalResource(getDTIcon(cache, bigBackgroundSize)));
-				dtMarker.setVisible(false);
-				dtMarkers.put(cache.Id, dtMarker);
-				lgDT.addComponent(dtMarker);
+				dMarker.setIconSize(new Point((10.0/32*bigBackgroundSize), bigBackgroundSize));
+				dMarker.setIconAnchor(new Point((bigBackgroundSize + (10.0/32*bigBackgroundSize*2))/2, bigBackgroundSize/2));
+				dMarker.setIcon(new ExternalResource(getDTIcon(cache, bigBackgroundSize, (int)(cache.getDifficulty() * 2))));
+				dMarker.setVisible(false);
+				dMarkers.put(cache.Id, dMarker);
+				lgDT.addComponent(dMarker);
+				tMarker.setIconSize(new Point((10.0/32*bigBackgroundSize), bigBackgroundSize));
+				tMarker.setIconAnchor(new Point(-(bigBackgroundSize + (10.0/32*bigBackgroundSize*2))/2, bigBackgroundSize/2));
+				tMarker.setIcon(new ExternalResource(getDTIcon(cache, bigBackgroundSize, (int)(cache.getTerrain() * 2))));
+				tMarker.setVisible(false);
+				tMarkers.put(cache.Id, tMarker);
+				lgDT.addComponent(tMarker);
 				
 				marker.setIconSize(new Point(backgroundSize, backgroundSize));
 				marker.setIconAnchor(new Point(backgroundSize / 2, backgroundSize / 2));
@@ -200,8 +211,7 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				llg.addComponent(marker);
 				marker.addClickListener(cacheClickListener);
 				marker.setData(cache);
-				dtMarker.addClickListener(cacheClickListener);
-				dtMarker.setData(cache);
+				
 
 				
 			}
@@ -274,17 +284,22 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		for (int i = 0, n = cacheList.size(); i < n; i++) {
 			Cache cache = cacheList.get(i);
 			LMarker marker = null;
-			LMarker dtMarker = null;
+			LMarker dMarker = null;
+			LMarker tMarker = null;
 			try {
 				marker = markers.get(cache.Id);
-				dtMarker = dtMarkers.get(cache.Id);
+				dMarker = dMarkers.get(cache.Id);
+				tMarker = tMarkers.get(cache.Id);
 			} catch (Exception ex) {
 				continue; // TODO
 			}
 			if (marker == null) {
 				continue;
 			}
-			if (dtMarker == null) {
+			if (dMarker == null) {
+				continue;
+			}
+			if (tMarker == null) {
 				continue;
 			}
 			boolean visible = false;
@@ -317,7 +332,8 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 				marker.setLabel(null);
 			}
 			
-			dtMarker.setVisible(visible && (zoom > 14));
+			dMarker.setVisible(visible && (zoom > 14));
+			tMarker.setVisible(visible && (zoom > 14));
 			
 		}
 
@@ -398,13 +414,11 @@ public class MapView extends CB_ViewBase implements SelectedCacheChangedEventLis
 		return url + ".png";
 	}
 
-	private String getDTIcon(Cache cache, int iconSize) {
+	private String getDTIcon(Cache cache, int iconSize, int value) {
 		String url = host + "ics/";
 		url += "X";
 		url += "_D";
-		url += (int)Math.round(cache.getDifficulty() * 2);
-		url += "_T";
-		url += (int)Math.round(cache.getTerrain() * 2);
+		url += (int)Math.round(value);
 		url += "_S" + iconSize;
 		return url + ".png";
 	}
