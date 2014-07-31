@@ -9,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -40,11 +41,12 @@ public class IconServlet extends HttpServlet {
 
 	}
 
-	public void doGet___(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void doGet___(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {
 
 		String fileName = "/icons/32-0.png";
 		Image img = getImage(fileName);
-		//your image servlet code here
+		// your image servlet code here
 		resp.setContentType("image/png");
 		resp.setStatus(HttpServletResponse.SC_OK);
 
@@ -53,7 +55,8 @@ public class IconServlet extends HttpServlet {
 		Graphics2D graphics = (Graphics2D) image.getGraphics();
 		graphics.setColor(new java.awt.Color(1.0f, 1.0f, 1.0f, 0.75f));
 		graphics.fillRoundRect(0, 0, 32, 32, 5, 5);
-		graphics.drawImage(img, 0, 0, image.getWidth(), image.getHeight(), 0, 0, img.getWidth(null), img.getHeight(null), null);
+		graphics.drawImage(img, 0, 0, image.getWidth(), image.getHeight(), 0,
+				0, img.getWidth(null), img.getHeight(null), null);
 		graphics.dispose();
 
 		if (ImageIO.write(image, "png", resp.getOutputStream()))
@@ -62,177 +65,204 @@ public class IconServlet extends HttpServlet {
 	}
 
 	@Override
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		ByteArrayOutputStream imgOutputStream = new ByteArrayOutputStream();
-		byte[] captchaBytes = null; // imageBytes
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		synchronized (this) {
+			ByteArrayOutputStream imgOutputStream = new ByteArrayOutputStream();
+			byte[] captchaBytes = null; // imageBytes
 
-		try {
 			String sQuery = request.getPathInfo().substring(1);
-			int pos = sQuery.indexOf(".");
-			if (pos > 0)
-				sQuery = sQuery.substring(0, pos);
-			String[] query = sQuery.split("_");
+			try {
+				int pos = sQuery.indexOf(".");
+				if (pos > 0)
+					sQuery = sQuery.substring(0, pos);
+				String[] query = sQuery.split("_");
 
-			boolean diffTerr = false;
-			boolean cache = true;
-			int cacheType = 0;
-			boolean deactivated = false;
-			boolean archived = false;
-			boolean owner = false;
-			boolean found = false;
-			boolean solved = false;
-			boolean hasStart = false;
-			boolean selected = false;
-			int difficulty = 0;
-			int terrain = 0;
-			int size = 0;
-			int background = 0;
-			for (int i = 0; i < query.length; i++) {
-				switch (query[i].charAt(0)) {
-				case 'C': // Cache
-				case 'W': // Waypoint
-					if (query[i].charAt(0) == 'W')
-						cache = false;
-					cacheType = Integer.parseInt(query[i].substring(1, 3));
-					deactivated = query[i].contains("D");
-					archived = query[i].contains("A");
-					found = query[i].contains("F");
-					owner = query[i].contains("O");
-					solved = query[i].contains("S");
-					hasStart = query[i].contains("T");
-					selected = query[i].contains("L");
-					break;
-				case 'D': // Difficulty
-					difficulty = Integer.parseInt(query[i].substring(1));
-					break;
-				case 'T': // Terrain
-					terrain = Integer.parseInt(query[i].substring(1));
-					break;
-				case 'B': // Background size
-					background = Integer.parseInt(query[i].substring(1));
-					break;
-				case 'S': // Image size 
-					size = Integer.parseInt(query[i].substring(1));
-					break;
-				case 'X': // Difficulty/Terrain
-					diffTerr = true;
-					break;
+				boolean diffTerr = false;
+				boolean cache = true;
+				int cacheType = 0;
+				boolean deactivated = false;
+				boolean archived = false;
+				boolean owner = false;
+				boolean found = false;
+				boolean solved = false;
+				boolean hasStart = false;
+				boolean selected = false;
+				int difficulty = 0;
+				int terrain = 0;
+				int size = 0;
+				int background = 0;
+				for (int i = 0; i < query.length; i++) {
+					switch (query[i].charAt(0)) {
+					case 'C': // Cache
+					case 'W': // Waypoint
+						if (query[i].charAt(0) == 'W')
+							cache = false;
+						cacheType = Integer.parseInt(query[i].substring(1, 3));
+						deactivated = query[i].contains("D");
+						archived = query[i].contains("A");
+						found = query[i].contains("F");
+						owner = query[i].contains("O");
+						solved = query[i].contains("S");
+						hasStart = query[i].contains("T");
+						selected = query[i].contains("L");
+						break;
+					case 'D': // Difficulty
+						difficulty = Integer.parseInt(query[i].substring(1));
+						break;
+					case 'T': // Terrain
+						terrain = Integer.parseInt(query[i].substring(1));
+						break;
+					case 'B': // Background size
+						background = Integer.parseInt(query[i].substring(1));
+						break;
+					case 'S': // Image size
+						size = Integer.parseInt(query[i].substring(1));
+						break;
+					case 'X': // Difficulty/Terrain
+						diffTerr = true;
+						break;
+					}
 				}
-			}
-			if (background <= size) {
-				// background wird == size übergeben. Wenn background nicht > size ist -> keinen Hintergrund
-				background = 0;
-			}
+				if (background <= size) {
+					// background wird == size übergeben. Wenn background nicht
+					// > size ist -> keinen Hintergrund
+					background = 0;
+				}
 
-			String prefix = "32-"; // Prefix für die Icon-Dateien
-			if (size <= 15)
-				prefix = "15-";
-			String postfix = "";
-			if (solved)
-				postfix = "S";
-			String fileName = "/icons/" + prefix + cacheType + postfix + ".png";
-			if (found) {
-				fileName = "/icons/" + prefix + "Found.png";
+				String prefix = "32-"; // Prefix für die Icon-Dateien
+				if (size <= 15)
+					prefix = "15-";
+				String postfix = "";
+				if (solved)
+					postfix = "S";
+				String fileName = "/icons/" + prefix + cacheType + postfix
+						+ ".png";
+				if (found) {
+					fileName = "/icons/" + prefix + "Found.png";
+				}
+
+				response.setContentType("image/png");
+				response.setStatus(HttpServletResponse.SC_OK);
+				// response.setHeader("expires",
+				// "Thu, 01 Dec 2099 00:00:00 GMT");
+
+				Image img = null;
+				Image img2 = null;
+
+				BufferedImage image = null;
+
+				if (diffTerr) {
+					String id = String.valueOf((int) (difficulty / 2));
+					if (difficulty % 2 > 0) {
+						id += "-5";
+					}
+					String id2 = String.valueOf((int) (terrain / 2));
+					if (terrain % 2 > 0) {
+						id2 += "-5";
+					}
+					img = getImage("/icons/stars" + id + "small.png");
+
+					int starHeight = img.getWidth(null);
+					int starWidth = Math
+							.round((float) (img.getHeight(null) * size)
+									/ starHeight);
+					background = size + 2 * starWidth;
+					image = new BufferedImage(starWidth, size,
+							BufferedImage.TYPE_INT_ARGB);
+					Graphics2D graphics = (Graphics2D) image.getGraphics();
+					graphics.setColor(new java.awt.Color(1.0f, 1.0f, 1.0f, 0.5f));
+					graphics.fillRoundRect(0, 0, starWidth + 2, starHeight,
+							starWidth / 2, starWidth / 2);
+					// graphics.fillRoundRect(background - 2 - starWidth, 0,
+					// background, starHeight, starWidth / 2, starWidth / 2);
+					int dx = -size;
+					int dy = 1;
+					graphics.rotate(-Math.PI / 2);
+					graphics.drawImage(img, dx, dy, dx + size - 1, dy
+							+ starWidth, 0, 0, img.getWidth(null),
+							img.getHeight(null), null);
+					dy += size + starWidth - 2;
+					// graphics.drawImage(img2, dx, dy, dx + size - 1, dy +
+					// starWidth, 0, 0, img.getWidth(null), img.getHeight(null),
+					// null);
+					graphics.dispose();
+				} else {
+					if (background > 0) {
+						if (selected) {
+							img = getImage("/icons/shaddowrect-selected.png");
+						} else {
+							img = getImage("/icons/shaddowrect.png");
+						}
+						img2 = getImage(fileName);
+					} else {
+						background = size;
+						img = getImage(fileName);
+					}
+
+					image = new BufferedImage(background, background,
+							BufferedImage.TYPE_INT_ARGB);
+					Graphics2D graphics = (Graphics2D) image.getGraphics();
+
+					graphics.drawImage(img, 0, 0, image.getWidth(),
+							image.getHeight(), 0, 0, img.getWidth(null),
+							img.getHeight(null), null);
+					if (img2 != null) {
+						int dx = (background - size) / 2;
+						int dy = (background - size) / 2;
+						graphics.drawImage(img2, dx, dy, dx + size, dx + size,
+								0, 0, img2.getWidth(null),
+								img2.getHeight(null), null);
+					}
+					if (deactivated || archived) {
+						// Roter durchstreichen
+						int rand = 5;
+						int width = 4;
+						if (background <= 16) {
+							rand = 2;
+							width = 2;
+						}
+						graphics.setStroke(new BasicStroke(width,
+								BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND));
+						graphics.setColor(java.awt.Color.red);
+						graphics.drawLine(rand, rand, background - rand - 1,
+								background - rand - 1);
+					}
+					graphics.dispose();
+				}
+				try {
+					// ImageIO.write(image, "png", response.getOutputStream());
+					// response.getOutputStream().close();
+					ImageIO.write(image, "png", imgOutputStream);
+					captchaBytes = imgOutputStream.toByteArray();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
+			// response.setHeader("Cache-Control", "no-store");
+			// response.setHeader("Pragma", "no-cache");
+
+			response.setDateHeader("Expires", 0);
 
 			response.setContentType("image/png");
-			response.setStatus(HttpServletResponse.SC_OK);
-//			response.setHeader("expires", "Thu, 01 Dec 2099 00:00:00 GMT");
 
-			Image img = null;
-			Image img2 = null;
-
-			BufferedImage image = null;
-
-			if (diffTerr) {
-				String id = String.valueOf((int) (difficulty / 2));
-				if (difficulty % 2 > 0) {
-					id += "-5";
-				}
-				String id2 = String.valueOf((int) (terrain / 2));
-				if (terrain % 2 > 0) {
-					id2 += "-5";
-				}
-				img = getImage("/icons/stars" + id + "small.png");
-				
-				int starHeight = img.getWidth(null);
-				int starWidth = Math.round((float)(img.getHeight(null) * size) / starHeight);
-				background = size + 2 * starWidth;
-				image = new BufferedImage(starWidth, size, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D graphics = (Graphics2D) image.getGraphics();
-				graphics.setColor(new java.awt.Color(1.0f, 1.0f, 1.0f, 0.5f));
-				graphics.fillRoundRect(0, 0, starWidth + 2, starHeight, starWidth / 2, starWidth / 2);
-			//	graphics.fillRoundRect(background - 2 - starWidth, 0, background, starHeight, starWidth / 2, starWidth / 2);
-				int dx = -size;
-				int dy = 1;
-				graphics.rotate(-Math.PI / 2);
-				graphics.drawImage(img, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
-				dy += size + starWidth - 2;
-		//		graphics.drawImage(img2, dx, dy, dx + size - 1, dy + starWidth, 0, 0, img.getWidth(null), img.getHeight(null), null);
-				graphics.dispose();
-			} else {
-				if (background > 0) {
-					if (selected) {
-						img = getImage("/icons/shaddowrect-selected.png");
-					} else {
-						img = getImage("/icons/shaddowrect.png");
-					}
-					img2 = getImage(fileName);
-				} else {
-					background = size;
-					img = getImage(fileName);
-				}
-
-				image = new BufferedImage(background, background, BufferedImage.TYPE_INT_ARGB);
-				Graphics2D graphics = (Graphics2D) image.getGraphics();
-
-				graphics.drawImage(img, 0, 0, image.getWidth(), image.getHeight(), 0, 0, img.getWidth(null), img.getHeight(null), null);
-				if (img2 != null) {
-					int dx = (background - size) / 2;
-					int dy = (background - size) / 2;
-					graphics.drawImage(img2, dx, dy, dx + size, dx + size, 0, 0, img2.getWidth(null), img2.getHeight(null), null);
-				}
-				if (deactivated || archived) {
-					// Roter durchstreichen
-					int rand = 5;
-					int width = 4;
-					if (background <= 16) {
-						rand = 2;
-						width = 2;
-					}
-					graphics.setStroke(new BasicStroke(width, BasicStroke.CAP_ROUND, BasicStroke.CAP_ROUND));
-					graphics.setColor(java.awt.Color.red);
-					graphics.drawLine(rand, rand, background - rand - 1, background - rand - 1);
-				}
-				graphics.dispose();
-			}
-			try {
-//				ImageIO.write(image, "png", response.getOutputStream());
-//				response.getOutputStream().close();
-				 ImageIO.write(image, "png", imgOutputStream);
-	             captchaBytes = imgOutputStream.toByteArray();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (Exception ex) {
-			ex.printStackTrace();
+			// Write the image to the client.
+			ServletOutputStream outStream = response.getOutputStream();
+			outStream.write(captchaBytes);
+			outStream.flush();
+			outStream.close();
+			// FileOutputStream fs = new FileOutputStream(new File(sQuery +
+			// ".png"));
+			// fs.write(captchaBytes);
+			// fs.close();
 		}
- //       response.setHeader("Cache-Control", "no-store");
- //       response.setHeader("Pragma", "no-cache");
+	}
 
-        response.setDateHeader("Expires", 0);
-
-        response.setContentType("image/png");
-
-        // Write the image to the client.
-        ServletOutputStream outStream = response.getOutputStream();
-        outStream.write(captchaBytes);
-        outStream.flush();
-        outStream.close();	
-    }
-
-	protected void doGet_(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doGet_(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
 		String sQuery = request.getPathInfo();
 		String[] query = sQuery.split("/");
 		int size = Integer.parseInt(query[1]);
@@ -273,7 +303,8 @@ public class IconServlet extends HttpServlet {
 		ResourceBitmap bmp2 = null;
 		if (backgroundSize > 0) {
 			if (selected) {
-				is = getClass().getResourceAsStream("/icons/shaddowrect-selected.png");
+				is = getClass().getResourceAsStream(
+						"/icons/shaddowrect-selected.png");
 			} else {
 				is = getClass().getResourceAsStream("/icons/shaddowrect.png");
 			}
@@ -286,16 +317,20 @@ public class IconServlet extends HttpServlet {
 			backgroundSize = size;
 		}
 
-		TileBitmap bitmap = AwtGraphicFactory.INSTANCE.createTileBitmap(backgroundSize, true);
+		TileBitmap bitmap = AwtGraphicFactory.INSTANCE.createTileBitmap(
+				backgroundSize, true);
 		Canvas canvas = AwtGraphicFactory.INSTANCE.createCanvas();
 		canvas.setBitmap(bitmap);
 		Matrix matrix = AwtGraphicFactory.INSTANCE.createMatrix();
-		matrix.scale((float) backgroundSize / (float) bmp.getWidth(), (float) backgroundSize / (float) bmp.getHeight());
+		matrix.scale((float) backgroundSize / (float) bmp.getWidth(),
+				(float) backgroundSize / (float) bmp.getHeight());
 		canvas.drawBitmap(bmp, matrix);
 		if (bmp2 != null) {
 			matrix = AwtGraphicFactory.INSTANCE.createMatrix();
-			matrix.translate((backgroundSize - size) / 2, (backgroundSize - size) / 2);
-			matrix.scale((float) size / (float) bmp2.getWidth(), (float) size / (float) bmp2.getHeight());
+			matrix.translate((backgroundSize - size) / 2,
+					(backgroundSize - size) / 2);
+			matrix.scale((float) size / (float) bmp2.getWidth(), (float) size
+					/ (float) bmp2.getHeight());
 			canvas.drawBitmap(bmp2, matrix);
 		}
 		if (deactivated) {
@@ -316,9 +351,15 @@ public class IconServlet extends HttpServlet {
 	}
 
 	public Image getImage(String name) {
-		URL url = this.getClass().getResource(name);
-		//URL url = Resources.class.getResource(name);
-		return Toolkit.getDefaultToolkit().getImage(url);
+		try {
+			URL url = this.getClass().getResource(name);
+			// URL url = Resources.class.getResource(name);
+			// return Toolkit.getDefaultToolkit().getImage(url);
+			return ImageIO.read(IconServlet.class.getResource(name));
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return null;
+		}
 	}
 
 }
