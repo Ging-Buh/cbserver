@@ -39,7 +39,6 @@
 	<classpathentry kind="lib" path="lib/org.apache.taglibs.standard.glassfish-1.2.0.v201112081803.jar"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.jdt.core-3.7.1.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-2.5.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.8-20111025.014814-1.jar"/>
 	<classpathentry kind="lib" path="lib/kxml2-2.3.0.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-9.3-1101.jdbc4.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-1.0.0.jar"/>
@@ -47,6 +46,7 @@
 	<classpathentry kind="lib" path="lib/gdx-freetype-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-freetype-platform-1.0.0-natives-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-platform-1.0.0-natives-desktop.jar"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.15-SNAPSHOT-2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Rpc"/>
