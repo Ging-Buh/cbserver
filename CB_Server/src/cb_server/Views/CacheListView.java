@@ -6,6 +6,8 @@ import java.util.HashMap;
 
 import CB_Core.DB.Database;
 import CB_Core.Enums.CacheTypes;
+import CB_Core.Events.CachListChangedEventList;
+import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
 import CB_Core.Types.CacheList;
 import CB_Core.Types.Cache;
@@ -34,7 +36,7 @@ import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
 import com.vaadin.ui.VerticalLayout;
 
-public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEventListner, SessionDestroyListener {
+public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEventListner {
 
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
@@ -98,11 +100,8 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 					
 				});
 		*/
-		SelectedCacheChangedEventList.Add(this);
-
 	}
 
-	
 	private String getCacheIcon(Cache cache, int iconSize, int backgroundSize, boolean selected, boolean showDT) {
 		String url = host + "ics/";
 		url += "C";
@@ -133,30 +132,36 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 	}
 
 	@Override
-	public void cacheListChanged(CacheList cacheList) {
-		super.cacheListChanged(cacheList);
+	public void cacheListChanged() {
+		super.cacheListChanged();
 		log.debug("Remove all Beans");
 		beans.removeAllItems();
 		cacheBeans.clear();
 		log.debug("Add new Beans for new CacheList");
 		try {
-			table.getUI().getSession().lock();
+			if (table.getUI() != null) {
+				table.getUI().getSession().lock();
+			}
 			try {
-				for (int i = 0, n = cacheList.size(); i < n; i++) {
-					Cache cache = cacheList.get(i);
+				for (int i = 0, n = Database.Data.Query.size(); i < n; i++) {
+					Cache cache = Database.Data.Query.get(i);
 					CacheBean bean = new CacheBean(cache);
 					cacheBeans.put(cache.Id, bean);
 					BeanItem<CacheBean> item = beans.addBean(bean);
-					table.setItemIcon(item, new ExternalResource(getCacheIcon(cacheList.get(i), 16, 0, false, false) + ".png"));
+					table.setItemIcon(item, new ExternalResource(getCacheIcon(Database.Data.Query.get(i), 16, 0, false, false) + ".png"));
 				}
 			} finally {
-				table.getUI().getSession().unlock();
+				if (table.getUI() != null) {
+					table.getUI().getSession().unlock();
+				}
 			}
 			table.setVisibleColumns(new Object[] { "icon", "GCCode", "name", "state", "country" });
 		} catch (Exception ex) {
 			System.out.println("lskjdl");
 		}
-		getUI().push();
+		if (getUI() != null) {
+			getUI().push();
+		}
 	}
 
 	class DescriptionColumnGenerator implements Table.ColumnGenerator {
@@ -267,9 +272,4 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		}
 	}
 
-	@Override
-	public void sessionDestroy(SessionDestroyEvent event) {
-		SelectedCacheChangedEventList.Remove(this);
-		
-	}
 }

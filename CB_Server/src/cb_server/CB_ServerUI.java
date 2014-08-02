@@ -16,6 +16,8 @@ import org.vaadin.addon.leaflet.LMap;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
+import CB_Core.Events.CachListChangedEventList;
+import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.CacheList;
 import CB_Utils.Events.ProgresssChangedEventList;
@@ -45,12 +47,15 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
+import com.vaadin.ui.Window.CloseEvent;
+import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
+import com.vaadin.ui.Window;
 
 import de.steinwedel.messagebox.ButtonId;
 import de.steinwedel.messagebox.Icon;
@@ -58,9 +63,9 @@ import de.steinwedel.messagebox.MessageBox;
 
 @SuppressWarnings("serial")
 @Theme("cb_server")
-@PreserveOnRefresh
-@Push
-public class CB_ServerUI extends UI implements DetachListener {
+//@PreserveOnRefresh
+//@Push
+public class CB_ServerUI extends UI implements DetachListener  {
 	private Logger log;
 	private final MyExecutor executor = new MyExecutor();
 	private CacheList cacheList = new CacheList();
@@ -71,6 +76,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 	@Override
 	protected void init(VaadinRequest request) {
 		addDetachListener(this);
+		
 		
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
@@ -175,7 +181,6 @@ public class CB_ServerUI extends UI implements DetachListener {
 //		views.add(wpv);
 		views.add(lv);
 		views.add(sv);
-		getSession().getService().addSessionDestroyListener(clv);
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
 		this.setContent(vl);
@@ -266,12 +271,12 @@ public class CB_ServerUI extends UI implements DetachListener {
 			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 			
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(cacheList, sqlWhere, true, false);
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
 			log.debug("CacheList loaded!");
-			for (CB_ViewBase view : views) {
-				view.cacheListChanged(cacheList);
-			}
-			
+//			for (CB_ViewBase view : views) {
+//				view.cacheListChanged(cacheList);
+//			}
+			CachListChangedEventList.Call();
 		}
 		
 	}
@@ -279,7 +284,15 @@ public class CB_ServerUI extends UI implements DetachListener {
 
 	@Override
 	public void detach(DetachEvent event) {
-		SelectedCacheChangedEventList.Remove(clv);
+		for (CB_ViewBase view : views) {
+			view.removeFromListener();
+		}
+	}
+
+	@Override
+	public boolean removeWindow(Window window) {
+		System.out.println("Close");
+		return super.removeWindow(window);
 	}
 }
 

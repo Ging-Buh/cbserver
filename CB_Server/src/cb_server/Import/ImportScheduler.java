@@ -11,13 +11,17 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import CB_Core.FilterProperties;
 import CB_Core.Api.ApiGroundspeak_GetPocketQueryData;
 import CB_Core.Api.GroundspeakAPI;
 import CB_Core.Api.PocketQuery;
 import CB_Core.Api.PocketQuery.PQ;
+import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.PocketqueryDAO;
 import CB_Core.DB.Database;
+import CB_Core.Events.CachListChangedEventList;
 import CB_Core.Import.Importer;
+import CB_Core.Settings.CB_Core_Settings;
 import CB_Utils.Util.FileIO;
 import cb_server.CacheboxServer;
 import cb_server.Config;
@@ -234,7 +238,15 @@ public class ImportScheduler implements Runnable {
 		log.info("Import finished");
 		ip.ProgressInkrement("importImages", "Importing Images finished", true);
 		// Refresh Cache List
+		log.info("Load CacheList!");
+		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 		
+		CacheListDAO cacheListDAO = new CacheListDAO();
+		cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
+		CachListChangedEventList.Call();
+		log.debug("CacheList loaded!");
+
 		
 		if (stopAfterImport) {
 			stop();
