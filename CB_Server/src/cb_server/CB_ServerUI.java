@@ -63,8 +63,8 @@ import de.steinwedel.messagebox.MessageBox;
 
 @SuppressWarnings("serial")
 @Theme("cb_server")
-//@PreserveOnRefresh
-//@Push
+@PreserveOnRefresh
+@Push
 public class CB_ServerUI extends UI implements DetachListener  {
 	private Logger log;
 	private final MyExecutor executor = new MyExecutor();
