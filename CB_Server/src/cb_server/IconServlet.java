@@ -30,7 +30,6 @@ import org.mapsforge.core.graphics.ResourceBitmap;
 import org.mapsforge.core.graphics.Style;
 import org.mapsforge.core.graphics.TileBitmap;
 import org.mapsforge.map.awt.AwtGraphicFactory;
-import org.mortbay.log.Log;
 
 import CB_Core.Enums.CacheTypes;
 

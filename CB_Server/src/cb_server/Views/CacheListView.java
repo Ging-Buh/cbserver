@@ -162,6 +162,7 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		if (getUI() != null) {
 			getUI().push();
 		}
+		log.debug("Finished add Beans");
 	}
 
 	class DescriptionColumnGenerator implements Table.ColumnGenerator {

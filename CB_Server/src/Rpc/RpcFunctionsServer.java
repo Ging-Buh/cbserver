@@ -1,11 +1,8 @@
 package Rpc;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
-import CB_Core.DAO.CacheDAO;
 import CB_Core.DAO.CacheListDAO;
-import CB_Core.DAO.LogDAO;
 import CB_Core.DAO.WaypointDAO;
 import CB_Core.DB.Database;
 import CB_Core.Settings.CB_Core_Settings;
@@ -16,7 +13,6 @@ import CB_Core.Types.ImageEntry;
 import CB_Core.Types.LogEntry;
 import CB_RpcCore.Functions.RpcAnswer_ExportChangesToServer;
 import CB_RpcCore.Functions.RpcAnswer_GetCacheList;
-import CB_RpcCore.Functions.RpcAnswer_GetExportList;
 import CB_RpcCore.Functions.RpcMessage_ExportChangesToServer;
 import CB_RpcCore.Functions.RpcMessage_GetCacheList;
 import CB_RpcCore.Functions.RpcMessage_GetExportList;
@@ -53,7 +49,7 @@ public class RpcFunctionsServer {
 			RpcMessage_GetCacheList msg = (RpcMessage_GetCacheList) message;
 			
 			CacheList loadedCacheList = null;
-			if (msg.getStartIndex() == 0) {
+//xx			if (msg.getStartIndex() == 0) {
 				// erster Aufruf -> CachListe erzeugen und aus DB laden
 				if (loadedCacheLists.containsKey(msg.getCategoryId())) {
 					// bereits vorhandene CacheList entfernen damit diese neu geladen werden kann
@@ -62,31 +58,32 @@ public class RpcFunctionsServer {
 				loadedCacheList = new CacheList();
 				String joinString = "INNER JOIN GPXFilenames gpx on GpxFilename_Id=gpx.Id";
 				String whereString = "gpx.CategoryId=" + msg.getCategoryId();
+				whereString += " order by c.Id limit " + String.valueOf(msg.getCount()) + " offset " + String.valueOf(msg.getStartIndex());
 				CacheListDAO dao = new CacheListDAO();
 				dao.ReadCacheList(loadedCacheList, joinString, whereString, true, true, false);
 				// geladene CacheList zur Liste der gespeicherten CacheLists hinzufügen
 				loadedCacheLists.put(msg.getCategoryId(), loadedCacheList);
-			} else {
+//xx			} else {
 				// CacheList müsste bereits geladen sein -> nur noch daraus die entsprechenden Caches übertragen
-				if (loadedCacheLists.containsKey(msg.getCategoryId())) {
-					loadedCacheList = loadedCacheLists.get(msg.getCategoryId());
-				}
-			}
+//xx				if (loadedCacheLists.containsKey(msg.getCategoryId())) {
+//xx					loadedCacheList = loadedCacheLists.get(msg.getCategoryId());
+//xx				}
+//xx			}
 			if (loadedCacheList != null) {
-				CacheList cacheList = new CacheList();
+//				CacheList cacheList = new CacheList();
 
 				int start = msg.getStartIndex();
 				int count = msg.getCount();
 				boolean dataAvailable = start + count < loadedCacheList.size() - 1;
-				for (int i = start; i < start + count; i++) {
-					if (i >= loadedCacheList.size()) {
-						break;	// keine weiteren Daten
-					}
-					
-					Cache cache = loadedCacheList.get(i);
-					cacheList.add(cache);
-				}
-				
+//				for (int i = start; i < start + count; i++) {
+//					if (i >= loadedCacheList.size()) {
+//						break;	// keine weiteren Daten
+//					}
+//					
+//					Cache cache = loadedCacheList.get(i);
+//					cacheList.add(cache);
+//				}
+				CacheList cacheList = loadedCacheList;
 				RpcAnswer_GetCacheList answer = new RpcAnswer_GetCacheList(0);
 				
 				for (int i=0, n=cacheList.size();i<n;i++){
@@ -122,7 +119,7 @@ public class RpcFunctionsServer {
 					}
 				}
 				answer.setCacheList(cacheList);
-				answer.setDataAvailable(dataAvailable);
+				answer.setDataAvailable(cacheList.size() > 0);
 				return answer;
 			} else {
 				// Fehler, keine CacheList geladen
