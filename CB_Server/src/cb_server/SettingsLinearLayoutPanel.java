@@ -13,34 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package cb_server;
 
-import CB_Core.Settings.CB_Core_Settings;
-import CB_Utils.Config_Core;
+import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
+/**
+ * Linear Layout Panel for Category's at Settings Window
+ * @author Longri
+ *
+ */
+public class SettingsLinearLayoutPanel extends Panel {
 
+	private static final long serialVersionUID = 1L;
 
-public class Config extends Config_Core implements CB_Core_Settings {
-	
-	public Config(String workPath) {
-		super(workPath);
-			}
+	public SettingsLinearLayoutPanel() {
 
-	public static SettingsClass settings;
-
-	public static void Initialize(String workPath)
-	{
-		WorkPath = workPath;
-		settings = new SettingsClass();
-		
 	}
 
-	@Override
-	protected void acceptChanges() {
-		// TODO Auto-generated method stub
-		
+	public void setContent(VerticalLayout layout, float height) {
+		this.setHeight(height, Unit.PIXELS);
+		this.setContent(layout);
 	}
-
-	
 
 }

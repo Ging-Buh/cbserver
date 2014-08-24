@@ -1,6 +1,20 @@
+/* 
+ * Copyright (C) 2011-2014 team-cachebox.de
+ *
+ * Licensed under the : GNU General Public License (GPL);
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.gnu.org/licenses/gpl.html
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package cb_server;
 
-import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -22,11 +36,10 @@ import CB_Utils.Settings.SettingFolder;
 import CB_Utils.Settings.SettingInt;
 import CB_Utils.Settings.SettingIntArray;
 import CB_Utils.Settings.SettingModus;
-import CB_Utils.Settings.SettingStoreType;
-
 import CB_Utils.Settings.SettingString;
 import CB_Utils.Settings.SettingStringArray;
 import CB_Utils.Settings.SettingTime;
+import CB_Utils.Settings.SettingUsage;
 import CB_Utils.Settings.SettingsAudio;
 
 import com.vaadin.event.FieldEvents.TextChangeEvent;
@@ -36,9 +49,8 @@ import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Label;
+import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
-import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -58,14 +70,14 @@ public class SettingsWindow extends Window {
 
 	private ArrayList<SettingCategory> Categorys;
 
-	private VerticalLayout content;
+	private final VerticalLayout content;
 	private VerticalLayout Settingscontent;
 
 	private SettingsWindow() {
 
 		super("Server Settings"); // Set window caption
 
-		this.setWidth(30, Unit.PERCENTAGE);
+		this.setWidth(50, Unit.PERCENTAGE);
 		this.setHeight(80, Unit.PERCENTAGE);
 
 		center();
@@ -129,6 +141,7 @@ public class SettingsWindow extends Window {
 		content.addComponent(Settingscontent);
 
 		InetAddress addr;
+		QRCode code = null;
 		try {
 			addr = InetAddress.getLocalHost();
 
@@ -139,10 +152,13 @@ public class SettingsWindow extends Window {
 			ipAddress = "";
 			// Network Interfaces nach IPv4 Adressen durchsuchen
 			try {
-				Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+				Enumeration<NetworkInterface> nets = NetworkInterface
+						.getNetworkInterfaces();
 				for (NetworkInterface netint : Collections.list(nets)) {
-					Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
-					for (InetAddress inetAddress : Collections.list(inetAddresses)) {
+					Enumeration<InetAddress> inetAddresses = netint
+							.getInetAddresses();
+					for (InetAddress inetAddress : Collections
+							.list(inetAddresses)) {
 						if (inetAddress.isLoopbackAddress())
 							continue;
 						if (inetAddress instanceof Inet4Address) {
@@ -160,17 +176,28 @@ public class SettingsWindow extends Window {
 				e.printStackTrace();
 			}
 
-			QRCode code = new QRCode();
+			code = new QRCode();
 			code.setWidth(150, Unit.PIXELS);
 			code.setHeight(150, Unit.PIXELS);
 			code.setValue(ipAddress);
-
-			Settingscontent.addComponent(code);
 
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		TabSheet tabSheet = new TabSheet();
+		tabSheet.setWidth(100, Unit.PERCENTAGE);
+		tabSheet.setHeight(100, Unit.PERCENTAGE);
+		content.addComponent(tabSheet);
+
+		VerticalLayout lay = new VerticalLayout();
+		lay.addComponent(code);
+		SettingsLinearLayoutPanel info = new SettingsLinearLayoutPanel();
+
+		info.setContent(lay, 400);
+
+		tabSheet.addTab(info, "Info");
 
 		// Categorie List zusammen stellen
 
@@ -192,9 +219,15 @@ public class SettingsWindow extends Window {
 
 			ArrayList<SettingBase<?>> SortedSettingList = new ArrayList<SettingBase<?>>();
 
-			for (Iterator<SettingBase<?>> it = Config.settings.iterator(); it.hasNext();) {
+			for (Iterator<SettingBase<?>> it = Config.settings.iterator(); it
+					.hasNext();) {
 				SettingBase<?> setting = it.next();
-				SortedSettingList.add(setting);
+
+				if (setting.getModus() != SettingModus.Never
+						&& (setting.getUsage() == SettingUsage.ALL || setting
+								.getUsage() == SettingUsage.CBS)) {
+					SortedSettingList.add(setting);
+				}
 			}
 
 			do {
@@ -204,22 +237,20 @@ public class SettingsWindow extends Window {
 
 				// add Cat einträge
 
-				VerticalLayout lay = new VerticalLayout();
+				lay = new VerticalLayout();
 				int entryCount = 0;
 
 				// int layoutHeight = 0;
-				for (Iterator<SettingBase<?>> it = SortedSettingList.iterator(); it.hasNext();) {
+				for (Iterator<SettingBase<?>> it = SortedSettingList.iterator(); it
+						.hasNext();) {
 					SettingBase<?> settingItem = it.next();
 					if (settingItem.getCategory().name().equals(cat.name())) {
-						// item nur zur Liste Hinzufügen, wenn der
-						// SettingModus
-						// dies auch zu lässt.
-						//								if (settingItem.getModus() != SettingModus.develop || GlobalCore.isDevelop())
-						//								{
 
-						if ((settingItem.getModus() == SettingModus.Normal) && (settingItem.getModus() != SettingModus.Never)) {
+						if ((settingItem.getModus() == SettingModus.Normal)
+								&& (settingItem.getModus() != SettingModus.Never)) {
 
-							final Component view = getView(settingItem, position++);
+							final Component view = getView(settingItem,
+									position++);
 
 							if (view == null)
 								continue;
@@ -229,13 +260,19 @@ public class SettingsWindow extends Window {
 							Config.settings.indexOf(settingItem);
 
 						}
-						//								}
+
 					}
 				}
 
 				if (entryCount > 0) {
 
-					addControlToLinearLayout(lay, 100);
+					SettingsLinearLayoutPanel catPanel = new SettingsLinearLayoutPanel();
+
+					catPanel.setContent(lay, 400);
+
+					tabSheet.addTab(catPanel, cat.name());
+
+					//					addControlToLinearLayout(lay, 100);
 
 				}
 
@@ -255,7 +292,8 @@ public class SettingsWindow extends Window {
 		} else if (SB instanceof SettingIntArray) {
 			return getIntArrayView((SettingIntArray) SB, BackgroundChanger);
 		} else if (SB instanceof SettingStringArray) {
-			return getStringArrayView((SettingStringArray) SB, BackgroundChanger);
+			return getStringArrayView((SettingStringArray) SB,
+					BackgroundChanger);
 		} else if (SB instanceof SettingTime) {
 			return getTimeView((SettingTime) SB, BackgroundChanger);
 		} else if (SB instanceof SettingInt) {
@@ -288,9 +326,11 @@ public class SettingsWindow extends Window {
 		return box;
 	}
 
-	private Component getStringView(final SettingString sB, int backgroundChanger) {
+	private Component getStringView(final SettingString sB,
+			int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		com.vaadin.ui.TextField input = new TextField(sB.getName(),
+				String.valueOf(sB.getValue()));
 
 		input.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = -634498493292006581L;
@@ -352,7 +392,8 @@ public class SettingsWindow extends Window {
 
 	private Component getIntView(final SettingInt sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		com.vaadin.ui.TextField input = new TextField(sB.getName(),
+				String.valueOf(sB.getValue()));
 
 		input.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = -634498493292006581L;
@@ -378,7 +419,8 @@ public class SettingsWindow extends Window {
 		return box;
 	}
 
-	private Component getStringArrayView(SettingStringArray sB, int backgroundChanger) {
+	private Component getStringArrayView(SettingStringArray sB,
+			int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
 		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
 		label.setCaption(sB.getName());
