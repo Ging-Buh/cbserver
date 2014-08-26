@@ -34,67 +34,52 @@ import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.reader.MapDatabase;
 import org.mapsforge.map.rendertheme.ExternalRenderTheme;
 
+import CB_Locator.LocatorSettings;
+import CB_Utils.Util.iChanged;
 import de.Map.DesktopManager;
 
 public class MapServlet extends HttpServlet {
 	private static final long serialVersionUID = 2094731483963312861L;
 	private final DatabaseRenderer databaseRenderer;
-	private final File mapFile;
+	private File mapFile;
 	private ExternalRenderTheme renderTheme;
+	MapDatabase MF_mapDatabase;
 	private final DisplayModel model;
 	private static Object syncObject = new Object();
 
 	public MapServlet() {
 		model = new DisplayModel();
 		new DesktopManager(model);
+		MF_mapDatabase = new MapDatabase();
 
-		mapFile = new File(Config.WorkPath + "/repository/maps/germany.map");
-		File RenderThemeFile = new File(Config.WorkPath + "/repository/maps/osmarender/osmarender.xml");
+		setMapSetting();
+
+		CBS_Settings.CBS_Mapsforge_Map.addChangedEventListner(MapsettingChangedListner);
+		LocatorSettings.MapsforgeDayTheme.addChangedEventListner(MapsettingChangedListner);
+
+		GraphicFactory Mapsforge_Factory = AwtGraphicFactory.INSTANCE;
+		databaseRenderer = new DatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
+	}
+
+	iChanged MapsettingChangedListner = new iChanged() {
+
+		@Override
+		public void isChanged() {
+			setMapSetting();
+		}
+	};
+
+	private void setMapSetting() {
+		mapFile = new File(CBS_Settings.CBS_Mapsforge_Map.getValue());
+		File RenderThemeFile = new File(LocatorSettings.MapsforgeDayTheme.getValue());
 		renderTheme = null;
 		try {
 			renderTheme = new ExternalRenderTheme(RenderThemeFile);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-
-		MapDatabase MF_mapDatabase = new MapDatabase();
 		MF_mapDatabase.closeFile();
 		MF_mapDatabase.openFile(mapFile);
-
-		GraphicFactory Mapsforge_Factory = AwtGraphicFactory.INSTANCE;
-		databaseRenderer = new DatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
-		/*
-				Tile ti = new Tile(34986, 22738, (byte) 16);
-				RendererJob job = new RendererJob(ti, mapFile, renderTheme, model, 1, false);
-				TileBitmap tile = databaseRenderer.executeJob(job);
-
-				// Oder auf der Platte Speichern 
-				AwtTileBitmap bmp = (AwtTileBitmap) tile;
-			try {	
-				ByteArrayOutputStream os = new ByteArrayOutputStream();
-				
-					bmp.compress(os);
-				
-				
-				byte[] imageInByte = os.toByteArray();
-				
-				InputStream in = new ByteArrayInputStream(imageInByte);
-				BufferedImage bufferedImage = ImageIO.read(in);
-		
-
-				File outputfile = new File("./cachebox/repository/maps/testimage.jpg");
-				try {
-					ImageIO.write(bufferedImage, "jpg", outputfile);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			
-			*/
 	}
 
 	public MapServlet(String greeting) {

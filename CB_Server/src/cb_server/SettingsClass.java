@@ -19,47 +19,24 @@ import CB_Core.DB.Database;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_UI_Base.settings.CB_UI_Base_Settings;
 import CB_Utils.DB.Database_Core;
-import CB_Utils.Settings.SettingCategory;
-import CB_Utils.Settings.SettingInt;
-import CB_Utils.Settings.SettingModus;
-import CB_Utils.Settings.SettingStoreType;
-import CB_Utils.Settings.SettingString;
-import CB_Utils.Settings.SettingUsage;
 import CB_Utils.Settings.SettingsList;
 import CB_Utils.Util.iChanged;
 import cb_rpc.Settings.CB_Rpc_Settings;
 import cb_server.Import.ImportScheduler;
 
-public class SettingsClass extends SettingsList implements CB_Core_Settings,
-		CB_UI_Base_Settings, CB_Rpc_Settings {
+public class SettingsClass extends SettingsList implements CBS_Settings, CB_Core_Settings, CB_UI_Base_Settings, CB_Rpc_Settings {
 
 	private static final long serialVersionUID = 3368580647613308244L;
 
-	public SettingInt Port;
-	public SettingInt PQImportInterval; // in Hours
-	public SettingString PQImportNames; // PQ's to import automatically, ";" seperated
-
 	public SettingsClass() {
 		super();
-		SettingCategory cat = SettingCategory.Login;
 
-		Port = new SettingInt("Port", cat, SettingModus.Normal, 7765,
-				SettingStoreType.Global, SettingUsage.CBS);
-		PQImportInterval = new SettingInt("PQImportInterval (hours)",
-				SettingCategory.API, SettingModus.Normal, 0,
-				SettingStoreType.Global, SettingUsage.CBS);
 		PQImportInterval.addChangedEventListner(new iChanged() {
 			@Override
 			public void isChanged() {
 				ImportScheduler.importScheduler.start();
 			}
 		});
-		PQImportNames = new SettingString("PQImportNames", SettingCategory.API,
-				SettingModus.Normal, "", SettingStoreType.Local,
-				SettingUsage.CBS);
-		this.add(Port);
-		this.add(PQImportInterval);
-		this.add(PQImportNames);
 	}
 
 	@Override
