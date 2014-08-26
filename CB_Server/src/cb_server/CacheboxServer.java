@@ -35,9 +35,6 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import cb_rpc.Rpc_Server;
-import cb_server.DB.CBServerDB;
-import cb_server.Import.ImportScheduler;
 import CB_Core.CoreSettingsForward;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
@@ -45,14 +42,23 @@ import CB_Core.DB.Database;
 import CB_Core.DB.Database.DatabaseType;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Categories;
+import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Plattform;
 import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
+import cb_rpc.Rpc_Server;
+import cb_server.DB.CBServerDB;
+import cb_server.Import.ImportScheduler;
+
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 
 public class CacheboxServer {
 	public static Logger log;
 	private static Rpc_Server rpcServer;
 	private static Server server;
+	private static String lastLoadedTranslation;
 
 	public static void main(String[] args) throws Exception {
 
@@ -67,6 +73,7 @@ public class CacheboxServer {
 			//Schedule a job for the event-dispatching thread:
 			//creating and showing this application's GUI.
 			javax.swing.SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					createAndShowGUI();
 				}
@@ -122,17 +129,20 @@ public class CacheboxServer {
 		webappSpoiler.setParentLoaderPriority(true);
 
 		// Map
-		ServletContextHandler mapContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		ServletContextHandler mapContext = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
 		mapContext.setContextPath("/map");
 		mapContext.addServlet(new ServletHolder(new MapServlet()), "/*");
 
 		// Icons
-		ServletContextHandler iconsContext = new ServletContextHandler(ServletContextHandler.SESSIONS);
+		ServletContextHandler iconsContext = new ServletContextHandler(
+				ServletContextHandler.SESSIONS);
 		iconsContext.setContextPath("/ics");
 		iconsContext.addServlet(new ServletHolder(new IconServlet()), "/*");
 
 		ContextHandlerCollection contexts = new ContextHandlerCollection();
-		contexts.setHandlers(new Handler[] { webapp, webappImages, webappSpoiler, mapContext, iconsContext });
+		contexts.setHandlers(new Handler[] { webapp, webappImages,
+				webappSpoiler, mapContext, iconsContext });
 
 		server.setHandler(contexts);
 
@@ -193,7 +203,8 @@ public class CacheboxServer {
 
 	}
 
-	private static void CopyJarFolder(String destPath, String JarFolder) throws URISyntaxException, FileNotFoundException, IOException {
+	private static void CopyJarFolder(String destPath, String JarFolder)
+			throws URISyntaxException, FileNotFoundException, IOException {
 		File dir = new File(destPath);
 		dir.mkdirs();
 
@@ -206,8 +217,10 @@ public class CacheboxServer {
 		for (int i = 0; i < files.length; i++) {
 			if (listResource[i].isDirectory()) {
 				//Recursive call
-				String rcursiveJarFolder = JarFolder + "/" + listResource[i].getName();
-				String recursiveDestPath = destPath + "/" + listResource[i].getName();
+				String rcursiveJarFolder = JarFolder + "/"
+						+ listResource[i].getName();
+				String recursiveDestPath = destPath + "/"
+						+ listResource[i].getName();
 				CopyJarFolder(recursiveDestPath, rcursiveJarFolder);
 				continue;
 			}
@@ -245,15 +258,18 @@ public class CacheboxServer {
 
 	private static void InitialCacheDB() {
 		Database.Data.StartUp(Config.WorkPath + "/cachebox.db3");
-		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		FilterProperties lastFilter = new FilterProperties(
+				FilterProperties.presets[0].toString());
 
-		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
+		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin
+				.getValue());
 		CoreSettingsForward.Categories = new Categories();
 		Database.Data.GPXFilenameUpdateCacheCount();
 
 		synchronized (Database.Data.Query) {
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, false, false);
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, false,
+					false);
 		}
 
 	}
@@ -301,6 +317,32 @@ public class CacheboxServer {
 		if (!FileIO.createDirectory(Config.WorkPath + "/User"))
 			return;
 		Database.FieldNotes.StartUp(Config.WorkPath + "/User/FieldNotes.db3");
+
+		InitialTranslations(SettingsClass.Sel_LanguagePath.getValue());
+
+	}
+
+	public static void InitialTranslations(String lang) {
+
+		//		Initial GDX.File
+
+		Gdx.files = new LwjglFiles();
+
+		if (Translation.that != null) {
+			if (lastLoadedTranslation.equals(lang))
+				return;
+		}
+
+		lastLoadedTranslation = lang;
+
+		new Translation(Config.WorkPath, FileType.Classpath);
+		try {
+			Translation.LoadTranslation(lang);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 	}
 
 	// UI
@@ -324,7 +366,8 @@ public class CacheboxServer {
 
 		if (SystemTray.isSupported()) {
 			final PopupMenu popup = new PopupMenu();
-			final TrayIcon trayIcon = new TrayIcon(createImage("/images/bulb.gif", "tray icon"));
+			final TrayIcon trayIcon = new TrayIcon(createImage(
+					"/images/bulb.gif", "tray icon"));
 			final SystemTray tray = SystemTray.getSystemTray();
 
 			// Create a pop-up menu components

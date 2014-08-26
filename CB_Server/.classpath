@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="assets"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.web.container"/>
 	<classpathentry kind="con" path="org.eclipse.jst.j2ee.internal.module.container"/>
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=CB_Server&amp;ivyXmlPath=ivy.xml&amp;confs=default&amp;ivySettingsPath=%24%7Bworkspace_loc%3ACB_Server%2Fivysettings.xml%7D&amp;loadSettingsOnDemand=false&amp;propertyFiles=">
@@ -59,5 +60,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_UI_Base"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Desktop"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_mapsforge"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/CB_Translation_Base"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

@@ -15,6 +15,7 @@
  */
 package cb_server;
 
+import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -25,6 +26,8 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import CB_Translation_Base.TranslationEngine.Lang;
+import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Settings.SettingBase;
 import CB_Utils.Settings.SettingBool;
 import CB_Utils.Settings.SettingCategory;
@@ -47,6 +50,7 @@ import com.vaadin.event.FieldEvents.TextChangeListener;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
+import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
@@ -61,7 +65,7 @@ public class SettingsWindow extends Window {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	private ComboBox langSpinner = new ComboBox();
 	final private static SettingsWindow INSTANZ = new SettingsWindow();
 
 	public static SettingsWindow getInstanz() {
@@ -98,8 +102,8 @@ public class SettingsWindow extends Window {
 
 	private void addSaveCancelButtons() {
 		HorizontalLayout hl = new HorizontalLayout();
-		com.vaadin.ui.Button btnSave = new Button("save");
-		com.vaadin.ui.Button btnCancel = new Button("cancel");
+		final Button btnSave = new Button(Translation.Get("save".hashCode()));
+		final Button btnCancel = new Button(Translation.Get("cancel".hashCode()));
 
 		hl.addComponent(btnSave);
 		hl.addComponent(btnCancel);
@@ -121,9 +125,32 @@ public class SettingsWindow extends Window {
 
 			@Override
 			public void buttonClick(ClickEvent event) {
+				String lang = (String) langSpinner.getValue();
+
+				for (Lang tmp : Translation.GetLangs(SettingsClass.LanguagePath.getValue())) {
+					if (lang.equals(tmp.Name)) {
+						Config.Sel_LanguagePath.setValue(tmp.Path);
+						try {
+							Translation.LoadTranslation(tmp.Path);
+						} catch (Exception e) {
+							try {
+								Translation.LoadTranslation(Config.Sel_LanguagePath.getDefaultValue());
+							} catch (IOException e1) {
+								e1.printStackTrace();
+							}
+						}
+						break;
+					}
+
+				}
+
 				Config.settings.WriteToDB();
 				Config.settings.SaveToLastValue();
 				fillContent();
+
+				// change Button caption
+				btnSave.setCaption(Translation.Get("save".hashCode()));
+				btnCancel.setCaption(Translation.Get("cancel".hashCode()));
 			}
 		});
 
@@ -152,13 +179,10 @@ public class SettingsWindow extends Window {
 			ipAddress = "";
 			// Network Interfaces nach IPv4 Adressen durchsuchen
 			try {
-				Enumeration<NetworkInterface> nets = NetworkInterface
-						.getNetworkInterfaces();
+				Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
 				for (NetworkInterface netint : Collections.list(nets)) {
-					Enumeration<InetAddress> inetAddresses = netint
-							.getInetAddresses();
-					for (InetAddress inetAddress : Collections
-							.list(inetAddresses)) {
+					Enumeration<InetAddress> inetAddresses = netint.getInetAddresses();
+					for (InetAddress inetAddress : Collections.list(inetAddresses)) {
 						if (inetAddress.isLoopbackAddress())
 							continue;
 						if (inetAddress instanceof Inet4Address) {
@@ -189,9 +213,24 @@ public class SettingsWindow extends Window {
 		TabSheet tabSheet = new TabSheet();
 		tabSheet.setWidth(100, Unit.PERCENTAGE);
 		tabSheet.setHeight(100, Unit.PERCENTAGE);
-		content.addComponent(tabSheet);
+		Settingscontent.addComponent(tabSheet);
 
 		VerticalLayout lay = new VerticalLayout();
+
+		// add Lang Spinner
+
+		langSpinner = new ComboBox();
+		langSpinner.setCaption("select Lang");
+
+		for (Lang lang : Translation.GetLangs(SettingsClass.LanguagePath.getValue())) {
+			langSpinner.addItem(lang.Name);
+			langSpinner.setItemCaption(lang.Name, lang.Name);
+		}
+
+		langSpinner.setValue(Translation.getLangId());
+		langSpinner.setNullSelectionAllowed(false);
+		lay.addComponent(langSpinner);
+
 		lay.addComponent(code);
 		SettingsLinearLayoutPanel info = new SettingsLinearLayoutPanel();
 
@@ -219,13 +258,10 @@ public class SettingsWindow extends Window {
 
 			ArrayList<SettingBase<?>> SortedSettingList = new ArrayList<SettingBase<?>>();
 
-			for (Iterator<SettingBase<?>> it = Config.settings.iterator(); it
-					.hasNext();) {
+			for (Iterator<SettingBase<?>> it = Config.settings.iterator(); it.hasNext();) {
 				SettingBase<?> setting = it.next();
 
-				if (setting.getModus() != SettingModus.Never
-						&& (setting.getUsage() == SettingUsage.ALL || setting
-								.getUsage() == SettingUsage.CBS)) {
+				if (setting.getModus() != SettingModus.Never && (setting.getUsage() == SettingUsage.ALL || setting.getUsage() == SettingUsage.CBS)) {
 					SortedSettingList.add(setting);
 				}
 			}
@@ -241,16 +277,13 @@ public class SettingsWindow extends Window {
 				int entryCount = 0;
 
 				// int layoutHeight = 0;
-				for (Iterator<SettingBase<?>> it = SortedSettingList.iterator(); it
-						.hasNext();) {
+				for (Iterator<SettingBase<?>> it = SortedSettingList.iterator(); it.hasNext();) {
 					SettingBase<?> settingItem = it.next();
 					if (settingItem.getCategory().name().equals(cat.name())) {
 
-						if ((settingItem.getModus() == SettingModus.Normal)
-								&& (settingItem.getModus() != SettingModus.Never)) {
+						if ((settingItem.getModus() == SettingModus.Normal) && (settingItem.getModus() != SettingModus.Never)) {
 
-							final Component view = getView(settingItem,
-									position++);
+							final Component view = getView(settingItem, position++);
 
 							if (view == null)
 								continue;
@@ -292,8 +325,7 @@ public class SettingsWindow extends Window {
 		} else if (SB instanceof SettingIntArray) {
 			return getIntArrayView((SettingIntArray) SB, BackgroundChanger);
 		} else if (SB instanceof SettingStringArray) {
-			return getStringArrayView((SettingStringArray) SB,
-					BackgroundChanger);
+			return getStringArrayView((SettingStringArray) SB, BackgroundChanger);
 		} else if (SB instanceof SettingTime) {
 			return getTimeView((SettingTime) SB, BackgroundChanger);
 		} else if (SB instanceof SettingInt) {
@@ -326,12 +358,10 @@ public class SettingsWindow extends Window {
 		return box;
 	}
 
-	private Component getStringView(final SettingString sB,
-			int backgroundChanger) {
+	private Component getStringView(final SettingString sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.TextField input = new TextField(sB.getName(),
-				String.valueOf(sB.getValue()));
-
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
 		input.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = -634498493292006581L;
 
@@ -354,47 +384,80 @@ public class SettingsWindow extends Window {
 		return box;
 	}
 
-	private Component getFileView(SettingFile sB, int backgroundChanger) {
+	private Component getFileView(final SettingFile sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
-		label.setCaption(sB.getName());
-		box.addComponent(label);
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
+
+			@Override
+			public void textChange(TextChangeEvent event) {
+				sB.setValue(event.getText());
+			}
+		});
+
+		box.addComponent(input);
 
 		return box;
 	}
 
-	private Component getFolderView(SettingFolder sB, int backgroundChanger) {
+	private Component getFolderView(final SettingFolder sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
-		label.setCaption(sB.getName());
-		box.addComponent(label);
+		box.setWidth(100, Unit.PERCENTAGE);
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
 
+			@Override
+			public void textChange(TextChangeEvent event) {
+				sB.setValue(event.getText());
+			}
+		});
+
+		box.addComponent(input);
 		return box;
 	}
 
-	private Component getFloatView(SettingFloat sB, int backgroundChanger) {
+	private Component getFloatView(final SettingFloat sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
-		label.setCaption(sB.getName());
-		box.addComponent(label);
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
 
+			@Override
+			public void textChange(TextChangeEvent event) {
+				sB.setValue(Float.parseFloat(event.getText()));
+			}
+		});
+
+		box.addComponent(input);
 		return box;
 	}
 
-	private Component getDblView(SettingDouble sB, int backgroundChanger) {
+	private Component getDblView(final SettingDouble sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
-		label.setCaption(sB.getName());
-		box.addComponent(label);
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
+		input.addTextChangeListener(new TextChangeListener() {
+			private static final long serialVersionUID = -634498493292006581L;
 
+			@Override
+			public void textChange(TextChangeEvent event) {
+				sB.setValue(Double.parseDouble(event.getText()));
+			}
+		});
+
+		box.addComponent(input);
 		return box;
 	}
 
 	private Component getIntView(final SettingInt sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
-		com.vaadin.ui.TextField input = new TextField(sB.getName(),
-				String.valueOf(sB.getValue()));
-
+		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
+		input.setWidth(50, Unit.PERCENTAGE);
 		input.addTextChangeListener(new TextChangeListener() {
 			private static final long serialVersionUID = -634498493292006581L;
 
@@ -419,8 +482,7 @@ public class SettingsWindow extends Window {
 		return box;
 	}
 
-	private Component getStringArrayView(SettingStringArray sB,
-			int backgroundChanger) {
+	private Component getStringArrayView(SettingStringArray sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
 		com.vaadin.ui.Label label = new com.vaadin.ui.Label();
 		label.setCaption(sB.getName());

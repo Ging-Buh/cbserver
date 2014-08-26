@@ -8,20 +8,15 @@ import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
-import org.eclipse.jetty.util.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.addon.leaflet.LMap;
 
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
 import CB_Core.Events.CachListChangedEventList;
-import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.CacheList;
-import CB_Utils.Events.ProgresssChangedEventList;
-import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Import.ImportScheduler;
 import cb_server.Views.CB_ViewBase;
 import cb_server.Views.CacheListView;
@@ -35,9 +30,9 @@ import cb_server.Views.WaypointView;
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
+import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
@@ -47,8 +42,6 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.MenuBar;
 import com.vaadin.ui.MenuBar.Command;
 import com.vaadin.ui.MenuBar.MenuItem;
-import com.vaadin.ui.Window.CloseEvent;
-import com.vaadin.ui.Window.CloseListener;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
@@ -65,19 +58,19 @@ import de.steinwedel.messagebox.MessageBox;
 @Theme("cb_server")
 @PreserveOnRefresh
 @Push
-public class CB_ServerUI extends UI implements DetachListener  {
+public class CB_ServerUI extends UI implements DetachListener {
 	private Logger log;
 	private final MyExecutor executor = new MyExecutor();
-	private CacheList cacheList = new CacheList();
-	private LinkedList<CB_ViewBase> views = new LinkedList<>();
+	private final CacheList cacheList = new CacheList();
+	private final LinkedList<CB_ViewBase> views = new LinkedList<>();
 	private FilterProperties lastFilter = null;
 	private MenuBar mainMenu = null;
 	private CacheListView clv;
+
 	@Override
 	protected void init(VaadinRequest request) {
 		addDetachListener(this);
-		
-		
+
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
 		this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
@@ -87,15 +80,14 @@ public class CB_ServerUI extends UI implements DetachListener  {
 		// You can use MessageBox.RESOURCES_FACTORY.setResourceBundle(basename);
 		// to localize to your language
 
-		
-		
 		final com.vaadin.ui.TextField gcLogin = new TextField("GCLogin");
 		gcLogin.setValue(Config.settings.GcLogin.getValue());
-		
+
 		final Button button = new Button("Caches: "
 				+ Database.Data.Query.size());
 		button.setStyleName("test");
 		button.addClickListener(new Button.ClickListener() {
+			@Override
 			public void buttonClick(ClickEvent event) {
 				Config.settings.GcLogin.setValue(gcLogin.getValue());
 				Config.settings.WriteToDB();
@@ -103,18 +95,15 @@ public class CB_ServerUI extends UI implements DetachListener  {
 						ButtonId.OK);
 			}
 		});
-		
-		
-
-		
 
 		button.setImmediate(true);
 		this.setImmediate(true);
 		TimerTask action = new TimerTask() {
+			@Override
 			public void run() {
 				try {
-//					changeValue(button);
-//					ProgresssChangedEventList.Call("Tick", 100);
+					//					changeValue(button);
+					//					ProgresssChangedEventList.Call("Tick", 100);
 				} catch (Exception ex) {
 					ex.printStackTrace();
 				}
@@ -126,49 +115,49 @@ public class CB_ServerUI extends UI implements DetachListener  {
 		caretaker.schedule(action, 1000, 5000);
 
 		button.setCaption("c1");
-		
-		
+
 		mainMenu = new MenuBar();
 		MenuItem miImport = mainMenu.addItem("Import", null, null);
 		MenuItem miGroundspeak = miImport.addItem("From Groundspeak", null);
-		MenuItem miImportPQ = miGroundspeak.addItem("PocketQuery", new Command() {
-			@Override
-			public void menuSelected(MenuItem selectedItem) {
-				
-			}
-		});
-		
-		
+		MenuItem miImportPQ = miGroundspeak.addItem("PocketQuery",
+				new Command() {
+					@Override
+					public void menuSelected(MenuItem selectedItem) {
+
+					}
+				});
+
 		final Button open = new Button("Open Settings-Window");
 		open.addClickListener(new ClickListener() {
-		    public void buttonClick(ClickEvent event) {
-		    	SettingsWindow sub = SettingsWindow.getInstanz();
-		        
-		    	if(!UI.getCurrent().getWindows().contains(sub))
-		    		
-		        // Add it to the root component
-		        UI.getCurrent().addWindow(sub);
-		    }
+			@Override
+			public void buttonClick(ClickEvent event) {
+				SettingsWindow sub = SettingsWindow.getInstanz();
+
+				if (!UI.getCurrent().getWindows().contains(sub))
+
+					// Add it to the root component
+					UI.getCurrent().addWindow(sub);
+			}
 		});
-		
+
 		final Button bImport = new Button("Import");
 		bImport.addClickListener(new ClickListener() {
-		    public void buttonClick(ClickEvent event) {
-		    	// run Import once
-		    	ImportScheduler.importScheduler.startOnce();
-		    }
+			@Override
+			public void buttonClick(ClickEvent event) {
+				// run Import once
+				ImportScheduler.importScheduler.startOnce();
+			}
 		});
 
 		final Button close = new Button("Finish Server");
 		close.addClickListener(new ClickListener() {
-		    public void buttonClick(ClickEvent event) {
-		    	log.info("Exit Server");
-		    	System.exit(0);
-		    }
+			@Override
+			public void buttonClick(ClickEvent event) {
+				log.info("Exit Server");
+				System.exit(0);
+			}
 		});
-		
-		
-		
+
 		MapView mv = new MapView();
 		DescriptionView dv = new DescriptionView();
 		clv = new CacheListView();
@@ -176,47 +165,45 @@ public class CB_ServerUI extends UI implements DetachListener  {
 		LogView lv = new LogView();
 		SolverView sv = new SolverView();
 		views.add(mv);
-//		views.add(dv);
+		//		views.add(dv);
 		views.add(clv);
-//		views.add(wpv);
+		//		views.add(wpv);
 		views.add(lv);
 		views.add(sv);
 		// VerticalLayout für Header, Inhalt und Footer erstellen
 		VerticalLayout vl = new VerticalLayout();
 		this.setContent(vl);
-		Panel header = new Panel();	// Header
-		HorizontalSplitPanel content = new HorizontalSplitPanel();	// Inhalt
+		Panel header = new Panel(); // Header
+		HorizontalSplitPanel content = new HorizontalSplitPanel(); // Inhalt
 		VerticalSplitPanel contentSplit = new VerticalSplitPanel();
-		
+
 		content.setFirstComponent(contentSplit);
-		Panel footer = new Panel();	// Footer
-		
+		Panel footer = new Panel(); // Footer
+
 		vl.addComponent(header);
 		vl.addComponent(content);
 		vl.addComponent(footer);
-		
+
 		vl.setSizeFull();
-		vl.setExpandRatio(content, 1);	// Inhalt muss den größten Bereich einnehmen
-		
+		vl.setExpandRatio(content, 1); // Inhalt muss den größten Bereich einnehmen
+
 		// Inhalt vom Header
-		
-		HorizontalLayout headerLayout=new HorizontalLayout();
+
+		HorizontalLayout headerLayout = new HorizontalLayout();
 		headerLayout.addComponent(mainMenu);
 		headerLayout.addComponent(close);
 		headerLayout.addComponent(open);
 		headerLayout.addComponent(bImport);
 		header.setContent(headerLayout);
-	
-		
+
 		// Inhalt vom Content
 		content.setSizeFull();
-		
 
 		TabSheet tabLinks = new TabSheet();
 		contentSplit.setFirstComponent(tabLinks);
 		contentSplit.setSplitPosition(75, Sizeable.UNITS_PERCENTAGE);
 		tabLinks.setSizeFull();
-	
+
 		TabSheet tabRechts = new TabSheet();
 		content.setSecondComponent(tabRechts);
 		tabRechts.setSizeFull();
@@ -225,62 +212,63 @@ public class CB_ServerUI extends UI implements DetachListener  {
 		tabRechts.addTab(mv, "MapView");
 		tabRechts.addTab(lv, "Logs");
 		tabRechts.addTab(sv, "Solver");
-		
+
 		TabSheet tabLinksUnten = new TabSheet();
 		contentSplit.setSecondComponent(tabLinksUnten);
 		tabLinksUnten.setSizeFull();
 		tabLinksUnten.addTab(wpv, "Waypoints");
-		
+
 		// Inhalt vom Footer
 		ProgressView progressView = new ProgressView();
 		footer.setContent(progressView);
-		
-
 
 		// CacheList laden
-		lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		lastFilter = new FilterProperties(
+				FilterProperties.presets[0].toString());
 		Thread loadCacheListThread = new Thread(new LoadCacheListThread());
 		loadCacheListThread.start();
 	}
 
 	public void pushChangedContent() {
 		executor.execute(new Runnable() {
+			@Override
 			public void run() {
 				getSession().lock();
-				try {					
+				try {
 					//NOTE: Comment this line below and problem will go away
-//					pusher.push();
+					//					pusher.push();
 				} finally {
 					getSession().unlock();
 				}
 			}
 		});
 	}
+
 	class MyExecutor extends ThreadPoolExecutor {
 		public MyExecutor() {
 			super(5, 20, 20, TimeUnit.SECONDS, new SynchronousQueue<Runnable>());
 		}
 	}
-	
-	
+
 	private class LoadCacheListThread implements Runnable {
 
 		@Override
 		public void run() {
 			log.info("Load CacheList!");
-			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
-			
+			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin
+					.getValue());
+
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true,
+					false);
 			log.debug("CacheList loaded!");
-//			for (CB_ViewBase view : views) {
-//				view.cacheListChanged(cacheList);
-//			}
+			//			for (CB_ViewBase view : views) {
+			//				view.cacheListChanged(cacheList);
+			//			}
 			CachListChangedEventList.Call();
 		}
-		
-	}
 
+	}
 
 	@Override
 	public void detach(DetachEvent event) {
@@ -295,4 +283,3 @@ public class CB_ServerUI extends UI implements DetachListener  {
 		return super.removeWindow(window);
 	}
 }
-
