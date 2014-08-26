@@ -360,6 +360,7 @@ public class SettingsWindow extends Window {
 
 	private Component getStringView(final SettingString sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
+		box.setWidth(100, Unit.PERCENTAGE);
 		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
 		input.setWidth(50, Unit.PERCENTAGE);
 		input.addTextChangeListener(new TextChangeListener() {
@@ -386,6 +387,7 @@ public class SettingsWindow extends Window {
 
 	private Component getFileView(final SettingFile sB, int backgroundChanger) {
 		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
+		box.setWidth(100, Unit.PERCENTAGE);
 		com.vaadin.ui.TextField input = new TextField(sB.getName(), String.valueOf(sB.getValue()));
 		input.setWidth(50, Unit.PERCENTAGE);
 		input.addTextChangeListener(new TextChangeListener() {
