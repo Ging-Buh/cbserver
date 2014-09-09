@@ -1,5 +1,7 @@
 package cb_server.Views;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -17,21 +19,13 @@ import org.vaadin.addon.leaflet.shared.Control;
 import org.vaadin.addon.leaflet.shared.Point;
 
 import CB_Core.DB.Database;
-import CB_Core.Enums.CacheTypes;
-import CB_Core.Events.CachListChangedEventList;
-import CB_Core.Events.CacheListChangedEventListner;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
-import CB_UI_Base.CB_Texturepacker.Page;
 import Rpc.RpcFunctionsServer;
 import cb_server.Events.SelectedCacheChangedEventList;
-import cb_server.Events.SelectedCacheChangedEventListner;
 
-import com.badlogic.gdx.Application;
 import com.google.gwt.dev.util.collect.HashMap;
 import com.vaadin.server.ExternalResource;
-import com.vaadin.server.ThemeResource;
-import com.vaadin.ui.CustomComponent;
 
 public class MapView extends CB_ViewBase {
 
@@ -40,12 +34,12 @@ public class MapView extends CB_ViewBase {
 	private Bounds lastBounds = null;
 	private Cache selectedCache = null;
 	private String host;
-	private int bigIconSize = 24;
-	private int bigBackgroundSize = 28;
-	private int mediumIconSize = 20;
-	private int mediumBackgroundSize = 24;
-	private int smallIconSize = 15;
-	private int smallBackgroundSize = 15;
+	private final int bigIconSize = 24;
+	private final int bigBackgroundSize = 28;
+	private final int mediumIconSize = 20;
+	private final int mediumBackgroundSize = 24;
+	private final int smallIconSize = 15;
+	private final int smallBackgroundSize = 15;
 
 	public MapView() {
 		System.out.println("MapView()");
@@ -89,18 +83,29 @@ public class MapView extends CB_ViewBase {
 
 		int port = RpcFunctionsServer.jettyPort;
 
-		LTileLayer lk = new LTileLayer();
-		lk.setUrl("http://localhost:" + String.valueOf(port) + "/map/{z}/{x}/{y}.png");
-		lk.setMaxZoom(19);
-		lk.setDetectRetina(false);
-		lk.setSubDomains("tile2");
-		lk.setVisible(true);
-		lk.setActive(false);
+		try {
+			LTileLayer lk = new LTileLayer();
+			InetAddress addr = InetAddress.getLocalHost();
+
+			//Getting IPAddress of localhost - getHostAddress return IP Address
+			// in textual format
+			String ipAddress = addr.getHostAddress();
+
+			lk.setUrl("http://" + ipAddress + ":" + String.valueOf(port) + "/map/{z}/{x}/{y}.png");
+			lk.setMaxZoom(19);
+			lk.setDetectRetina(false);
+			lk.setSubDomains("tile2");
+			lk.setVisible(true);
+			lk.setActive(false);
+			leafletMap.addBaseLayer(lk, "MapsForge");
+
+		} catch (UnknownHostException e) {
+
+			e.printStackTrace();
+		}
 
 		leafletMap.addBaseLayer(pk, "");
-		leafletMap.addBaseLayer(lk, "MapsForge");
 		leafletMap.addBaseLayer(baselayer, "");
-
 		leafletMap.addMoveEndListener(new LeafletMoveEndListener() {
 
 			@Override
@@ -121,7 +126,6 @@ public class MapView extends CB_ViewBase {
 		});
 		// add to SelectedCacheChangedListener
 
-
 		// updateIcons(leafletMap.);
 		System.out.println("MapView() finished");
 	}
@@ -130,6 +134,7 @@ public class MapView extends CB_ViewBase {
 	//		super.cacheListChanged(cacheList);
 	//	};
 
+	@Override
 	public void cacheListChanged() {
 		super.cacheListChanged();
 		first = true;
@@ -370,7 +375,8 @@ public class MapView extends CB_ViewBase {
 	};
 
 	private boolean isInBounds(double latitude, double longitude, Bounds bounds) {
-		if (bounds == null) return false;
+		if (bounds == null)
+			return false;
 		if (latitude > bounds.getNorthEastLat())
 			return false;
 		if (latitude < bounds.getSouthWestLat())
@@ -432,7 +438,7 @@ public class MapView extends CB_ViewBase {
 		String url = host + "ics/";
 		url += "X";
 		url += "_D";
-		url += (int) Math.round(value);
+		url += Math.round(value);
 		url += "_S" + iconSize;
 		return url + ".png";
 	}
