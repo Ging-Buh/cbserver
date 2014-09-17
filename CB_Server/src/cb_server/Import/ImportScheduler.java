@@ -98,23 +98,23 @@ public class ImportScheduler implements Runnable {
 					ip.addStep(ip.new Step("ImportGPX", 4));
 				}
 				// if Import Vote
-//				ip.addStep(ip.new Step("sendGcVote", 1));
-//				ip.addStep(ip.new Step("importGcVote", 4));
+				//				ip.addStep(ip.new Step("sendGcVote", 1));
+				//				ip.addStep(ip.new Step("importGcVote", 4));
 				// if Import Images
 				if (importImages) {
 					ip.addStep(ip.new Step("importImages", 10));
 				}
 				// if Clean Logs
-//				ip.addStep(ip.new Step("DeleteLogs", 1));
+				//				ip.addStep(ip.new Step("DeleteLogs", 1));
 				// if CompactDB
-//				ip.addStep(ip.new Step("CompactDB", 1));
+				//				ip.addStep(ip.new Step("CompactDB", 1));
 
 				if (importPQfromGC) {
 					ip.setJobMax("importGC", 10);
 					ip.ProgressChangeMsg("importGC", "Download PQ-List from GC");
 					// get List of all PQ's to import (from Setting)
-					String pqsToImport = ";"+ Config.settings.PQImportNames.getValue() + ";";
-					
+					String pqsToImport = ";" + Config.settings.PQImportNames.getValue() + ";";
+
 					// Import PQs
 					ArrayList<PQ> pqList = new ArrayList<PQ>();
 					log.debug("Load PQ-List");
@@ -143,7 +143,7 @@ public class ImportScheduler implements Runnable {
 						}
 
 						// Zipped Pocketquery
-						int i = PocketQuery.DownloadSinglePocketQuery(pq, Config.PocketQueryFolder.getValue());
+						int i = PocketQuery.DownloadSinglePocketQuery(pq, CB_Core_Settings.PocketQueryFolder.getValue());
 						if (i == 0) {
 							// Importierte PQ in DB speichern
 							dao.writeToDatabase(pq);
@@ -161,7 +161,7 @@ public class ImportScheduler implements Runnable {
 					//					Database.Data.Query.clear();
 					try {
 
-						importer.importGpx(Config.PocketQueryFolder.getValue(), ip);
+						importer.importGpx(CB_Core_Settings.PocketQueryFolder.getValue(), ip);
 
 						Database.Data.setTransactionSuccessful();
 					} catch (Exception exc) {
@@ -181,7 +181,7 @@ public class ImportScheduler implements Runnable {
 					System.gc();
 
 					// del alten entpackten Ordener wenn vorhanden?
-					File directory = new File(Config.PocketQueryFolder.getValue());
+					File directory = new File(CB_Core_Settings.PocketQueryFolder.getValue());
 					File[] filelist = directory.listFiles();
 					for (File tmp : filelist) {
 						if (tmp.isDirectory()) {
@@ -241,13 +241,12 @@ public class ImportScheduler implements Runnable {
 		log.info("Load CacheList!");
 		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
 		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
-		
+
 		CacheListDAO cacheListDAO = new CacheListDAO();
 		cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
 		CachListChangedEventList.Call();
 		log.debug("CacheList loaded!");
 
-		
 		if (stopAfterImport) {
 			stop();
 		}

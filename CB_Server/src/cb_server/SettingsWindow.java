@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import CB_Core.Settings.CB_Core_Settings;
 import CB_Translation_Base.TranslationEngine.Lang;
 import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Settings.SettingBase;
@@ -115,7 +116,7 @@ public class SettingsWindow extends Window {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				Config.settings.LoadFromLastValue();
-				fillContent();
+				SettingsWindow.this.close();
 			}
 		});
 
@@ -129,12 +130,12 @@ public class SettingsWindow extends Window {
 
 				for (Lang tmp : Translation.GetLangs(SettingsClass.LanguagePath.getValue())) {
 					if (lang.equals(tmp.Name)) {
-						Config.Sel_LanguagePath.setValue(tmp.Path);
+						CB_Core_Settings.Sel_LanguagePath.setValue(tmp.Path);
 						try {
 							Translation.LoadTranslation(tmp.Path);
 						} catch (Exception e) {
 							try {
-								Translation.LoadTranslation(Config.Sel_LanguagePath.getDefaultValue());
+								Translation.LoadTranslation(CB_Core_Settings.Sel_LanguagePath.getDefaultValue());
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
@@ -146,11 +147,8 @@ public class SettingsWindow extends Window {
 
 				Config.settings.WriteToDB();
 				Config.settings.SaveToLastValue();
-				fillContent();
 
-				// change Button caption
-				btnSave.setCaption(Translation.Get("save".hashCode()));
-				btnCancel.setCaption(Translation.Get("cancel".hashCode()));
+				SettingsWindow.this.close();
 			}
 		});
 

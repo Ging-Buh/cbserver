@@ -28,7 +28,7 @@ import org.mapsforge.core.graphics.GraphicFactory;
 import org.mapsforge.core.graphics.TileBitmap;
 import org.mapsforge.core.model.Tile;
 import org.mapsforge.map.awt.AwtGraphicFactory;
-import org.mapsforge.map.layer.renderer.DatabaseRenderer;
+import org.mapsforge.map.layer.renderer.CachedDatabaseRenderer;
 import org.mapsforge.map.layer.renderer.RendererJob;
 import org.mapsforge.map.model.DisplayModel;
 import org.mapsforge.map.reader.MapDatabase;
@@ -40,7 +40,7 @@ import de.Map.DesktopManager;
 
 public class MapServlet extends HttpServlet {
 	private static final long serialVersionUID = 2094731483963312861L;
-	private final DatabaseRenderer databaseRenderer;
+	private final CachedDatabaseRenderer databaseRenderer;
 	private File mapFile;
 	private ExternalRenderTheme renderTheme;
 	MapDatabase MF_mapDatabase;
@@ -58,7 +58,7 @@ public class MapServlet extends HttpServlet {
 		LocatorSettings.MapsforgeDayTheme.addChangedEventListner(MapsettingChangedListner);
 
 		GraphicFactory Mapsforge_Factory = AwtGraphicFactory.INSTANCE;
-		databaseRenderer = new DatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
+		databaseRenderer = new CachedDatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
 	}
 
 	iChanged MapsettingChangedListner = new iChanged() {
