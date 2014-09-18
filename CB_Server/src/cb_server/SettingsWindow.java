@@ -56,6 +56,7 @@ import com.vaadin.ui.Component;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
@@ -274,6 +275,11 @@ public class SettingsWindow extends Window {
 				lay = new VerticalLayout();
 				int entryCount = 0;
 
+				if (cat == SettingCategory.Login) {
+					final Component view = getLogInButton(position++);
+					lay.addComponent(view);
+				}
+
 				// int layoutHeight = 0;
 				for (Iterator<SettingBase<?>> it = SortedSettingList.iterator(); it.hasNext();) {
 					SettingBase<?> settingItem = it.next();
@@ -311,6 +317,31 @@ public class SettingsWindow extends Window {
 
 		}
 
+	}
+
+	private Component getLogInButton(int i) {
+		com.vaadin.ui.HorizontalLayout box = new HorizontalLayout();
+		com.vaadin.ui.Button button = new com.vaadin.ui.Button();
+		button.setCaption("Get API Key");
+
+		button.addClickListener(new ClickListener() {
+
+			private static final long serialVersionUID = -1417363407758383092L;
+
+			@Override
+			public void buttonClick(ClickEvent event) {
+				LogInWindow sub = LogInWindow.getInstanz();
+
+				if (!UI.getCurrent().getWindows().contains(sub))
+
+					// Add it to the root component
+					UI.getCurrent().addWindow(sub);
+			}
+		});
+
+		box.addComponent(button);
+
+		return box;
 	}
 
 	private void addControlToLinearLayout(Component view, float itemMargin) {
