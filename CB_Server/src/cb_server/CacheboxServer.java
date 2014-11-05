@@ -59,12 +59,16 @@ public class CacheboxServer {
 	private static Rpc_Server rpcServer;
 	private static Server server;
 	private static String lastLoadedTranslation;
+	private static final int LOG_NONE = 0;
+	private static final int LOG_ERROR = 1;
+	private static final int LOG_INFO = 2;
+	private static final int LOG_DEBUG = 3;
 
 	public static void main(String[] args) throws Exception {
 
 		Plattform.used = Plattform.Server;
+		initialGdxLogger();
 
-		log = LoggerFactory.getLogger(CacheboxServer.class);
 		writeLockFile("cbserver.lock");
 		log.debug(System.getProperty("sun.net.http.allowRestrictedHeaders"));
 		System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
@@ -81,6 +85,12 @@ public class CacheboxServer {
 		} else {
 			startServer(args);
 		}
+	}
+
+	private static void initialGdxLogger() {
+		Gdx.app = new GdxLogger();
+		Gdx.app.setLogLevel(LOG_DEBUG);
+		log = LoggerFactory.getLogger(CacheboxServer.class);
 	}
 
 	private static void startServer(String[] args) throws Exception {
