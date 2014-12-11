@@ -26,9 +26,9 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 
-import CB_Core.Settings.CB_Core_Settings;
 import CB_Translation_Base.TranslationEngine.Lang;
 import CB_Translation_Base.TranslationEngine.Translation;
+import CB_UI_Base.settings.CB_UI_Base_Settings;
 import CB_Utils.Settings.SettingBase;
 import CB_Utils.Settings.SettingBool;
 import CB_Utils.Settings.SettingCategory;
@@ -131,12 +131,12 @@ public class SettingsWindow extends Window {
 
 				for (Lang tmp : Translation.GetLangs(SettingsClass.LanguagePath.getValue())) {
 					if (lang.equals(tmp.Name)) {
-						CB_Core_Settings.Sel_LanguagePath.setValue(tmp.Path);
+						CB_UI_Base_Settings.Sel_LanguagePath.setValue(tmp.Path);
 						try {
 							Translation.LoadTranslation(tmp.Path);
 						} catch (Exception e) {
 							try {
-								Translation.LoadTranslation(CB_Core_Settings.Sel_LanguagePath.getDefaultValue());
+								Translation.LoadTranslation(CB_UI_Base_Settings.Sel_LanguagePath.getDefaultValue());
 							} catch (IOException e1) {
 								e1.printStackTrace();
 							}
