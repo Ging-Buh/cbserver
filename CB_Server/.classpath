@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="lib/gdx-freetype-1.0.0.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-freetype-platform-1.0.0-natives-desktop.jar"/>
 	<classpathentry kind="lib" path="lib/gdx-platform-1.0.0-natives-desktop.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.15-SNAPSHOT-2.jar"/>
 	<classpathentry kind="lib" path="lib/slf4j-api-1.7.6.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Core"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/CB_Locator_Base"/>
