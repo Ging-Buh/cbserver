@@ -33,7 +33,6 @@ import com.vaadin.annotations.Theme;
 import com.vaadin.server.ClientConnector.DetachListener;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
-import com.vaadin.shared.communication.PushMode;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -73,7 +72,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 
 		log = LoggerFactory.getLogger(CB_ServerUI.class);
 		log.info("Initialize CB_ServerUI");
-		this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
+		//this.getPushConfiguration().setPushMode(PushMode.AUTOMATIC);
 		System.out.println("New Session: " + getSession().toString());
 		// Force locale "English"
 		MessageBox.RESOURCE_FACTORY.setResourceLocale(Locale.ENGLISH);
@@ -83,16 +82,14 @@ public class CB_ServerUI extends UI implements DetachListener {
 		final com.vaadin.ui.TextField gcLogin = new TextField("GCLogin");
 		gcLogin.setValue(Config.settings.GcLogin.getValue());
 
-		final Button button = new Button("Caches: "
-				+ Database.Data.Query.size());
+		final Button button = new Button("Caches: " + Database.Data.Query.size());
 		button.setStyleName("test");
 		button.addClickListener(new Button.ClickListener() {
 			@Override
 			public void buttonClick(ClickEvent event) {
 				Config.settings.GcLogin.setValue(gcLogin.getValue());
 				Config.settings.WriteToDB();
-				MessageBox.showPlain(Icon.INFO, "Settings", "Gespeichert",
-						ButtonId.OK);
+				MessageBox.showPlain(Icon.INFO, "Settings", "Gespeichert", ButtonId.OK);
 			}
 		});
 
@@ -119,13 +116,12 @@ public class CB_ServerUI extends UI implements DetachListener {
 		mainMenu = new MenuBar();
 		MenuItem miImport = mainMenu.addItem("Import", null, null);
 		MenuItem miGroundspeak = miImport.addItem("From Groundspeak", null);
-		MenuItem miImportPQ = miGroundspeak.addItem("PocketQuery",
-				new Command() {
-					@Override
-					public void menuSelected(MenuItem selectedItem) {
+		MenuItem miImportPQ = miGroundspeak.addItem("PocketQuery", new Command() {
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
 
-					}
-				});
+			}
+		});
 
 		final Button open = new Button("Open Settings-Window");
 		open.addClickListener(new ClickListener() {
@@ -223,8 +219,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 		footer.setContent(progressView);
 
 		// CacheList laden
-		lastFilter = new FilterProperties(
-				FilterProperties.presets[0].toString());
+		lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
 		Thread loadCacheListThread = new Thread(new LoadCacheListThread());
 		loadCacheListThread.start();
 	}
@@ -255,12 +250,10 @@ public class CB_ServerUI extends UI implements DetachListener {
 		@Override
 		public void run() {
 			log.info("Load CacheList!");
-			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin
-					.getValue());
+			String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 
 			CacheListDAO cacheListDAO = new CacheListDAO();
-			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true,
-					false);
+			cacheListDAO.ReadCacheList(Database.Data.Query, sqlWhere, true, false);
 			log.debug("CacheList loaded!");
 			//			for (CB_ViewBase view : views) {
 			//				view.cacheListChanged(cacheList);

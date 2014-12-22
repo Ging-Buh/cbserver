@@ -9,16 +9,4 @@
   @include reindeer;
 
   /* Insert your theme rules here */
-   
-   $color : yellow;
-   	.v-button-test {
-	color:  $color;
-	background-color: $color;
-   }
-   $color2 : red;
-   	.v-button-caption {
-	color:  $color2;
-	background-color: $color;
-   }
-   
 }

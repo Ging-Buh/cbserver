@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE ivy-module [
-	<!ENTITY vaadin.version "7.1.1">
+	<!ENTITY vaadin.version "7.3.7">
 ]>
 <ivy-module version="2.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -17,11 +17,6 @@
 		<conf name="nodeploy" />
 	</configurations>
 	<dependencies defaultconf="default" defaultconfmapping="default->default">
-		
-		<dependency org="org.vaadin.addons" name="qrcode" rev="2.0.1" />
-
-       
-		
 		<!-- The core server part of Vaadin -->
 		<dependency org="com.vaadin" name="vaadin-server" rev="&vaadin.version;" />
 		
@@ -29,7 +24,10 @@
 		<dependency org="com.vaadin" name="vaadin-themes" rev="&vaadin.version;" />
 
 		<!-- Push support -->
-		<dependency org="com.vaadin" name="vaadin-push" rev="&vaadin.version;" />
+		<dependency org="com.vaadin" name="vaadin-push" rev="&vaadin.version;" conf="default->default" />
+
+		<!-- Servlet 3.0 API -->
+		<dependency org="javax.servlet" name="javax.servlet-api" rev="3.0.1" conf="nodeploy->default" />
 
 		<!-- Precompiled DefaultWidgetSet -->
 		<dependency org="com.vaadin" name="vaadin-client-compiled"
@@ -43,7 +41,21 @@
 		<dependency org="com.vaadin" name="vaadin-client-compiler"
 			rev="&vaadin.version;" conf="widgetset-compile->default" />
 
+
+		<dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.16.v20140903"/>
+		<dependency org="org.eclipse.jetty" name="jetty-websocket" rev="8.1.16.v20140903"/>
+<!--        <dependency org="org.eclipse.jetty" name="jetty-webapp" rev="8.1.12.v20130726" />-->
+<!--        <dependency org="org.eclipse.jetty" name="jetty-websocket" rev="8.1.12.v20130726" />    -->  
+		<!-- Servlet 3.0 API -->
+		<dependency org="javax.servlet.jsp" name="jsp-api" rev="2.2" />
+
+
 		<dependency org="org.vaadin.addon" name="v-leaflet" rev="0.0.8" />
 		<dependency org="org.vaadin.addons" name="contextmenu" rev="4.2.1" />
+		
+		<dependency org="org.vaadin.addons" name="qrcode" rev="2.0.1" />
+
+       
+		
 	</dependencies>
 </ivy-module>
