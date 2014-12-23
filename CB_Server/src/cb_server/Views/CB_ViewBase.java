@@ -5,10 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import CB_Core.Events.CachListChangedEventList;
 import CB_Core.Events.CacheListChangedEventListner;
-import CB_Core.Types.Cache;
-import CB_Core.Types.CacheList;
-import CB_Core.Types.Waypoint;
-import cb_server.CacheboxServer;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
@@ -30,18 +26,22 @@ public abstract class CB_ViewBase extends CustomComponent implements SelectedCac
 
 	@Override
 	public void CacheListChangedEvent() {
-		cacheListChanged();
-
+		this.getUI().access(new Runnable() {
+			@Override
+			public void run() {
+				cacheListChanged();
+			}
+		});
 	}
 
 	public void cacheListChanged() {
-			log.debug("CacheListChanged");
+		log.debug("CacheListChanged");
 	}
 
 	public void removeFromListener() {
 		SelectedCacheChangedEventList.Remove(this);
 		CachListChangedEventList.Remove(this);
-		
+
 	}
 
 }
