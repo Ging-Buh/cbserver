@@ -55,7 +55,7 @@
 		
 		<dependency org="org.vaadin.addons" name="qrcode" rev="2.0.1" />
 
-		<dependency org="org.xerial" name="sqlite-jdbc" rev="3.8.7"/>       
+       
 		
 	</dependencies>
 </ivy-module>
