@@ -42,8 +42,8 @@ public class RpcFunctionsServer {
 			return answer;
 		} else if (message instanceof RpcMessage_GetCacheList) {
 			// Debug-Meldungen
-			log.debug("DescriptionImageFolder: " + CB_Core_Settings.DescriptionImageFolder.getValue());
-			log.debug("SpoilerFolder: " + CB_Core_Settings.SpoilerFolder.getValue());
+			log.info("DescriptionImageFolder: " + CB_Core_Settings.DescriptionImageFolder.getValue());
+			log.info("SpoilerFolder: " + CB_Core_Settings.SpoilerFolder.getValue());
 
 			RpcMessage_GetCacheList msg = (RpcMessage_GetCacheList) message;
 
@@ -74,6 +74,7 @@ public class RpcFunctionsServer {
 				int start = msg.getStartIndex();
 				int count = msg.getCount();
 				boolean dataAvailable = start + count < loadedCacheList.size() - 1;
+				log.info("CacheList loaded: " + start + "-" + count + "-" + dataAvailable);
 				//				for (int i = start; i < start + count; i++) {
 				//					if (i >= loadedCacheList.size()) {
 				//						break;	// keine weiteren Daten
@@ -86,41 +87,51 @@ public class RpcFunctionsServer {
 				RpcAnswer_GetCacheList answer = new RpcAnswer_GetCacheList(0);
 
 				for (int i = 0, n = cacheList.size(); i < n; i++) {
-
-					Cache cache = cacheList.get(i);
-					CB_List<LogEntry> logs = Database.Logs(cache);
-					int maxLogCount = 10;
-					int actLogCount = 0;
-					for (int j = 0, m = logs.size(); j < m; j++) {
-						actLogCount++;
-						if (actLogCount > maxLogCount)
-							break;
-						answer.addLog(logs.get(j));
-					}
-					cache.ReloadSpoilerRessources();
-					// URL für den Download der Spoiler setzen
-					if (cache.getSpoilerRessources() != null) {
-						for (int j = 0, m = cache.getSpoilerRessources().size(); j < m; j++) {
-							ImageEntry image = cache.getSpoilerRessources().get(j);
-							String path = "";
-							//					log.debug("Image: " + image.LocalPath);
-							int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
-							if (pos < 0) {
-								pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());
-								if (pos < 0) {
-									continue;
-								}
-								path = ":" + jettyPort + "/spoilers/";
-							} else {
-								path = ":" + jettyPort + "/images/";
-							}
-
-							image.ImageUrl = path;
+					try {
+						Cache cache = cacheList.get(i);
+						log.info("Cache: " + cache.getGcCode());
+						CB_List<LogEntry> logs = Database.Logs(cache);
+						int maxLogCount = 10;
+						int actLogCount = 0;
+						for (int j = 0, m = logs.size(); j < m; j++) {
+							actLogCount++;
+							if (actLogCount > maxLogCount)
+								break;
+							answer.addLog(logs.get(j));
 						}
+						cache.ReloadSpoilerRessources();
+						// URL für den Download der Spoiler setzen
+						if (cache.getSpoilerRessources() != null) {
+							for (int j = 0, m = cache.getSpoilerRessources().size(); j < m; j++) {
+								ImageEntry image = cache.getSpoilerRessources().get(j);
+								String path = "";
+								//					log.info("Image: " + image.LocalPath);
+								int pos = image.LocalPath.indexOf(CB_Core_Settings.DescriptionImageFolder.getValue());
+								if (pos < 0) {
+									pos = image.LocalPath.indexOf(CB_Core_Settings.SpoilerFolder.getValue());
+									if (pos < 0) {
+										continue;
+									}
+									path = ":" + jettyPort + "/spoilers/";
+								} else {
+									path = ":" + jettyPort + "/images/";
+								}
+
+								image.ImageUrl = path;
+							}
+						}
+					} catch (Exception ex) {
+						log.error("Cache: " + ex.getMessage());
 					}
 				}
-				answer.setCacheList(cacheList);
-				answer.setDataAvailable(cacheList.size() > 0);
+				log.info("Send Answer: " + cacheList.size());
+				try {
+					answer.setCacheList(cacheList);
+					answer.setDataAvailable(cacheList.size() > 0);
+					log.info("Answer Sent");
+				} catch (Exception ex) {
+					log.error("Answer: " + ex.getMessage());
+				}
 				return answer;
 			} else {
 				// Fehler, keine CacheList geladen
@@ -140,11 +151,11 @@ public class RpcFunctionsServer {
 				case DeleteWaypoint:
 					break;
 				case Found:
-					log.debug("New Found Status: " + entry.cacheId);
+					log.info("New Found Status: " + entry.cacheId);
 					Database.SetFound(entry.cacheId, true);
 					break;
 				case NewWaypoint:
-					log.debug("New Waypoint: " + entry.cacheId);
+					log.info("New Waypoint: " + entry.cacheId);
 					WaypointDAO wpdao = new WaypointDAO();
 					wpdao.WriteToDatabase(entry.waypoint);
 					break;
@@ -153,24 +164,24 @@ public class RpcFunctionsServer {
 				case NotAvailable:
 					break;
 				case NotFound:
-					log.debug("New not Found Status: " + entry.cacheId);
+					log.info("New not Found Status: " + entry.cacheId);
 					Database.SetFound(entry.cacheId, false);
 					break;
 				case NotesText:
-					log.debug("New Notes Text: " + entry.note);
+					log.info("New Notes Text: " + entry.note);
 					Database.SetNote(entry.cacheId, entry.note);
 					break;
 				case NumTravelbugs:
 					break;
 				case SolverText:
 					// Change Solver Text
-					log.debug("New Solver Text: " + entry.solver);
+					log.info("New Solver Text: " + entry.solver);
 					Database.SetSolver(entry.cacheId, entry.solver);
 					break;
 				case Undefined:
 					break;
 				case WaypointChanged:
-					log.debug("Waypoint changed: " + entry.cacheId);
+					log.info("Waypoint changed: " + entry.cacheId);
 					wpdao = new WaypointDAO();
 					entry.waypoint.setCheckSum(0); // auf 0 setzen damit der WP in der DB upgedated wird
 					wpdao.UpdateDatabase(entry.waypoint);
