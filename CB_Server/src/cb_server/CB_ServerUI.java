@@ -122,6 +122,15 @@ public class CB_ServerUI extends UI implements DetachListener {
 
 			}
 		});
+		MenuItem miReloadImages = miImport.addItem("Reload all Images", new Command() {
+			@Override
+			public void menuSelected(MenuItem selectedItem) {
+				CB_Utils.DB.Database_Core.Parameters val = new CB_Utils.DB.Database_Core.Parameters();
+				val.put("DescriptionImagesUpdated", false);
+				val.put("ImagesUpdated", false);
+				Database.Data.update("Caches", val, "", null);
+			}
+		});
 
 		final Button open = new Button("Open Settings-Window");
 		open.addClickListener(new ClickListener() {

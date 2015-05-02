@@ -143,52 +143,60 @@ public class RpcFunctionsServer {
 			log.info("Export vom ACB!!!");
 
 			for (ExportEntry entry : msg.getExportList()) {
-				switch (entry.changeType) {
-				case Archived:
-					break;
-				case Available:
-					break;
-				case DeleteWaypoint:
-					break;
-				case Found:
-					log.info("New Found Status: " + entry.cacheId);
-					Database.SetFound(entry.cacheId, true);
-					break;
-				case NewWaypoint:
-					log.info("New Waypoint: " + entry.cacheId);
-					WaypointDAO wpdao = new WaypointDAO();
-					wpdao.WriteToDatabase(entry.waypoint);
-					break;
-				case NotArchived:
-					break;
-				case NotAvailable:
-					break;
-				case NotFound:
-					log.info("New not Found Status: " + entry.cacheId);
-					Database.SetFound(entry.cacheId, false);
-					break;
-				case NotesText:
-					log.info("New Notes Text: " + entry.note);
-					Database.SetNote(entry.cacheId, entry.note);
-					break;
-				case NumTravelbugs:
-					break;
-				case SolverText:
-					// Change Solver Text
-					log.info("New Solver Text: " + entry.solver);
-					Database.SetSolver(entry.cacheId, entry.solver);
-					break;
-				case Undefined:
-					break;
-				case WaypointChanged:
-					log.info("Waypoint changed: " + entry.cacheId);
-					wpdao = new WaypointDAO();
-					entry.waypoint.setCheckSum(0); // auf 0 setzen damit der WP in der DB upgedated wird
-					wpdao.UpdateDatabase(entry.waypoint);
-					break;
-				default:
-					break;
+				try {
+					switch (entry.changeType) {
+					case Archived:
+						break;
+					case Available:
+						break;
+					case DeleteWaypoint:
+						break;
+					case Found:
+						log.info("New Found Status: " + entry.cacheId);
+						Database.SetFound(entry.cacheId, true);
+						break;
+					case NewWaypoint:
+						log.info("New Waypoint: " + entry.cacheId + " - " + entry.wpGcCode + " - " + (entry.waypoint != null));
+						if (entry.waypoint != null) {
+							WaypointDAO wpdao = new WaypointDAO();
+							wpdao.WriteToDatabase(entry.waypoint);
+						} else {
+							log.info("Waypoint is null!!!");
+						}
+						break;
+					case NotArchived:
+						break;
+					case NotAvailable:
+						break;
+					case NotFound:
+						log.info("New not Found Status: " + entry.cacheId);
+						Database.SetFound(entry.cacheId, false);
+						break;
+					case NotesText:
+						log.info("New Notes Text: " + entry.note);
+						Database.SetNote(entry.cacheId, entry.note);
+						break;
+					case NumTravelbugs:
+						break;
+					case SolverText:
+						// Change Solver Text
+						log.info("New Solver Text: " + entry.solver);
+						Database.SetSolver(entry.cacheId, entry.solver);
+						break;
+					case Undefined:
+						break;
+					case WaypointChanged:
+						log.info("Waypoint changed: " + entry.cacheId);
+						WaypointDAO wpdao = new WaypointDAO();
+						entry.waypoint.setCheckSum(0); // auf 0 setzen damit der WP in der DB upgedated wird
+						wpdao.UpdateDatabase(entry.waypoint);
+						break;
+					default:
+						break;
 
+					}
+				} catch (Exception ex) {
+					log.error("Error Export to CBS: " + ex.getMessage());
 				}
 			}
 			// TODO Antwort kann Informationen über Konflikte übergeben, ebenfalls als exportList
