@@ -9,115 +9,94 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Map.Entry;
 
-import CB_Core.DB.Database;
-import CB_Utils.DB.CoreCursor;
+import de.cb.sqlite.AlternateDatabase;
+import de.cb.sqlite.CoreCursor;
+import de.cb.sqlite.Parameters;
+import de.cb.sqlite.SQLite;
 
-public class CBServerDB extends Database
-{
+public class CBServerDB extends SQLite {
 
 	Connection myDB = null;
 
-	public CBServerDB(DatabaseType databaseType) throws ClassNotFoundException
-	{
-		super(databaseType);
-
+	CBServerDB(String databasePath, AlternateDatabase alternate) throws ClassNotFoundException {
+		super(databasePath, alternate);
 		System.setProperty("sqlite.purejava", "true");
 		Class.forName("org.sqlite.JDBC");
 	}
 
 	@Override
-	public void Close()
-	{
-		try
-		{
+	public void Close() {
+		try {
 			myDB.close();
 			myDB = null;
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void Initialize()
-	{
-		if (myDB == null)
-		{
+	public void Initialize() {
+		if (myDB == null) {
 			File dbfile = new File(databasePath);
-			if (!dbfile.exists()) Reset();
+			if (!dbfile.exists())
+				Reset();
 
-			try
-			{
+			try {
 				myDB = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
-			}
-			catch (Exception exc)
-			{
+			} catch (Exception exc) {
 				return;
 			}
 		}
 	}
 
 	@Override
-	public void Reset()
-	{
+	public void Reset() {
 		// if exists, delete old database file
 		File file = new File(databasePath);
-		if (file.exists()) file.delete();
+		if (file.exists())
+			file.delete();
 
-		try
-		{
+		try {
 			myDB = DriverManager.getConnection("jdbc:sqlite:" + databasePath);
 			myDB.commit();
 			myDB.close();
 
-		}
-		catch (Exception exc)
-		{
+		} catch (Exception exc) {
 
 		}
 	}
 
 	@Override
-	public CoreCursor rawQuery(String sql, String[] args)
-	{
-		if (myDB == null) return null;
+	public CoreCursor rawQuery(String sql, String[] args) {
+		if (myDB == null)
+			return null;
 		ResultSet rs = null;
 		PreparedStatement statement = null;
-		try
-		{
+		try {
 
 			statement = myDB.prepareStatement(sql);
 
-			if (args != null)
-			{
-				for (int i = 0; i < args.length; i++)
-				{
+			if (args != null) {
+				for (int i = 0; i < args.length; i++) {
 					statement.setString(i + 1, args[i]);
 				}
 			}
 			rs = statement.executeQuery();
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-
 
 		// TODO Hack to get Rowcount
 		ResultSet rs2 = null;
 		int rowcount = 0;
 		PreparedStatement statement2 = null;
-		try
-		{
+		try {
 
 			statement2 = myDB.prepareStatement("select count(*) from (" + sql + ")");
 
-			if (args != null)
-			{
-				for (int i = 0; i < args.length; i++)
-				{
+			if (args != null) {
+				for (int i = 0; i < args.length; i++) {
 					statement2.setString(i + 1, args[i]);
 				}
 			}
@@ -127,12 +106,9 @@ public class CBServerDB extends Database
 
 			rowcount = Integer.parseInt(rs2.getString(1));
 			statement2.close();
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				statement2.close();
 			} catch (SQLException e) {
@@ -145,21 +121,17 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public void execSQL(String sql)
-	{
-		if (myDB == null) return;
+	public void execSQL(String sql) {
+		if (myDB == null)
+			return;
 		Statement statement = null;
-		try
-		{
+		try {
 			statement = myDB.createStatement();
 			statement.execute(sql);
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				statement.close();
 			} catch (SQLException e) {
@@ -171,9 +143,9 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public long update(String tablename, Parameters val, String whereClause, String[] whereArgs)
-	{
-		if (myDB == null) return 0;
+	public long update(String tablename, Parameters val, String whereClause, String[] whereArgs) {
+		if (myDB == null)
+			return 0;
 
 		StringBuilder sql = new StringBuilder();
 
@@ -182,51 +154,41 @@ public class CBServerDB extends Database
 		sql.append(" set");
 
 		int i = 0;
-		for (Entry<String, Object> entry : val.entrySet())
-		{
+		for (Entry<String, Object> entry : val.entrySet()) {
 			i++;
 			sql.append(" ");
 			sql.append(entry.getKey());
 			sql.append("=?");
-			if (i != val.size())
-			{
+			if (i != val.size()) {
 				sql.append(",");
 			}
 		}
 
-		if (!whereClause.isEmpty())
-		{
+		if (!whereClause.isEmpty()) {
 			sql.append(" where ");
 			sql.append(whereClause);
 		}
 		PreparedStatement st = null;
-		try
-		{
+		try {
 			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
-			for (Entry<String, Object> entry : val.entrySet())
-			{
+			for (Entry<String, Object> entry : val.entrySet()) {
 				j++;
 				st.setObject(j, entry.getValue());
 			}
 
-			if (whereArgs != null)
-			{
-				for (int k = 0; k < whereArgs.length; k++)
-				{
+			if (whereArgs != null) {
+				for (int k = 0; k < whereArgs.length; k++) {
 					st.setString(j + k + 1, whereArgs[k]);
 				}
 			}
 
 			return st.executeUpdate();
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			return 0;
-		}
-		finally {
+		} finally {
 			try {
 				st.close();
 			} catch (SQLException e) {
@@ -238,9 +200,9 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public long insert(String tablename, Parameters val)
-	{
-		if (myDB == null) return 0;
+	public long insert(String tablename, Parameters val) {
+		if (myDB == null)
+			return 0;
 		StringBuilder sql = new StringBuilder();
 
 		sql.append("insert into ");
@@ -248,38 +210,32 @@ public class CBServerDB extends Database
 		sql.append(" (");
 
 		int i = 0;
-		for (Entry<String, Object> entry : val.entrySet())
-		{
+		for (Entry<String, Object> entry : val.entrySet()) {
 			i++;
 			sql.append(" ");
 			sql.append(entry.getKey());
-			if (i != val.size())
-			{
+			if (i != val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" ) Values(");
 
-		for (int k = 1; k <= val.size(); k++)
-		{
+		for (int k = 1; k <= val.size(); k++) {
 			sql.append(" ");
 			sql.append("?");
-			if (k < val.size())
-			{
+			if (k < val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" )");
 		PreparedStatement st = null;
-		try
-		{
+		try {
 			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
-			for (Entry<String, Object> entry : val.entrySet())
-			{
+			for (Entry<String, Object> entry : val.entrySet()) {
 				j++;
 				st.setObject(j, entry.getValue());
 			}
@@ -287,12 +243,9 @@ public class CBServerDB extends Database
 			// return st.executeUpdate();
 			return st.execute() ? 0 : 1;
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			return 0;
-		}
-		finally {
+		} finally {
 			try {
 				st.close();
 			} catch (SQLException e) {
@@ -304,40 +257,33 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public long delete(String tablename, String whereClause, String[] whereArgs)
-	{
-		if (myDB == null) return 0;
+	public long delete(String tablename, String whereClause, String[] whereArgs) {
+		if (myDB == null)
+			return 0;
 		StringBuilder sql = new StringBuilder();
 
 		sql.append("delete from ");
 		sql.append(tablename);
 
-		if (!whereClause.isEmpty())
-		{
+		if (!whereClause.isEmpty()) {
 			sql.append(" where ");
 			sql.append(whereClause);
 		}
 		PreparedStatement st = null;
-		try
-		{
+		try {
 			st = myDB.prepareStatement(sql.toString());
 
-			if (whereArgs != null)
-			{
-				for (int i = 0; i < whereArgs.length; i++)
-				{
+			if (whereArgs != null) {
+				for (int i = 0; i < whereArgs.length; i++) {
 					st.setString(i + 1, whereArgs[i]);
 				}
 			}
 
 			return st.executeUpdate();
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			return 0;
-		}
-		finally {
+		} finally {
 			try {
 				st.close();
 			} catch (SQLException e) {
@@ -349,50 +295,41 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public void beginTransaction()
-	{
-		try
-		{
-			if (myDB != null) myDB.setAutoCommit(false);
-		}
-		catch (SQLException e)
-		{
+	public void beginTransaction() {
+		try {
+			if (myDB != null)
+				myDB.setAutoCommit(false);
+		} catch (SQLException e) {
 
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void setTransactionSuccessful()
-	{
-		try
-		{
-			if (myDB != null) myDB.commit();
-		}
-		catch (SQLException e)
-		{
+	public void setTransactionSuccessful() {
+		try {
+			if (myDB != null)
+				myDB.commit();
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void endTransaction()
-	{
-		try
-		{
-			if (myDB != null) myDB.setAutoCommit(true);
-		}
-		catch (SQLException e)
-		{
+	public void endTransaction() {
+		try {
+			if (myDB != null)
+				myDB.setAutoCommit(true);
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
 	}
 
 	@Override
-	public long insertWithConflictReplace(String tablename, Parameters val)
-	{
-		if (myDB == null) return 0;
+	public long insertWithConflictReplace(String tablename, Parameters val) {
+		if (myDB == null)
+			return 0;
 
 		StringBuilder sql = new StringBuilder();
 
@@ -401,50 +338,41 @@ public class CBServerDB extends Database
 		sql.append(" (");
 
 		int i = 0;
-		for (Entry<String, Object> entry : val.entrySet())
-		{
+		for (Entry<String, Object> entry : val.entrySet()) {
 			i++;
 			sql.append(" ");
 			sql.append(entry.getKey());
-			if (i != val.size())
-			{
+			if (i != val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" ) Values(");
 
-		for (int k = 1; k <= val.size(); k++)
-		{
+		for (int k = 1; k <= val.size(); k++) {
 			sql.append(" ");
 			sql.append("?");
-			if (k < val.size())
-			{
+			if (k < val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" )");
 		PreparedStatement st = null;
-		try
-		{
+		try {
 			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
-			for (Entry<String, Object> entry : val.entrySet())
-			{
+			for (Entry<String, Object> entry : val.entrySet()) {
 				j++;
 				st.setObject(j, entry.getValue());
 			}
 
 			return st.executeUpdate();
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			return 0;
-		}
-		finally {
+		} finally {
 			try {
 				st.close();
 			} catch (SQLException e) {
@@ -456,9 +384,9 @@ public class CBServerDB extends Database
 	}
 
 	@Override
-	public long insertWithConflictIgnore(String tablename, Parameters val)
-	{
-		if (myDB == null) return 0;
+	public long insertWithConflictIgnore(String tablename, Parameters val) {
+		if (myDB == null)
+			return 0;
 
 		StringBuilder sql = new StringBuilder();
 
@@ -467,50 +395,41 @@ public class CBServerDB extends Database
 		sql.append(" (");
 
 		int i = 0;
-		for (Entry<String, Object> entry : val.entrySet())
-		{
+		for (Entry<String, Object> entry : val.entrySet()) {
 			i++;
 			sql.append(" ");
 			sql.append(entry.getKey());
-			if (i != val.size())
-			{
+			if (i != val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" ) Values(");
 
-		for (int k = 1; k <= val.size(); k++)
-		{
+		for (int k = 1; k <= val.size(); k++) {
 			sql.append(" ");
 			sql.append("?");
-			if (k < val.size())
-			{
+			if (k < val.size()) {
 				sql.append(",");
 			}
 		}
 
 		sql.append(" )");
 		PreparedStatement st = null;
-		try
-		{
+		try {
 			st = myDB.prepareStatement(sql.toString());
 
 			int j = 0;
-			for (Entry<String, Object> entry : val.entrySet())
-			{
+			for (Entry<String, Object> entry : val.entrySet()) {
 				j++;
 				st.setObject(j, entry.getValue());
 			}
 
 			return st.executeUpdate();
 
-		}
-		catch (SQLException e)
-		{
+		} catch (SQLException e) {
 			return 0;
-		}
-		finally {
+		} finally {
 			try {
 				st.close();
 			} catch (SQLException e) {
@@ -520,33 +439,4 @@ public class CBServerDB extends Database
 		}
 
 	}
-
-	@Override
-	public int getCacheCountInDB(String filename)
-	{
-
-		if (myDB == null) return 0;
-
-		int count = 0;
-		Connection myDB = null;
-		Statement statement = null;
-		try
-		{
-			myDB = DriverManager.getConnection("jdbc:sqlite:" + filename);
-
-			statement = myDB.createStatement();
-			ResultSet result = statement.executeQuery("select count(*) from caches");
-			// result.first();
-			count = result.getInt(1);
-			result.close();
-			statement.close();
-			myDB.close();
-		}
-		catch (SQLException e)
-		{
-			// String s = e.getMessage();
-		}
-		return count;
-	}
-
 }

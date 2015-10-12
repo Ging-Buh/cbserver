@@ -35,24 +35,23 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
+
 import CB_Core.CoreSettingsForward;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.DB.Database;
-import CB_Core.DB.Database.DatabaseType;
 import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Categories;
 import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Plattform;
-import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
 import cb_rpc.Rpc_Server;
-import cb_server.DB.CBServerDB;
+import cb_server.DB.CBServerDatabaseFactory;
 import cb_server.Import.ImportScheduler;
-
-import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
+import de.cb.sqlite.DatabaseFactory;
 
 public class CacheboxServer {
 	public static Logger log;
@@ -261,7 +260,9 @@ public class CacheboxServer {
 	}
 
 	private static void InitialCacheDB() {
-		Database.Data.StartUp(Config.WorkPath + "/cachebox.db3");
+
+		Database.initialDataDB(Config.WorkPath + "/cachebox.db3");
+
 		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
 
 		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
@@ -294,31 +295,12 @@ public class CacheboxServer {
 		Config.Initialize(workPath);
 
 		// hier muss die Config Db initialisiert werden
-		try {
-			Database.Settings = new CBServerDB(DatabaseType.Settings);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		Database.Settings.StartUp(Config.WorkPath + "/User/Config.db3");
+		// Initial database factory and Databases
+		if (!DatabaseFactory.isInitial())
+			new CBServerDatabaseFactory();
+		Database.Inital(Config.WorkPath);
 
 		Config.settings.ReadFromDB();
-
-		try {
-			Database.Data = new CBServerDB(DatabaseType.CacheBox);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		try {
-			Database.FieldNotes = new CBServerDB(DatabaseType.FieldNotes);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
-		if (!FileIO.createDirectory(Config.WorkPath + "/User"))
-			return;
-		Database.FieldNotes.StartUp(Config.WorkPath + "/User/FieldNotes.db3");
-
 		InitialTranslations(SettingsClass.Sel_LanguagePath.getValue());
 
 	}

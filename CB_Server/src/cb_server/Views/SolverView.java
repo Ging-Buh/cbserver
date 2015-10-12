@@ -1,13 +1,5 @@
 package cb_server.Views;
 
-import CB_Core.DB.Database;
-import CB_Core.Solver.Solver;
-import CB_Core.Solver.SolverZeile;
-import CB_Core.Types.Cache;
-import CB_Core.Types.Waypoint;
-import cb_server.Events.SelectedCacheChangedEventList;
-import cb_server.Events.SelectedCacheChangedEventListner;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -15,6 +7,14 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
+
+import CB_Core.DB.Database;
+import CB_Core.Solver.Solver;
+import CB_Core.Solver.SolverZeile;
+import CB_Core.Types.Cache;
+import CB_Core.Types.Waypoint;
+import cb_server.Events.SelectedCacheChangedEventList;
+import cb_server.Events.SelectedCacheChangedEventListner;
 
 public class SolverView extends CB_ViewBase implements SelectedCacheChangedEventListner {
 
@@ -60,7 +60,7 @@ public class SolverView extends CB_ViewBase implements SelectedCacheChangedEvent
 				}
 				solution.setValue(result);
 				if (actCache != null) {
-					Database.SetSolver(actCache.Id, formula.getValue());
+					Database.Data.SetSolver(actCache.Id, formula.getValue());
 				}
 			}
 		});
@@ -73,7 +73,7 @@ public class SolverView extends CB_ViewBase implements SelectedCacheChangedEvent
 	@Override
 	public void SelectedCacheChangedEvent(Cache cache2, Waypoint waypoint, boolean cacheChanged, boolean waypointChanged) {
 		actCache = cache2;
-		formula.setValue(Database.GetSolver(cache2.Id));
+		formula.setValue(Database.Data.GetSolver(cache2.Id));
 		solution.setValue("");
 	}
 }

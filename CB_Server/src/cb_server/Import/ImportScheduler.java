@@ -74,7 +74,7 @@ public class ImportScheduler implements Runnable {
 		log.info("Start Import");
 		if (importRunning) {
 			log.debug("Import already started");
-			// wenn der Import noch läuft, kein 2. mal starten!
+			// wenn der Import noch lï¿½uft, kein 2. mal starten!
 			return;
 		}
 		importRunning = true;
@@ -157,17 +157,17 @@ public class ImportScheduler implements Runnable {
 					System.gc();
 					long startTime = System.currentTimeMillis();
 
-					Database.Data.beginTransaction();
+					Database.Data.db.beginTransaction();
 					//					Database.Data.Query.clear();
 					try {
 
 						importer.importGpx(CB_Core_Settings.PocketQueryFolder.getValue(), ip);
 
-						Database.Data.setTransactionSuccessful();
+						Database.Data.db.setTransactionSuccessful();
 					} catch (Exception exc) {
 						exc.printStackTrace();
 					}
-					Database.Data.endTransaction();
+					Database.Data.db.endTransaction();
 
 					//					if (BreakawayImportThread.isCanceld())
 					//					{

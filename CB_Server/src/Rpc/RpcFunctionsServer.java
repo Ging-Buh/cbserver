@@ -60,10 +60,10 @@ public class RpcFunctionsServer {
 			whereString += " order by c.Id limit " + String.valueOf(msg.getCount()) + " offset " + String.valueOf(msg.getStartIndex());
 			CacheListDAO dao = new CacheListDAO();
 			dao.ReadCacheList(loadedCacheList, joinString, whereString, true, true, false);
-			// geladene CacheList zur Liste der gespeicherten CacheLists hinzufügen
+			// geladene CacheList zur Liste der gespeicherten CacheLists hinzufï¿½gen
 			loadedCacheLists.put(msg.getCategoryId(), loadedCacheList);
 			//xx			} else {
-			// CacheList müsste bereits geladen sein -> nur noch daraus die entsprechenden Caches übertragen
+			// CacheList mï¿½sste bereits geladen sein -> nur noch daraus die entsprechenden Caches ï¿½bertragen
 			//xx				if (loadedCacheLists.containsKey(msg.getCategoryId())) {
 			//xx					loadedCacheList = loadedCacheLists.get(msg.getCategoryId());
 			//xx				}
@@ -90,7 +90,7 @@ public class RpcFunctionsServer {
 					try {
 						Cache cache = cacheList.get(i);
 						log.info("Cache: " + cache.getGcCode());
-						CB_List<LogEntry> logs = Database.Logs(cache);
+						CB_List<LogEntry> logs = Database.Data.Logs(cache);
 						int maxLogCount = 10;
 						int actLogCount = 0;
 						for (int j = 0, m = logs.size(); j < m; j++) {
@@ -100,7 +100,7 @@ public class RpcFunctionsServer {
 							answer.addLog(logs.get(j));
 						}
 						cache.ReloadSpoilerRessources();
-						// URL für den Download der Spoiler setzen
+						// URL fï¿½r den Download der Spoiler setzen
 						if (cache.getSpoilerRessources() != null) {
 							for (int j = 0, m = cache.getSpoilerRessources().size(); j < m; j++) {
 								ImageEntry image = cache.getSpoilerRessources().get(j);
@@ -153,7 +153,7 @@ public class RpcFunctionsServer {
 						break;
 					case Found:
 						log.info("New Found Status: " + entry.cacheId);
-						Database.SetFound(entry.cacheId, true);
+						Database.Data.SetFound(entry.cacheId, true);
 						break;
 					case NewWaypoint:
 						log.info("New Waypoint: " + entry.cacheId + " - " + entry.wpGcCode + " - " + (entry.waypoint != null));
@@ -170,18 +170,18 @@ public class RpcFunctionsServer {
 						break;
 					case NotFound:
 						log.info("New not Found Status: " + entry.cacheId);
-						Database.SetFound(entry.cacheId, false);
+						Database.Data.SetFound(entry.cacheId, false);
 						break;
 					case NotesText:
 						log.info("New Notes Text: " + entry.note);
-						Database.SetNote(entry.cacheId, entry.note);
+						Database.Data.SetNote(entry.cacheId, entry.note);
 						break;
 					case NumTravelbugs:
 						break;
 					case SolverText:
 						// Change Solver Text
 						log.info("New Solver Text: " + entry.solver);
-						Database.SetSolver(entry.cacheId, entry.solver);
+						Database.Data.SetSolver(entry.cacheId, entry.solver);
 						break;
 					case Undefined:
 						break;
@@ -199,8 +199,8 @@ public class RpcFunctionsServer {
 					log.error("Error Export to CBS: " + ex.getMessage());
 				}
 			}
-			// TODO Antwort kann Informationen über Konflikte übergeben, ebenfalls als exportList
-			// für jeden Konflikt wird ein Eintrag (ExportEntry) in dieser Liste übergeben
+			// TODO Antwort kann Informationen ï¿½ber Konflikte ï¿½bergeben, ebenfalls als exportList
+			// fï¿½r jeden Konflikt wird ein Eintrag (ExportEntry) in dieser Liste ï¿½bergeben
 			RpcAnswer answer = new RpcAnswer_ExportChangesToServer(0, null);
 			return answer;
 		}
