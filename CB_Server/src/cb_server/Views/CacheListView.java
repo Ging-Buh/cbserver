@@ -1,48 +1,34 @@
 package cb_server.Views;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.HashMap;
-
-import CB_Core.DB.Database;
-import CB_Core.Enums.CacheTypes;
-import CB_Core.Events.CachListChangedEventList;
-import CB_Core.Events.CacheListChangedEventListner;
-import CB_Core.Types.Cache;
-import CB_Core.Types.CacheList;
-import CB_Core.Types.Cache;
-import CB_Core.Types.Waypoint;
-import cb_server.Events.SelectedCacheChangedEventList;
-import cb_server.Events.SelectedCacheChangedEventListner;
-import cb_server.Views.CacheListView.CacheBean;
 
 import com.vaadin.data.Item;
 import com.vaadin.data.Property;
 import com.vaadin.data.Property.ValueChangeEvent;
 import com.vaadin.data.Property.ValueChangeListener;
-import com.vaadin.data.util.BeanContainer;
 import com.vaadin.data.util.BeanItem;
 import com.vaadin.data.util.BeanItemContainer;
 import com.vaadin.server.ExternalResource;
 import com.vaadin.server.Resource;
-import com.vaadin.server.SessionDestroyEvent;
-import com.vaadin.server.SessionDestroyListener;
-import com.vaadin.server.ThemeResource;
 import com.vaadin.ui.Component;
-import com.vaadin.ui.CustomComponent;
 import com.vaadin.ui.Embedded;
 import com.vaadin.ui.Label;
-import com.vaadin.ui.Panel;
 import com.vaadin.ui.Table;
-import com.vaadin.ui.VerticalLayout;
+
+import CB_Core.Database;
+import CB_Core.Types.Cache;
+import CB_Core.Types.Waypoint;
+import cb_server.Events.SelectedCacheChangedEventList;
+import cb_server.Events.SelectedCacheChangedEventListner;
 
 public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEventListner {
 
 	private static final long serialVersionUID = -8341714748837951953L;
 	public Table table;
-	private CacheContainer beans;
-	private HashMap<Long, CacheBean> cacheBeans = new HashMap<Long, CacheListView.CacheBean>();
-	private String host;
+	private final CacheContainer beans;
+	private final HashMap<Long, CacheBean> cacheBeans = new HashMap<Long, CacheListView.CacheBean>();
+	private final String host;
 
 	public CacheListView() {
 		super();
@@ -88,7 +74,7 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		});
 		/*		table.addGeneratedColumn("icon", new Table.ColumnGenerator() {
 					private static final long serialVersionUID = 5199037506976926798L;
-
+		
 					@Override
 					public Object generateCell(Table source, Object itemId, Object columnId) {
 						Cache cache = null;
@@ -172,6 +158,7 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		 * Generates the cell containing the Date value. The column is
 		 * irrelevant in this use case.
 		 */
+		@Override
 		public Component generateCell(Table source, Object itemId, Object columnId) {
 			Item it = source.getItem(itemId);
 			it.getItemPropertyIds();
@@ -195,7 +182,7 @@ public class CacheListView extends CB_ViewBase implements SelectedCacheChangedEv
 		private String Name;
 		private String State;
 		private String Country;
-		private Cache cache;
+		private final Cache cache;
 		private Resource icon;
 
 		public CacheBean(Cache cacheLite) {

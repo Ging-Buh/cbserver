@@ -11,22 +11,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import CB_Core.FilterProperties;
-import CB_Core.DAO.CacheListDAO;
-import CB_Core.DB.Database;
-import CB_Core.Events.CachListChangedEventList;
-import CB_Core.Settings.CB_Core_Settings;
-import CB_Core.Types.CacheList;
-import cb_server.Import.ImportScheduler;
-import cb_server.Views.CB_ViewBase;
-import cb_server.Views.CacheListView;
-import cb_server.Views.DescriptionView;
-import cb_server.Views.LogView;
-import cb_server.Views.MapView;
-import cb_server.Views.ProgressView;
-import cb_server.Views.SolverView;
-import cb_server.Views.WaypointView;
-
 import com.vaadin.annotations.PreserveOnRefresh;
 import com.vaadin.annotations.Push;
 import com.vaadin.annotations.Theme;
@@ -49,6 +33,21 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.VerticalSplitPanel;
 import com.vaadin.ui.Window;
 
+import CB_Core.CB_Core_Settings;
+import CB_Core.CacheListChangedEventList;
+import CB_Core.Database;
+import CB_Core.FilterProperties;
+import CB_Core.DAO.CacheListDAO;
+import CB_Core.Types.CacheList;
+import cb_server.Import.ImportScheduler;
+import cb_server.Views.CB_ViewBase;
+import cb_server.Views.CacheListView;
+import cb_server.Views.DescriptionView;
+import cb_server.Views.LogView;
+import cb_server.Views.MapView;
+import cb_server.Views.ProgressView;
+import cb_server.Views.SolverView;
+import cb_server.Views.WaypointView;
 import de.steinwedel.messagebox.ButtonId;
 import de.steinwedel.messagebox.Icon;
 import de.steinwedel.messagebox.MessageBox;
@@ -125,7 +124,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 		MenuItem miReloadImages = miImport.addItem("Reload all Images", new Command() {
 			@Override
 			public void menuSelected(MenuItem selectedItem) {
-				CB_Utils.DB.Database_Core.Parameters val = new CB_Utils.DB.Database_Core.Parameters();
+				de.cb.sqlite.Database_Core.Parameters val = new de.cb.sqlite.Database_Core.Parameters();
 				val.put("DescriptionImagesUpdated", false);
 				val.put("ImagesUpdated", false);
 				Database.Data.update("Caches", val, "", null);
@@ -267,7 +266,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 			//			for (CB_ViewBase view : views) {
 			//				view.cacheListChanged(cacheList);
 			//			}
-			CachListChangedEventList.Call();
+			CacheListChangedEventList.Call();
 		}
 
 	}

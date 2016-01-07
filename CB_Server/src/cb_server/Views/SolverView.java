@@ -1,13 +1,5 @@
 package cb_server.Views;
 
-import CB_Core.DB.Database;
-import CB_Core.Solver.Solver;
-import CB_Core.Solver.SolverZeile;
-import CB_Core.Types.Cache;
-import CB_Core.Types.Waypoint;
-import cb_server.Events.SelectedCacheChangedEventList;
-import cb_server.Events.SelectedCacheChangedEventListner;
-
 import com.vaadin.ui.Button;
 import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
@@ -15,6 +7,14 @@ import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.TextArea;
 import com.vaadin.ui.VerticalLayout;
+
+import CB_Core.Database;
+import CB_Core.Solver.Solver;
+import CB_Core.Solver.SolverZeile;
+import CB_Core.Types.Cache;
+import CB_Core.Types.Waypoint;
+import cb_server.Events.SelectedCacheChangedEventList;
+import cb_server.Events.SelectedCacheChangedEventListner;
 
 public class SolverView extends CB_ViewBase implements SelectedCacheChangedEventListner {
 

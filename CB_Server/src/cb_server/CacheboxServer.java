@@ -35,12 +35,16 @@ import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.badlogic.gdx.Files.FileType;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
+
+import CB_Core.CB_Core_Settings;
 import CB_Core.CoreSettingsForward;
+import CB_Core.Database;
+import CB_Core.Database.DatabaseType;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
-import CB_Core.DB.Database;
-import CB_Core.DB.Database.DatabaseType;
-import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Types.Categories;
 import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Plattform;
@@ -49,10 +53,6 @@ import Rpc.RpcFunctionsServer;
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
 import cb_server.Import.ImportScheduler;
-
-import com.badlogic.gdx.Files.FileType;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.backends.lwjgl.LwjglFiles;
 
 public class CacheboxServer {
 	public static Logger log;

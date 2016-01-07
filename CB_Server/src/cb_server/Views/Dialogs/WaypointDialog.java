@@ -1,25 +1,26 @@
 package cb_server.Views.Dialogs;
 
-import CB_Core.Enums.CacheTypes;
-import CB_Core.Types.Waypoint;
-import CB_Locator.Coordinate;
 import com.vaadin.ui.Button;
+import com.vaadin.ui.Button.ClickEvent;
 import com.vaadin.ui.Button.ClickListener;
 import com.vaadin.ui.ComboBox;
 import com.vaadin.ui.GridLayout;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.VerticalLayout;
-import com.vaadin.ui.Button.ClickEvent;
+
+import CB_Core.CacheTypes;
+import CB_Core.Types.Waypoint;
+import CB_Locator.Coordinate;
 
 public class WaypointDialog extends ButtonDialog {
 	public interface ReturnListner {
 		public void returnedWP(Waypoint wp);
 	}
 
-	private ReturnListner returnListner;
+	private final ReturnListner returnListner;
 
 	private static final long serialVersionUID = 8222163724284799469L;
-	private Waypoint waypoint;
+	private final Waypoint waypoint;
 	private Coordinate coord;
 	private Button bCoord;
 	private TextField tfName;
@@ -33,7 +34,7 @@ public class WaypointDialog extends ButtonDialog {
 		this.coord = waypoint.Pos;
 		this.returnListner = returnListener;
 	}
-	
+
 	@Override
 	protected void createContent(VerticalLayout content) {
 		GridLayout layoutContent = new GridLayout();
@@ -44,6 +45,7 @@ public class WaypointDialog extends ButtonDialog {
 		layoutContent.addComponent(bCoord);
 		bCoord.addClickListener(new ClickListener() {
 			private static final long serialVersionUID = 252870818782021184L;
+
 			@Override
 			public void buttonClick(ClickEvent event) {
 				CoordinateDialog dial = new CoordinateDialog(waypoint.Pos, new CoordinateDialog.ReturnListner() {
@@ -58,7 +60,7 @@ public class WaypointDialog extends ButtonDialog {
 				WaypointDialog.this.getUI().addWindow(dial);
 			}
 		});
-		
+
 		tfName = new TextField();
 		tfName.setCaption("Titel:");
 		tfName.setValue(waypoint.getTitle());
@@ -104,7 +106,7 @@ public class WaypointDialog extends ButtonDialog {
 		waypoint.setDescription(tfDescription.getValue());
 		waypoint.setClue(tfClue.getValue());
 		waypoint.Type = (CacheTypes) cbTyp.getValue();
-		waypoint.Pos=new Coordinate(coord);
+		waypoint.Pos = new Coordinate(coord);
 		if (returnListner != null) {
 			returnListner.returnedWP(waypoint);
 		}

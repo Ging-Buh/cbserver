@@ -2,10 +2,6 @@ package cb_server.Events;
 
 import java.util.ArrayList;
 
-import CB_Core.CoreSettingsForward;
-import CB_Core.DB.Database;
-import CB_Core.Enums.CacheTypes;
-import CB_Core.Settings.CB_Core_Settings;
 import CB_Core.Solver.Solver;
 import CB_Core.Solver.SolverCacheInterface;
 import CB_Core.Types.Cache;
@@ -20,7 +16,7 @@ public class SelectedCacheChangedEventList implements SolverCacheInterface {
 	public SelectedCacheChangedEventList() {
 		Solver.solverCacheInterface = this;
 	}
-	
+
 	public static void Add(SelectedCacheChangedEventListner event) {
 		synchronized (list) {
 			if (!list.contains(event))
@@ -40,17 +36,15 @@ public class SelectedCacheChangedEventList implements SolverCacheInterface {
 				if (event == null)
 					continue;
 				// remove Detail Info from old selectedCache
-				if ((selectedCache != cache) && (selectedCache != null) && (selectedCache.detail != null))
-				{
+				if ((selectedCache != cache) && (selectedCache != null) && (selectedCache.detail != null)) {
 					selectedCache.deleteDetail(false);
 				}
-				
+
 				selectedCache = cache;
 				selectedWaypoint = waypoint;
-				
+
 				// load Detail Info if not available
-				if (selectedCache.detail == null)
-				{
+				if (selectedCache.detail == null) {
 					selectedCache.loadDetail();
 				}
 
@@ -69,7 +63,7 @@ public class SelectedCacheChangedEventList implements SolverCacheInterface {
 				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint, true, false);
 			}
 		}
-		
+
 	}
 
 	// SelectedWaypoint has not changed but information of cache
@@ -81,7 +75,7 @@ public class SelectedCacheChangedEventList implements SolverCacheInterface {
 				event.SelectedCacheChangedEvent(selectedCache, selectedWaypoint, false, true);
 			}
 		}
-		
+
 	}
 
 	public static Cache getCache() {

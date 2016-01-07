@@ -10,8 +10,8 @@ import java.sql.Statement;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import CB_Core.DB.Database;
-import CB_Utils.DB.CoreCursor;
+import CB_Core.Database;
+import de.cb.sqlite.CoreCursor;
 
 public class CBServerDBPostgre extends Database {
 	Connection myDB = null;
@@ -132,7 +132,7 @@ public class CBServerDBPostgre extends Database {
 		sql = sql.replaceAll("ntext", "text");
 		sql = sql.replaceAll("integer not null primary key autoincrement", "Serial");
 		sql = sql.replaceAll("datetime", "timestamp");
-		
+
 		Statement statement;
 		try {
 			statement = myDB.createStatement();
@@ -177,7 +177,7 @@ public class CBServerDBPostgre extends Database {
 			// Anpassen der Statements an postgre
 			// [..] kennt Postgre nicht
 			ssql = ssql.replaceAll("\\[", "").replaceAll("\\]", "");
-			
+
 			PreparedStatement st = myDB.prepareStatement(ssql);
 
 			int j = 0;

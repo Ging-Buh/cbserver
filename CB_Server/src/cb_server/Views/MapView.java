@@ -18,14 +18,14 @@ import org.vaadin.addon.leaflet.shared.Bounds;
 import org.vaadin.addon.leaflet.shared.Control;
 import org.vaadin.addon.leaflet.shared.Point;
 
-import CB_Core.DB.Database;
+import com.google.gwt.dev.util.collect.HashMap;
+import com.vaadin.server.ExternalResource;
+
+import CB_Core.Database;
 import CB_Core.Types.Cache;
 import CB_Core.Types.Waypoint;
 import Rpc.RpcFunctionsServer;
 import cb_server.Events.SelectedCacheChangedEventList;
-
-import com.google.gwt.dev.util.collect.HashMap;
-import com.vaadin.server.ExternalResource;
 
 public class MapView extends CB_ViewBase {
 
