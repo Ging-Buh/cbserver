@@ -48,6 +48,7 @@ import CB_Core.DAO.CacheListDAO;
 import CB_Core.Types.Categories;
 import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Plattform;
+import CB_Utils.Settings.SettingModus;
 import CB_Utils.Util.FileIO;
 import Rpc.RpcFunctionsServer;
 import cb_rpc.Rpc_Server;
@@ -279,7 +280,8 @@ public class CacheboxServer {
 
 		if (Config.settings != null && Config.settings.isLoaded())
 			return;
-
+		// make Setting for GC Api Key visible to input API Key by copy/paste
+		CB_Core_Settings.GcAPI.changeSettingsModus(SettingModus.Normal);
 		// Read Config
 		String workPath = "cachebox";
 		// nachschauen ob im aktuellen Ordner eine cachebox.db3 vorhanden ist und in diesem Fall den aktuellen Ordner als WorkPath verwenden
