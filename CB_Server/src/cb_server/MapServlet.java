@@ -35,7 +35,7 @@ import org.mapsforge.map.reader.MapDatabase;
 import org.mapsforge.map.rendertheme.ExternalRenderTheme;
 
 import CB_Locator.LocatorSettings;
-import CB_Utils.Util.iChanged;
+import CB_Utils.Util.IChanged;
 import de.Map.DesktopManager;
 
 public class MapServlet extends HttpServlet {
@@ -54,14 +54,14 @@ public class MapServlet extends HttpServlet {
 
 		setMapSetting();
 
-		CBS_Settings.CBS_Mapsforge_Map.addChangedEventListner(MapsettingChangedListner);
-		LocatorSettings.MapsforgeDayTheme.addChangedEventListner(MapsettingChangedListner);
+		CBS_Settings.CBS_Mapsforge_Map.addChangedEventListener(MapsettingChangedListner);
+		LocatorSettings.MapsforgeDayTheme.addChangedEventListener(MapsettingChangedListner);
 
 		GraphicFactory Mapsforge_Factory = AwtGraphicFactory.INSTANCE;
 		databaseRenderer = new CachedDatabaseRenderer(MF_mapDatabase, Mapsforge_Factory);
 	}
 
-	iChanged MapsettingChangedListner = new iChanged() {
+	IChanged MapsettingChangedListner = new IChanged() {
 
 		@Override
 		public void isChanged() {

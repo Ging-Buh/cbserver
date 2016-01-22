@@ -6,11 +6,11 @@ import org.slf4j.LoggerFactory;
 import com.vaadin.ui.CustomComponent;
 
 import CB_Core.CacheListChangedEventList;
-import CB_Core.CacheListChangedEventListner;
+import CB_Core.CacheListChangedEventListener;
 import cb_server.Events.SelectedCacheChangedEventList;
 import cb_server.Events.SelectedCacheChangedEventListner;
 
-public abstract class CB_ViewBase extends CustomComponent implements SelectedCacheChangedEventListner, CacheListChangedEventListner {
+public abstract class CB_ViewBase extends CustomComponent implements SelectedCacheChangedEventListner, CacheListChangedEventListener {
 
 	private static final long serialVersionUID = 9051645487161218696L;
 	protected Logger log;

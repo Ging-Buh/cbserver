@@ -20,7 +20,7 @@ import CB_Core.Database;
 import CB_Locator.LocatorSettings;
 import CB_UI_Base.settings.CB_UI_Base_Settings;
 import CB_Utils.Settings.SettingsList;
-import CB_Utils.Util.iChanged;
+import CB_Utils.Util.IChanged;
 import cb_rpc.Settings.CB_Rpc_Settings;
 import cb_server.Import.ImportScheduler;
 import de.cb.sqlite.Database_Core;
@@ -32,7 +32,7 @@ public class SettingsClass extends SettingsList implements LocatorSettings, CBS_
 	public SettingsClass() {
 		super();
 
-		PQImportInterval.addChangedEventListner(new iChanged() {
+		PQImportInterval.addChangedEventListener(new IChanged() {
 			@Override
 			public void isChanged() {
 				ImportScheduler.importScheduler.start();
