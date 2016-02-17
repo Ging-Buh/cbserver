@@ -70,7 +70,7 @@ public class DescriptionView extends Panel implements SelectedCacheChangedEventL
 
 		do {
 			Attributes attribute = attrs.next();
-			File result = new File(Config.WorkPath + "/data/Attributes/" + attribute.getImageName() + ".png");
+			File result = new File(Config.mWorkPath + "/data/Attributes/" + attribute.getImageName() + ".png");
 
 			sb.append("<form action=\"Attr\">");
 			sb.append("<input name=\"Button\" type=\"image\" src=\"file://" + result.getAbsolutePath() + "\" value=\" " + attribute.getImageName() + " \">");

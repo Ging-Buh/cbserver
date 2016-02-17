@@ -36,6 +36,7 @@ import com.vaadin.ui.Window;
 import CB_Core.CB_Core_Settings;
 import CB_Core.CacheListChangedEventList;
 import CB_Core.Database;
+import CB_Core.FilterInstances;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.Types.CacheList;
@@ -227,7 +228,7 @@ public class CB_ServerUI extends UI implements DetachListener {
 		footer.setContent(progressView);
 
 		// CacheList laden
-		lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		lastFilter = FilterInstances.ALL;
 		Thread loadCacheListThread = new Thread(new LoadCacheListThread());
 		loadCacheListThread.start();
 	}

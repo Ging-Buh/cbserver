@@ -1,6 +1,5 @@
 package cb_server.Import;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.Executors;
@@ -14,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import CB_Core.CB_Core_Settings;
 import CB_Core.CacheListChangedEventList;
 import CB_Core.Database;
+import CB_Core.FilterInstances;
 import CB_Core.FilterProperties;
 import CB_Core.Api.ApiGroundspeak_GetPocketQueryData;
 import CB_Core.Api.GroundspeakAPI;
@@ -23,6 +23,8 @@ import CB_Core.DAO.CacheListDAO;
 import CB_Core.DAO.PocketqueryDAO;
 import CB_Core.Import.Importer;
 import CB_Utils.Util.FileIO;
+import CB_Utils.fileProvider.File;
+import CB_Utils.fileProvider.FileFactory;
 import cb_server.CacheboxServer;
 import cb_server.Config;
 
@@ -181,7 +183,7 @@ public class ImportScheduler implements Runnable {
 					System.gc();
 
 					// del alten entpackten Ordener wenn vorhanden?
-					File directory = new File(CB_Core_Settings.PocketQueryFolder.getValue());
+					File directory = FileFactory.createFile(CB_Core_Settings.PocketQueryFolder.getValue());
 					File[] filelist = directory.listFiles();
 					for (File tmp : filelist) {
 						if (tmp.isDirectory()) {
@@ -239,7 +241,7 @@ public class ImportScheduler implements Runnable {
 		ip.ProgressInkrement("importImages", "Importing Images finished", true);
 		// Refresh Cache List
 		log.info("Load CacheList!");
-		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		FilterProperties lastFilter = FilterInstances.ALL;
 		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 
 		CacheListDAO cacheListDAO = new CacheListDAO();

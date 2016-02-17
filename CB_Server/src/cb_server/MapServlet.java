@@ -15,7 +15,6 @@
  */
 package cb_server;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -36,6 +35,8 @@ import org.mapsforge.map.rendertheme.ExternalRenderTheme;
 
 import CB_Locator.LocatorSettings;
 import CB_Utils.Util.IChanged;
+import CB_Utils.fileProvider.File;
+import CB_Utils.fileProvider.FileFactory;
 import de.Map.DesktopManager;
 
 public class MapServlet extends HttpServlet {
@@ -70,8 +71,8 @@ public class MapServlet extends HttpServlet {
 	};
 
 	private void setMapSetting() {
-		mapFile = new File(CBS_Settings.CBS_Mapsforge_Map.getValue());
-		File RenderThemeFile = new File(LocatorSettings.MapsforgeDayTheme.getValue());
+		mapFile = FileFactory.createFile(CBS_Settings.CBS_Mapsforge_Map.getValue());
+		File RenderThemeFile = FileFactory.createFile(LocatorSettings.MapsforgeDayTheme.getValue());
 		renderTheme = null;
 		try {
 			renderTheme = new ExternalRenderTheme(RenderThemeFile);

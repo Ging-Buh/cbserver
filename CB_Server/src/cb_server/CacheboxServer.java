@@ -43,6 +43,7 @@ import CB_Core.CB_Core_Settings;
 import CB_Core.CoreSettingsForward;
 import CB_Core.Database;
 import CB_Core.Database.DatabaseType;
+import CB_Core.FilterInstances;
 import CB_Core.FilterProperties;
 import CB_Core.DAO.CacheListDAO;
 import CB_Core.Types.Categories;
@@ -50,6 +51,7 @@ import CB_Translation_Base.TranslationEngine.Translation;
 import CB_Utils.Plattform;
 import CB_Utils.Settings.SettingModus;
 import CB_Utils.Util.FileIO;
+import CB_Utils.fileProvider.ServerFileFactory;
 import Rpc.RpcFunctionsServer;
 import cb_rpc.Rpc_Server;
 import cb_server.DB.CBServerDB;
@@ -66,6 +68,8 @@ public class CacheboxServer {
 	private static final int LOG_DEBUG = 3;
 
 	public static void main(String[] args) throws Exception {
+
+		new ServerFileFactory();
 
 		Plattform.used = Plattform.Server;
 		initialGdxLogger();
@@ -128,14 +132,14 @@ public class CacheboxServer {
 		// Images
 		WebAppContext webappImages = new WebAppContext();
 		webappImages.setDescriptor("");
-		webappImages.setResourceBase(Config.WorkPath + "/repository/images");
+		webappImages.setResourceBase(Config.mWorkPath + "/repository/images");
 		webappImages.setContextPath("/images");
 		webappImages.setParentLoaderPriority(true);
 
 		// Spoiler
 		WebAppContext webappSpoiler = new WebAppContext();
 		webappSpoiler.setDescriptor("");
-		webappSpoiler.setResourceBase(Config.WorkPath + "/repository/spoilers");
+		webappSpoiler.setResourceBase(Config.mWorkPath + "/repository/spoilers");
 		webappSpoiler.setContextPath("/spoilers");
 		webappSpoiler.setParentLoaderPriority(true);
 
@@ -262,8 +266,8 @@ public class CacheboxServer {
 	}
 
 	private static void InitialCacheDB() {
-		Database.Data.StartUp(Config.WorkPath + "/cachebox.db3");
-		FilterProperties lastFilter = new FilterProperties(FilterProperties.presets[0].toString());
+		Database.Data.StartUp(Config.mWorkPath + "/cachebox.db3");
+		FilterProperties lastFilter = FilterInstances.ALL;
 
 		String sqlWhere = lastFilter.getSqlWhere(CB_Core_Settings.GcLogin.getValue());
 		CoreSettingsForward.Categories = new Categories();
@@ -302,7 +306,7 @@ public class CacheboxServer {
 			e.printStackTrace();
 		}
 
-		Database.Settings.StartUp(Config.WorkPath + "/User/Config.db3");
+		Database.Settings.StartUp(Config.mWorkPath + "/User/Config.db3");
 
 		Config.settings.ReadFromDB();
 
@@ -317,9 +321,9 @@ public class CacheboxServer {
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
-		if (!FileIO.createDirectory(Config.WorkPath + "/User"))
+		if (!FileIO.createDirectory(Config.mWorkPath + "/User"))
 			return;
-		Database.FieldNotes.StartUp(Config.WorkPath + "/User/FieldNotes.db3");
+		Database.FieldNotes.StartUp(Config.mWorkPath + "/User/FieldNotes.db3");
 
 		InitialTranslations(SettingsClass.Sel_LanguagePath.getValue());
 
@@ -338,7 +342,7 @@ public class CacheboxServer {
 
 		lastLoadedTranslation = lang;
 
-		new Translation(Config.WorkPath, FileType.Classpath);
+		new Translation(Config.mWorkPath, FileType.Classpath);
 		try {
 			Translation.LoadTranslation(lang);
 		} catch (IOException e) {
