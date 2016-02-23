@@ -167,7 +167,7 @@ public class ServerFile extends File {
 
 		int index = 0;
 		for (String s : list) {
-			ret[index++] = new ServerFile(s);
+			ret[index++] = new ServerFile(this, s);
 		}
 		return ret;
 	}
