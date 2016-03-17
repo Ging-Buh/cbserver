@@ -99,7 +99,7 @@ public class RpcFunctionsServer {
 								break;
 							answer.addLog(logs.get(j));
 						}
-						cache.ReloadSpoilerRessources();
+						cache.loadSpoilerRessources();
 						// URL für den Download der Spoiler setzen
 						if (cache.getSpoilerRessources() != null) {
 							for (int j = 0, m = cache.getSpoilerRessources().size(); j < m; j++) {
